@@ -61,14 +61,14 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date):
         'crs': crs,
         'grids': grid,
         'measurements': {    
-            'band_1': {
-                'path': os.path.join(bands_path, file_name, 'band_1.tif'),
+            'red': {
+                'path': os.path.join(bands_path, file_name, 'red.tif'),
             },
-            'band_2': {
-                'path': os.path.join(bands_path, file_name, 'band_2.tif'),
+            'green': {
+                'path': os.path.join(bands_path, file_name, 'green.tif'),
             },
-            'band_3': {
-                'path': os.path.join(bands_path, file_name, 'band_3.tif'),
+            'blue': {
+                'path': os.path.join(bands_path, file_name, 'blue.tif'),
             },
         },
         'properties': {
