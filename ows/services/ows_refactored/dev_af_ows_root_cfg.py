@@ -21,15 +21,19 @@ ows_cfg = {
                 "horizontal_coord": "x",
                 "vertical_coord": "y",
             },
+            "EPSG:29193": {  # SAD69 / Brazil Polyconic (deprecated) 
+                "geographic": False,
+                "horizontal_coord": "x",
+                "vertical_coord": "y",
+            },
         },
         "allowed_urls": [
-            "https://ows.dev.digitalearth.africa",
-            "https://ows-latest.dev.digitalearth.africa",
+            "http://localhost:8000/",
         ],
         # Metadata to go straight into GetCapabilities documents
         "title": "Cuborizonte - OGC Web Services",
         "abstract": """Cuborizonte OGC Web Services""",
-        "info_url": "digitalearthafrica.org/",
+        "info_url": "/",
         "keywords": [
             "remote sensing",
             "time-series",
@@ -40,19 +44,19 @@ ows_cfg = {
             "organisation": "Cuborizonte - UFMG",
             "position": "",
             "address": {
-                "type": "postal",
-                "address": "GPO Box 378",
-                "city": "Canberra",
-                "state": "ACT",
-                "postcode": "2609",
-                "country": "Australia",
+                "type": "",
+                "address": "",
+                "city": "Belo Horizonte",
+                "state": "MG",
+                "postcode": "",
+                "country": "Brazil",
             },
-            "telephone": "+61 2 6249 9111",
+            "telephone": "",
             "fax": "",
-            "email": "info@digitalearthafrica.org",
+            "email": "",
         },
         "fees": "",
-        "access_constraints": "© Commonwealth of Australia (Geoscience Australia) 2018. "
+        "access_constraints": ""
         "This product is released under the Creative Commons Attribution 4.0 International Licence. "
         "http://creativecommons.org/licenses/by/4.0/legalcode",
         "translations_directory": "/env/config/ows_refactored/translations",
@@ -62,7 +66,7 @@ ows_cfg = {
     },  # END OF global SECTION
     "wms": {
         # Config for WMS service, for all products/layers
-        "s3_aws_zone": "af-south-1",
+        "s3_aws_zone": "sa-east-1",
         "max_width": 512,
         "max_height": 512,
     },  # END OF wms SECTION
@@ -80,7 +84,7 @@ ows_cfg = {
                             "abstract": "Surface reflectance",
                             "layers": [
                                 {
-                                    "title": "Daily surface reflectance",
+                                    "title": "Daily      reflectance",
                                     "abstract": "Daily surface reflectance",
                                     "layers": [
                                         {
@@ -120,7 +124,7 @@ ows_cfg = {
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.aerial.layer",
+                                    "include": "ows_refactored.aerial.bh_aerial_1999_cfg.layer",
                                     "type": "python",
                                 },
                     ],

@@ -5,13 +5,13 @@ from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 layer = {
     "title": "Imagem Aérea de Belo Horizonte - 1999",
-    "name": "aerial_image_1999",
+    "name": "bh_aerial_image_1999",
     "abstract": """
 Imagem aérea de Belo Horizonte, Minas Gerais, Brasil, capturada em 1999. Esta imagem oferece uma visão detalhada da cidade em 1999 com uma alta resolução espacial.
 
 Licença: CC-BY-4.0
 """,
-    "product_name": "aerial_image_1999",
+    "product_name": "bh_aerial_image_1999",
     "bands": bands_bh_aerial_1999,
     "resource_limits": reslim_bh_images,  # Defina um limite de recursos apropriado
     "image_processing": {

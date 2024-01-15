@@ -21,9 +21,9 @@ style_bh_aerial_1999_inverted = {
     "title": "Color Inversion",
     "abstract": "Inverted colors of the red, green, and blue bands",
     "components": {
-        "red": {"red": -1.0, "offset": 255},
-        "green": {"green": -1.0, "offset": 255},
-        "blue": {"blue": -1.0, "offset": 255},
+        "red": {"red": -1.0},
+        "green": {"green": -1.0},
+        "blue": {"blue": -1.0},
     },
     "scale_range": [0.0, 255.0],
 }
@@ -59,7 +59,7 @@ style_bh_aerial_1999_pure_red = {
     "name": "red",
     "title": "Red",
     "abstract": "Red band",
-    "components": {"red": {"red": 1.0}, "red": {"red": 1.0}, "blue": {"red": 1.0}},
+    "components": {"red": {"red": 1.0}, "green": {"green": 0.0}, "blue": {"blue": 0.0}},
     "scale_range": [0.0, 255.0],
 }
 
@@ -67,7 +67,7 @@ style_bh_aerial_1999_pure_green = {
     "name": "green",
     "title": "Green",
     "abstract": "Green band",
-    "components": {"red": {"green": 1.0}, "green": {"green": 1.0}, "blue": {"green": 1.0}},
+    "components": {"red": {"red": 0.0}, "green": {"green": 1.0}, "blue": {"blue": 0.0}},
     "scale_range": [0.0, 255.0],
 }
 
@@ -75,7 +75,7 @@ style_bh_aerial_1999_pure_blue = {
     "name": "blue",
     "title": "Blue",
     "abstract": "Blue band",
-    "components": {"red": {"blue": 1.0}, "green": {"blue": 1.0}, "blue": {"blue": 1.0}},
+    "components": {"red": {"red": 0.0}, "green": {"green": 0.0}, "blue": {"blue": 1.0}},
     "scale_range": [0.0, 255.0],
 }
 
