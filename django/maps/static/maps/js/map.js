@@ -5,6 +5,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 var drawnRectangle;
+var drawnBounds;
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
@@ -33,6 +34,7 @@ map.on('draw:created', function (e) {
         map.removeLayer(drawnRectangle);
     }
     drawnRectangle = e.layer;
+    drawnBounds = e.layer.getBounds();
     map.addLayer(drawnRectangle);
 
     // Obter as coordenadas do retângulo
@@ -170,54 +172,67 @@ function exibirImagemNoMapa() {
 
 
 
-function calcularBboxWidthHeight() {
-    // Obter as coordenadas do formulário e convertê-las para números
-    var latitudeInicial = parseFloat(document.getElementById('latitude_inicial').value);
-    var longitudeInicial = parseFloat(document.getElementById('longitude_inicial').value);
-    var latitudeFinal = parseFloat(document.getElementById('latitude_final').value);
-    var longitudeFinal = parseFloat(document.getElementById('longitude_final').value);
 
-    // Calcular bbox
-    var bbox = [
-        Math.max(longitudeInicial, longitudeFinal),
-        Math.max(latitudeInicial, latitudeFinal),
-        Math.min(longitudeInicial, longitudeFinal),
-        Math.min(latitudeInicial, latitudeFinal),
-    ];
+/*
+function addWMSLayer() {
+    if (!drawnBounds) {
+        alert("Por favor, desenhe um retângulo no mapa primeiro.");
+        return;
+    }
 
-    // Calcular width e height mantendo a proporção
-    var width = Math.abs(longitudeFinal - longitudeInicial);
-    var height = Math.abs(latitudeFinal - latitudeInicial);
+    function updateWMSLayer() {
+        var southWest = drawnBounds.getSouthWest();
+        var northEast = drawnBounds.getNorthEast();
 
-    return { bbox, width, height };
+        var southWest3857 = L.CRS.EPSG3857.project(southWest);
+        var northEast3857 = L.CRS.EPSG3857.project(northEast);
+
+        var bbox = [southWest3857.x, southWest3857.y, northEast3857.x, northEast3857.y].join(',');
+
+        // Calcula a resolução da imagem com base no zoom
+        var zoom = map.getZoom();
+        var width = Math.round((northEast3857.x - southWest3857.x) / Math.pow(2, 18 - zoom));
+        var height = Math.round((northEast3857.y - southWest3857.y) / Math.pow(2, 18 - zoom));
+
+        // Remove a sobreposição de imagem anterior, se houver
+        if (window.wmsOverlay) {
+            map.removeLayer(window.wmsOverlay);
+        }
+
+        // Constrói a URL para a imagem WMS
+        var imageUrl = 'http://localhost:8000/?service=WMS&request=GetMap&layers=bh_aerial_image_1999&styles=&format=image/png&transparent=true&version=1.3.0&width=' + width + '&height=' + height + '&crs=EPSG:3857&bbox=' + bbox;
+
+        // Adiciona a sobreposição de imagem WMS
+        window.wmsOverlay = L.imageOverlay(imageUrl, drawnBounds).addTo(map);
+    }
+
+    // Atualiza a camada WMS quando o zoom do mapa é alterado
+    map.on('zoomend', updateWMSLayer);
+
+    // Inicializa a camada WMS
+    updateWMSLayer();
 }
+*/
 
 function addWMSLayer() {
-    var button = document.getElementById('buscarDadosButton');
-    button.disabled = true;  // Disable the button
+    if (!drawnBounds) {
+        alert("Por favor, desenhe um retângulo no mapa primeiro.");
+        return;
+    }
 
-    var { bbox, width, height } = calcularBboxWidthHeight();
+    var southWest = drawnBounds.getSouthWest();
+    var northEast = drawnBounds.getNorthEast();
 
     var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
         layers: 'bh_aerial_image_1999',
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
-        crs: L.CRS.EPSG4326,
-        bbox: bbox.join(','),
-        width: width,
-        height: height,
-    });
-
-    wmsLayer.on('tileloadstart', function (event) {
-        console.log('Iniciando o carregamento do azulejo:', event.coords);
-    });
-
-    wmsLayer.on('tileloadend', function (event) {
-        console.log('Concluído o carregamento do azulejo:', event.coords);
-        button.disabled = false;  // Re-enable the button after loading is complete
+        crs: L.CRS.EPSG3857,
+        bounds: drawnBounds, // Adiciona os limites do retângulo
+        width: 1000,  // Largura do tile
+        height: 1000, // Altura do tile
     });
 
     wmsLayer.addTo(map);
 }
-
