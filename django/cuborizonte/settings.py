@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'cuborizonte.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'opendatacube',
-        'USER': 'opendatacube',
+        'NAME': 'postgres',
+        'USER': 'postgres',
         'PASSWORD': 'opendatacubepassword',
         'HOST': 'postgres',
         'PORT': '5432',

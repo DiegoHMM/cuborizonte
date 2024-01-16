@@ -3,6 +3,7 @@ version: '3'
 services:
   postgres:
     image: postgis/postgis:12-2.5-alpine
+    mem_limit: 1g
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=opendatacubepassword
@@ -16,6 +17,7 @@ services:
 
   jupyter:
     build: ./jupyter
+    mem_limit: 1g
     environment:
       - DB_HOSTNAME=postgres
       - DB_USERNAME=postgres
@@ -36,33 +38,38 @@ services:
 
   checkdb:
     image: schaffdev/port_check:latest
+    mem_limit: 500m
     environment:
       - CHECK_HOST=postgres
       - CHECK_PORT=5432
 
-  #django:
-  #  build: ./django
-  #  environment:
-  #    - DB_HOSTNAME=postgres
-  #    - DB_USERNAME=opendatacube
-  #    - DB_PASSWORD=opendatacubepassword
-  #    - DB_DATABASE=opendatacube
-  #  volumes:
-  #    - ./django:/app
-  #    - static_volume:/app/static
-  #    - ./data:/data
-  #  ports:
-  #    - "8001:8000"
-  #  restart: always
-  #  depends_on:
-  #    - postgres
-  #  command: >
-  #    sh -c "python manage.py makemigrations &&
-  #          python manage.py migrate &&
-  #          python manage.py collectstatic --noinput &&
-  #          gunicorn cuborizonte.wsgi:application --bind 0.0.0.0:8000"
+  django:
+    build: ./django
+    mem_limit: 1g
+    environment:
+      - DB_HOSTNAME=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=opendatacubepassword
+      - DB_DATABASE=postgres
+      - OWS_HOSTNAME=ows
+    volumes:
+      - ./django:/app
+      - static_volume:/app/static
+      - ./data:/data
+    ports:
+      - "8001:8000"
+    restart: always
+    depends_on:
+      - postgres
+      - ows
+    command: >
+      sh -c "python manage.py makemigrations &&
+            python manage.py migrate &&
+            python manage.py collectstatic --noinput &&
+            gunicorn cuborizonte.wsgi:application --bind 0.0.0.0:8000"
   ows:
     image: opendatacube/ows:latest
+    mem_limit: 1g
     environment:
       DB_HOSTNAME: postgres
       DB_USERNAME: postgres

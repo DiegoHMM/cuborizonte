@@ -150,13 +150,74 @@ function downloadDados() {
 
 
 
-function exibirImagemNoMapa(urlDaImagem) {
+
+function exibirImagemNoMapa() {
     // Obter as coordenadas do formulário
     var latitudeInicial = document.getElementById('latitude_inicial').value;
     var longitudeInicial = document.getElementById('longitude_inicial').value;
     var latitudeFinal = document.getElementById('latitude_final').value;
     var longitudeFinal = document.getElementById('longitude_final').value;
-    
+
+    // Construir a URL da imagem
+    var urlDaImagem = `http://localhost:8000/wms?service=WMS&version=1.3.0&request=GetMap&layers=bh_aerial_image_1999&styles=&crs=EPSG:4326&bbox=${latitudeInicial},${longitudeInicial},${latitudeFinal},${longitudeFinal}&width=400&height=200&format=image/png`;
+
+    // Definir os limites da imagem
     var imageBounds = [[latitudeInicial, longitudeInicial], [latitudeFinal, longitudeFinal]];
+
+    // Adicionar a imagem como uma sobreposição ao mapa
     L.imageOverlay(urlDaImagem, imageBounds).addTo(map);
 }
+
+
+
+function calcularBboxWidthHeight() {
+    // Obter as coordenadas do formulário e convertê-las para números
+    var latitudeInicial = parseFloat(document.getElementById('latitude_inicial').value);
+    var longitudeInicial = parseFloat(document.getElementById('longitude_inicial').value);
+    var latitudeFinal = parseFloat(document.getElementById('latitude_final').value);
+    var longitudeFinal = parseFloat(document.getElementById('longitude_final').value);
+
+    // Calcular bbox
+    var bbox = [
+        Math.max(longitudeInicial, longitudeFinal),
+        Math.max(latitudeInicial, latitudeFinal),
+        Math.min(longitudeInicial, longitudeFinal),
+        Math.min(latitudeInicial, latitudeFinal),
+    ];
+
+    // Calcular width e height mantendo a proporção
+    var width = Math.abs(longitudeFinal - longitudeInicial);
+    var height = Math.abs(latitudeFinal - latitudeInicial);
+
+    return { bbox, width, height };
+}
+
+function addWMSLayer() {
+    var button = document.getElementById('buscarDadosButton');
+    button.disabled = true;  // Disable the button
+
+    var { bbox, width, height } = calcularBboxWidthHeight();
+
+    var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
+        layers: 'bh_aerial_image_1999',
+        format: 'image/png',
+        transparent: true,
+        version: '1.3.0',
+        crs: L.CRS.EPSG4326,
+        bbox: bbox.join(','),
+        width: width,
+        height: height,
+    });
+
+    wmsLayer.on('tileloadstart', function (event) {
+        console.log('Iniciando o carregamento do azulejo:', event.coords);
+    });
+
+    wmsLayer.on('tileloadend', function (event) {
+        console.log('Concluído o carregamento do azulejo:', event.coords);
+        button.disabled = false;  // Re-enable the button after loading is complete
+    });
+
+    wmsLayer.addTo(map);
+}
+
