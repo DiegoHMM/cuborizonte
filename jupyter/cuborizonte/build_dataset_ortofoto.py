@@ -82,20 +82,21 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date):
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print("Usage: python script.py <bands_path> <photo_folder> <product_name>")
+        print("Usage: python script.py <bands_path> <photo_folder> <product_name> <year>")
         sys.exit(1)
 
     bands_path = sys.argv[1]
     photo_folder = sys.argv[2]
     product_name = sys.argv[3]
+    year = sys.argv[4]
 
     all_files = os.listdir(photo_folder)
 
     for tif_file in all_files:
         tif_path = os.path.join(photo_folder, tif_file)
         
-        start_date = format_date(1999, 1, 1)
-        end_date = format_date(1999, 12, 31)
+        start_date = format_date(year, 1, 1)
+        end_date = format_date(year, 12, 31)
 
         dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date)
 

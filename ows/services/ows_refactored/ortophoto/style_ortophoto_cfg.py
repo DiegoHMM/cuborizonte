@@ -1,4 +1,4 @@
-style_bh_aerial_1999_simple_rgb = {
+style_ortophoto_simple_rgb = {
     "name": "simple_rgb",
     "title": "Simple RGB",
     "abstract": "Simple true-colour image, using the red, green and blue bands",
@@ -7,7 +7,7 @@ style_bh_aerial_1999_simple_rgb = {
 }
 
 
-style_bh_aerial_1999_enhanced_contrast = {
+style_ortophoto_enhanced_contrast = {
     "name": "enhanced_contrast",
     "title": "Enhanced Contrast",
     "abstract": "Enhanced contrast using the red, green, and blue bands",
@@ -16,7 +16,7 @@ style_bh_aerial_1999_enhanced_contrast = {
 }
 
 
-style_bh_aerial_1999_inverted = {
+style_ortophoto_inverted = {
     "name": "inverted",
     "title": "Color Inversion",
     "abstract": "Inverted colors of the red, green, and blue bands",
@@ -29,7 +29,7 @@ style_bh_aerial_1999_inverted = {
 }
 
 
-style_bh_aerial_1999_red_emphasis = {
+style_ortophoto_red_emphasis = {
     "name": "red_emphasis",
     "title": "Red Emphasis",
     "abstract": "Emphasizes the red band",
@@ -38,7 +38,7 @@ style_bh_aerial_1999_red_emphasis = {
 }
 
 
-style_bh_aerial_1999_green_emphasis = {
+style_ortophoto_green_emphasis = {
     "name": "green_emphasis",
     "title": "Green Emphasis",
     "abstract": "Emphasizes the green band",
@@ -46,7 +46,7 @@ style_bh_aerial_1999_green_emphasis = {
     "scale_range": [0.0, 255.0],
 }
 
-style_bh_aerial_1999_blue_emphasis = {
+style_ortophoto_blue_emphasis = {
     "name": "blue_emphasis",
     "title": "Blue Emphasis",
     "abstract": "Emphasizes the blue band",
@@ -55,7 +55,7 @@ style_bh_aerial_1999_blue_emphasis = {
 }
 
 
-style_bh_aerial_1999_pure_red = {
+style_ortophoto_pure_red = {
     "name": "red",
     "title": "Red",
     "abstract": "Red band",
@@ -63,7 +63,7 @@ style_bh_aerial_1999_pure_red = {
     "scale_range": [0.0, 255.0],
 }
 
-style_bh_aerial_1999_pure_green = {
+style_ortophoto_pure_green = {
     "name": "green",
     "title": "Green",
     "abstract": "Green band",
@@ -71,7 +71,7 @@ style_bh_aerial_1999_pure_green = {
     "scale_range": [0.0, 255.0],
 }
 
-style_bh_aerial_1999_pure_blue = {
+style_ortophoto_pure_blue = {
     "name": "blue",
     "title": "Blue",
     "abstract": "Blue band",
@@ -80,14 +80,14 @@ style_bh_aerial_1999_pure_blue = {
 }
 
 
-styles_bh_aerial_1999_list = [
-    style_bh_aerial_1999_simple_rgb,
-    style_bh_aerial_1999_enhanced_contrast,
-    style_bh_aerial_1999_inverted,
-    style_bh_aerial_1999_red_emphasis,
-    style_bh_aerial_1999_green_emphasis,
-    style_bh_aerial_1999_blue_emphasis,
-    style_bh_aerial_1999_pure_red,
-    style_bh_aerial_1999_pure_green,
-    style_bh_aerial_1999_pure_blue,
+styles_ortophoto_list = [
+    style_ortophoto_simple_rgb,
+    style_ortophoto_enhanced_contrast,
+    style_ortophoto_inverted,
+    style_ortophoto_red_emphasis,
+    style_ortophoto_green_emphasis,
+    style_ortophoto_blue_emphasis,
+    style_ortophoto_pure_red,
+    style_ortophoto_pure_green,
+    style_ortophoto_pure_blue,
 ]

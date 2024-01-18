@@ -24,7 +24,7 @@ dataset_cache_rules = [
 reslim_bh_images = {
     "wms": {
         "zoomed_out_fill_colour": [0, 0, 0, 255],  # Cor de preenchimento quando afastado
-        "min_zoom_factor": 2.0,  # Limita o nível de zoom para manter o usuário mais próximo
+        "min_zoom_factor": 100.0,  # Limita o nível de zoom para manter o usuário mais próximo
         #"max_datasets": 16,  #Pode ser definido se necessário limitar o número de datasets
         "dataset_cache_rules": dataset_cache_rules,  # Regras de cache conforme necessário
     },

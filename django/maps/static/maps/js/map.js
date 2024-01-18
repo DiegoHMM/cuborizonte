@@ -1,7 +1,7 @@
 var map = L.map('map').setView([-19.917299, -43.934559], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+    maxZoom: 18,
 }).addTo(map);
 
 var drawnRectangle;
@@ -37,6 +37,9 @@ map.on('draw:created', function (e) {
     drawnBounds = e.layer.getBounds();
     map.addLayer(drawnRectangle);
 
+    // Ajustar o zoom do mapa para o retângulo desenhado
+    map.fitBounds(drawnBounds);
+
     // Obter as coordenadas do retângulo
     var bounds = drawnRectangle.getBounds();
     var northEast = bounds.getNorthEast();
@@ -50,6 +53,7 @@ map.on('draw:created', function (e) {
 
     drawnItems.addLayer(drawnRectangle);
 });
+
 
 map.on('click', function () {
     if (drawnRectangle) {
@@ -215,13 +219,11 @@ function addWMSLayer() {
 */
 
 function addWMSLayer() {
+    console.log(map.getZoom())
     if (!drawnBounds) {
         alert("Por favor, desenhe um retângulo no mapa primeiro.");
         return;
     }
-
-    var southWest = drawnBounds.getSouthWest();
-    var northEast = drawnBounds.getNorthEast();
 
     var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
         layers: 'bh_aerial_image_1999',
@@ -229,9 +231,7 @@ function addWMSLayer() {
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
-        bounds: drawnBounds, // Adiciona os limites do retângulo
-        width: 1000,  // Largura do tile
-        height: 1000, // Altura do tile
+        bounds: drawnBounds // Adiciona os limites do retângulo
     });
 
     wmsLayer.addTo(map);

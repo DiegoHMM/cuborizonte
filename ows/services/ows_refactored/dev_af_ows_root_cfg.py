@@ -26,6 +26,11 @@ ows_cfg = {
                 "horizontal_coord": "x",
                 "vertical_coord": "y",
             },
+            "EPSG:31983": {  # SIRGAS 2000 / UTM zone 23S
+                "geographic": False,
+                "horizontal_coord": "x",
+                "vertical_coord": "y",
+            },  
         },
         "allowed_urls": [
             "http://localhost:8000/",
