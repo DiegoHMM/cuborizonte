@@ -68,7 +68,7 @@ ows_cfg = {
         "http://creativecommons.org/licenses/by/4.0/legalcode",
         "translations_directory": "/env/config/ows_refactored/translations",
         "supported_languages": [
-            #"pt_BR", 
+            "pt_BR", 
             "en",
         ],
     },  # END OF global SECTION
