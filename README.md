@@ -24,3 +24,6 @@ The Cube in a Box is a simple way to run the [Open Data Cube](https://www.openda
 
     * To create metata:
     12. docker-compose exec ows datacube-ows-cfg extract -m /env/config/ows_refactored/messages.po
+    13. docker-compose exec ows datacube-ows-cfg translation -n -D cuborizonte -d /env/config/ows_refactored/translations -m /env/config/ows_refactored/messages.po en pt_BR
+    ``` Now make the translation of each .po manually```
+    14. docker-compose exec ows datacube-ows-cfg compile -D cuborizonte -d /env/config/ows_refactored/translations en pt_BR
