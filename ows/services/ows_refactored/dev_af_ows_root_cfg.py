@@ -1,7 +1,8 @@
 ows_cfg = {
     "global": {
+        
         # Master config for all services and products.
-        "message_file": "messages.po",
+        "message_file": "/env/config/ows_refactored/messages.po",
         "response_headers": {
             "Access-Control-Allow-Origin": "*",  # CORS header
         },
