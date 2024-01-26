@@ -1,6 +1,7 @@
 ows_cfg = {
     "global": {
         # Master config for all services and products.
+        "message_file": "messages.po",
         "response_headers": {
             "Access-Control-Allow-Origin": "*",  # CORS header
         },
@@ -66,7 +67,8 @@ ows_cfg = {
         "http://creativecommons.org/licenses/by/4.0/legalcode",
         "translations_directory": "/env/config/ows_refactored/translations",
         "supported_languages": [
-            "pt-br",
+            #"pt_BR", 
+            "en",
         ],
     },  # END OF global SECTION
     "wms": {
@@ -77,59 +79,25 @@ ows_cfg = {
     },  # END OF wms SECTION
     "layers": [
         {
-            "title": "Digital Earth Africa - OGC Web Services",
-            "abstract": "Digital Earth Africa OGC Web Services",
-            "layers": [
-                {
-                    "title": "Satellite images",
-                    "abstract": "Satellite images",
-                    "layers": [
-                        {
-                            "title": "Surface reflectance",
-                            "abstract": "Surface reflectance",
-                            "layers": [
-                                {
-                                    "title": "Daily      reflectance",
-                                    "abstract": "Daily surface reflectance",
-                                    "layers": [
-                                        {
-                                            "include": "ows_refactored.surface_reflectance.ows_s2_cfg.layer",
-                                            "type": "python",
-                                        },
-                                        {
-                                            "include": "ows_refactored.surface_reflectance.ows_lsc2_sr_cfg.layer_ls9",
-                                            "type": "python",
-                                        },
-                                        {
-                                            "include": "ows_refactored.surface_reflectance.ows_lsc2_sr_cfg.layer_ls8",
-                                            "type": "python",
-                                        },
-                                        {
-                                            "include": "ows_refactored.surface_reflectance.ows_lsc2_sr_cfg.layer_ls7",
-                                            "type": "python",
-                                        },
-                                        {
-                                            "include": "ows_refactored.surface_reflectance.ows_lsc2_sr_cfg.layer_ls5",
-                                            "type": "python",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-        {
             "title": "Cuborizonte - OGC Web Services",
             "abstract": "Cuborizonte OGC Web Services",
             "layers": [
                 {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG",
+                    "title": "Imagens Aéreas de Belo Horizonte - MG - 1999",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.aerial.bh_aerial_1999_cfg.layer",
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_1999_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2007-2015",
+                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2007_2015_cfg.layer",
                                     "type": "python",
                                 },
                     ],

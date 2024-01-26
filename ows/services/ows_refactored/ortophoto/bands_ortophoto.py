@@ -1,4 +1,4 @@
-bands_ortophoto = {
+ortophoto_bands = {
     "red": [],
     "green": [],
     "blue": [],

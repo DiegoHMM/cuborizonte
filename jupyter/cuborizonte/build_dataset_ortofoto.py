@@ -5,6 +5,7 @@ import numpy as np
 import rasterio
 from datetime import datetime
 import yaml
+import random
 
 def format_date(year, month, day):
     date_object = datetime(year, month, day, 0, 0, 0)
@@ -81,7 +82,9 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date):
     }, file_name
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
+    random.seed(42)
+    print(sys.argv)
+    if len(sys.argv) != 5:
         print("Usage: python script.py <bands_path> <photo_folder> <product_name> <year>")
         sys.exit(1)
 
@@ -95,8 +98,8 @@ if __name__ == '__main__':
     for tif_file in all_files:
         tif_path = os.path.join(photo_folder, tif_file)
         
-        start_date = format_date(year, 1, 1)
-        end_date = format_date(year, 12, 31)
+        start_date = format_date(int(year), 1, 1)
+        end_date = format_date(int(year), 12, 31)
 
         dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date)
 

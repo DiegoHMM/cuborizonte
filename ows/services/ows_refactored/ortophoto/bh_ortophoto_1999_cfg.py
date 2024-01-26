@@ -1,5 +1,5 @@
-from ows.services.ows_refactored.ortophoto.bands_ortophoto import bands_ortophoto
-from ows.services.ows_refactored.ortophoto.style_ortophoto_cfg import styles_ortophoto_list
+from ows_refactored.ortophoto.bands_ortophoto import ortophoto_bands
+from ows_refactored.ortophoto.style_ortophoto_cfg import styles_ortophoto_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
@@ -13,7 +13,7 @@ Licença: CC-BY-4.0
 """,
     "product_name": "bh_ortophoto_1999",
     "low_res_product_name": "bh_ortophoto_1999_lowres",
-    "bands": bands_ortophoto,
+    "bands": ortophoto_bands,
     "resource_limits": reslim_bh_images,  # Defina um limite de recursos apropriado
     "image_processing": {
         "extent_mask_func": "datacube_ows.ogc_utils.mask_by_val",

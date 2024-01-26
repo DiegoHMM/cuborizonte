@@ -15,9 +15,33 @@
 <body>
 
     <div id="container">
-        <!-- Sidebar for the form -->
+        <!-- Sidebar -->
         <div id="sidebar">
+
+            <!-- Slider for image selection -->
+            <label for="imageSlider" id="imageSliderLabel">Select Image:</label><br>
+            <input type="range" id="imageSlider" name="imageSlider" min="0" max="0" value="0" step="1" style="width: 100%;" onchange="updateImage(this.value)">
+
+
             <form id="coordenadasForm" method="post">
+
+            
+                <!-- Product Dropdown -->
+                <label for="produto">Produto:</label><br>
+                <select id="produto" name="produto">
+                    <option value="bh_ortophoto_1999">Ortofoto 1999</option>
+                    <option value="bh_ortophoto_2007_2015">Ortofoto 2007-2015</option>
+                    <!-- Add more products as needed -->
+                </select><br>
+
+                <!-- Start Date -->
+                <label for="start_date">Start Date:</label><br>
+                <input type="date" id="start_date" name="start_date"><br>
+            
+                <!-- End Date -->
+                <label for="end_date">End Date:</label><br>
+                <input type="date" id="end_date" name="end_date"><br>
+
                 {% csrf_token %}
                 <label for="latitude_inicial">Latitude Inicial:</label><br>
                 <input type="number" id="latitude_inicial" name="latitude_inicial" step="any"><br>
@@ -31,6 +55,7 @@
                 <button type="button" id="buscarDadosButton" onclick="addWMSLayer()">Buscar Dados</button>
                 <button type="button" id="downloadButton" onclick="downloadDados()">Download</button>
             </form>
+            
             
         </div>
 

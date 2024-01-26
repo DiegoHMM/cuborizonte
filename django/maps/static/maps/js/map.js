@@ -1,5 +1,7 @@
 var map = L.map('map').setView([-19.917299, -43.934559], 13);
 
+
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
 }).addTo(map);
@@ -219,20 +221,34 @@ function addWMSLayer() {
 */
 
 function addWMSLayer() {
-    console.log(map.getZoom())
+    console.log(map.getZoom());
     if (!drawnBounds) {
         alert("Por favor, desenhe um retângulo no mapa primeiro.");
         return;
     }
 
-    var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
-        layers: 'bh_aerial_image_1999',
+    // Obter o valor selecionado no dropdown 'produto'
+    var selectedLayer = document.getElementById('produto').value;
+
+    // Obter as datas de início e término do formulário
+    var startDate = document.getElementById('start_date').value;
+    var endDate = document.getElementById('end_date').value;
+
+    var timeParam = startDate && endDate ? startDate + '/' + endDate : '';
+
+    // Criar a URL com os parâmetros, incluindo o parâmetro TIME
+    var wmsParams = {
+        layers: selectedLayer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
-        bounds: drawnBounds // Adiciona os limites do retângulo
-    });
+        bounds: drawnBounds,
+        time: timeParam
+    };
+
+    var wmsLayer = L.tileLayer.wms('http://localhost:8000', wmsParams);
 
     wmsLayer.addTo(map);
 }
+
