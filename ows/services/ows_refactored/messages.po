@@ -1,0 +1,284 @@
+# Translations for datacube-ows metadata instance:
+#      Cuborizonte - OGC Web Services
+#
+# Cuborizonte - UFMG 2024-01-26T16:26:10.856619
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Cuborizonte - OGC Web Services "
+"2024-01-26T16:26:10.856619\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-01-26 16:26+0000\n"
+"PO-Revision-Date: 2024-01-26 16:26+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt_BR\n"
+"Language-Team: pt_BR <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#. Cuborizonte - OGC Web Services
+msgid "global.title"
+msgstr "Cuborizonte - OGC Web Services"
+
+#. Cuborizonte OGC Web Services
+msgid "global.abstract"
+msgstr "Cuborizonte OGC Web Services"
+
+#. time-series,remote sensing,datacube
+msgid "global.local_keywords"
+msgstr "time-series,remote sensing,datacube"
+
+#. none
+msgid "global.fees"
+msgstr "none"
+
+#. none
+msgid "global.access_constraints"
+msgstr "none"
+
+#. Cuborizonte - UFMG
+msgid "global.contact_org"
+msgstr "Cuborizonte - UFMG"
+
+#. Cuborizonte - OGC Web Services
+msgid "folder.ows_root_hidden.0.title"
+msgstr "Cuborizonte - OGC Web Services"
+
+#. Cuborizonte OGC Web Services
+msgid "folder.ows_root_hidden.0.abstract"
+msgstr "Cuborizonte OGC Web Services"
+
+msgid "folder.ows_root_hidden.0.local_keywords"
+msgstr ""
+
+#. Imagens Aéreas de Belo Horizonte - MG - 1999
+msgid "folder.ows_root_hidden.0.0.title"
+msgstr "Imagens Aéreas de Belo Horizonte - MG - 1999"
+
+#. Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais
+msgid "folder.ows_root_hidden.0.0.abstract"
+msgstr "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais"
+
+msgid "folder.ows_root_hidden.0.0.local_keywords"
+msgstr ""
+
+#. Orthophoto of the city of Belo Horizonte, Brazil, 1999.
+msgid "layer.bh_ortophoto_1999.title"
+msgstr "Orthophoto of the city of Belo Horizonte, Brazil, 1999."
+
+#. Imagem aérea de Belo Horizonte, Minas Gerais, Brasil, capturada em 1999.
+#. Esta imagem oferece uma visão detalhada da cidade em 1999 com uma alta
+#. resolução espacial.  Licença: CC-BY-4.0
+msgid "layer.bh_ortophoto_1999.abstract"
+msgstr ""
+"\n"
+"Imagem aérea de Belo Horizonte, Minas Gerais, Brasil, capturada em 1999. "
+"Esta imagem oferece uma visão detalhada da cidade em 1999 com uma alta "
+"resolução espacial.\n"
+"\n"
+"Licença: CC-BY-4.0\n"
+
+msgid "layer.bh_ortophoto_1999.local_keywords"
+msgstr ""
+
+#. red
+msgid "layer.bh_ortophoto_1999.bands.red"
+msgstr "red"
+
+#. green
+msgid "layer.bh_ortophoto_1999.bands.green"
+msgstr "green"
+
+#. blue
+msgid "layer.bh_ortophoto_1999.bands.blue"
+msgstr "blue"
+
+#. Simple RGB
+msgid "style.bh_ortophoto_1999.simple_rgb.title"
+msgstr "Simple RGB"
+
+#. Simple true-colour image, using the red, green and blue bands
+msgid "style.bh_ortophoto_1999.simple_rgb.abstract"
+msgstr "Simple true-colour image, using the red, green and blue bands"
+
+#. Enhanced Contrast
+msgid "style.bh_ortophoto_1999.enhanced_contrast.title"
+msgstr "Enhanced Contrast"
+
+#. Enhanced contrast using the red, green, and blue bands
+msgid "style.bh_ortophoto_1999.enhanced_contrast.abstract"
+msgstr "Enhanced contrast using the red, green, and blue bands"
+
+#. Color Inversion
+msgid "style.bh_ortophoto_1999.inverted.title"
+msgstr "Color Inversion"
+
+#. Inverted colors of the red, green, and blue bands
+msgid "style.bh_ortophoto_1999.inverted.abstract"
+msgstr "Inverted colors of the red, green, and blue bands"
+
+#. Red Emphasis
+msgid "style.bh_ortophoto_1999.red_emphasis.title"
+msgstr "Red Emphasis"
+
+#. Emphasizes the red band
+msgid "style.bh_ortophoto_1999.red_emphasis.abstract"
+msgstr "Emphasizes the red band"
+
+#. Green Emphasis
+msgid "style.bh_ortophoto_1999.green_emphasis.title"
+msgstr "Green Emphasis"
+
+#. Emphasizes the green band
+msgid "style.bh_ortophoto_1999.green_emphasis.abstract"
+msgstr "Emphasizes the green band"
+
+#. Blue Emphasis
+msgid "style.bh_ortophoto_1999.blue_emphasis.title"
+msgstr "Blue Emphasis"
+
+#. Emphasizes the blue band
+msgid "style.bh_ortophoto_1999.blue_emphasis.abstract"
+msgstr "Emphasizes the blue band"
+
+#. Red
+msgid "style.bh_ortophoto_1999.red.title"
+msgstr "Red"
+
+#. Red band
+msgid "style.bh_ortophoto_1999.red.abstract"
+msgstr "Red band"
+
+#. Green
+msgid "style.bh_ortophoto_1999.green.title"
+msgstr "Green"
+
+#. Green band
+msgid "style.bh_ortophoto_1999.green.abstract"
+msgstr "Green band"
+
+#. Blue
+msgid "style.bh_ortophoto_1999.blue.title"
+msgstr "Blue"
+
+#. Blue band
+msgid "style.bh_ortophoto_1999.blue.abstract"
+msgstr "Blue band"
+
+#. Imagens Aéreas de Belo Horizonte - MG - 2007-2015
+msgid "folder.ows_root_hidden.0.1.title"
+msgstr "Imagens Aéreas de Belo Horizonte - MG - 2007-2015"
+
+#. Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais
+msgid "folder.ows_root_hidden.0.1.abstract"
+msgstr "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais"
+
+msgid "folder.ows_root_hidden.0.1.local_keywords"
+msgstr ""
+
+#. Orthophoto of the city of Belo Horizonte, Brazil, 2007-2015.
+msgid "layer.bh_ortophoto_2007_2015.title"
+msgstr "Orthophoto of the city of Belo Horizonte, Brazil, 2007-2015."
+
+#. Imagem aérea de Belo Horizonte, Minas Gerais, Brasil, capturada em
+#. 2007-2015. Esta imagem oferece uma visão detalhada da cidade de 2007-2015
+#. com uma alta resolução espacial.  Licença: CC-BY-4.0
+msgid "layer.bh_ortophoto_2007_2015.abstract"
+msgstr ""
+"\n"
+"Imagem aérea de Belo Horizonte, Minas Gerais, Brasil, capturada em "
+"2007-2015. Esta imagem oferece uma visão detalhada da cidade de 2007-2015"
+" com uma alta resolução espacial.\n"
+"\n"
+"Licença: CC-BY-4.0\n"
+
+msgid "layer.bh_ortophoto_2007_2015.local_keywords"
+msgstr ""
+
+#. red
+msgid "layer.bh_ortophoto_2007_2015.bands.red"
+msgstr "red"
+
+#. green
+msgid "layer.bh_ortophoto_2007_2015.bands.green"
+msgstr "green"
+
+#. blue
+msgid "layer.bh_ortophoto_2007_2015.bands.blue"
+msgstr "blue"
+
+#. Simple RGB
+msgid "style.bh_ortophoto_2007_2015.simple_rgb.title"
+msgstr "Simple RGB"
+
+#. Simple true-colour image, using the red, green and blue bands
+msgid "style.bh_ortophoto_2007_2015.simple_rgb.abstract"
+msgstr "Simple true-colour image, using the red, green and blue bands"
+
+#. Enhanced Contrast
+msgid "style.bh_ortophoto_2007_2015.enhanced_contrast.title"
+msgstr "Enhanced Contrast"
+
+#. Enhanced contrast using the red, green, and blue bands
+msgid "style.bh_ortophoto_2007_2015.enhanced_contrast.abstract"
+msgstr "Enhanced contrast using the red, green, and blue bands"
+
+#. Color Inversion
+msgid "style.bh_ortophoto_2007_2015.inverted.title"
+msgstr "Color Inversion"
+
+#. Inverted colors of the red, green, and blue bands
+msgid "style.bh_ortophoto_2007_2015.inverted.abstract"
+msgstr "Inverted colors of the red, green, and blue bands"
+
+#. Red Emphasis
+msgid "style.bh_ortophoto_2007_2015.red_emphasis.title"
+msgstr "Red Emphasis"
+
+#. Emphasizes the red band
+msgid "style.bh_ortophoto_2007_2015.red_emphasis.abstract"
+msgstr "Emphasizes the red band"
+
+#. Green Emphasis
+msgid "style.bh_ortophoto_2007_2015.green_emphasis.title"
+msgstr "Green Emphasis"
+
+#. Emphasizes the green band
+msgid "style.bh_ortophoto_2007_2015.green_emphasis.abstract"
+msgstr "Emphasizes the green band"
+
+#. Blue Emphasis
+msgid "style.bh_ortophoto_2007_2015.blue_emphasis.title"
+msgstr "Blue Emphasis"
+
+#. Emphasizes the blue band
+msgid "style.bh_ortophoto_2007_2015.blue_emphasis.abstract"
+msgstr "Emphasizes the blue band"
+
+#. Red
+msgid "style.bh_ortophoto_2007_2015.red.title"
+msgstr "Red"
+
+#. Red band
+msgid "style.bh_ortophoto_2007_2015.red.abstract"
+msgstr "Red band"
+
+#. Green
+msgid "style.bh_ortophoto_2007_2015.green.title"
+msgstr "Green"
+
+#. Green band
+msgid "style.bh_ortophoto_2007_2015.green.abstract"
+msgstr "Green band"
+
+#. Blue
+msgid "style.bh_ortophoto_2007_2015.blue.title"
+msgstr "Blue"
+
+#. Blue band
+msgid "style.bh_ortophoto_2007_2015.blue.abstract"
+msgstr "Blue band"
+

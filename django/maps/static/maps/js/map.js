@@ -1,10 +1,13 @@
 var map = L.map('map').setView([-19.917299, -43.934559], 13);
 
+
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+    maxZoom: 18,
 }).addTo(map);
 
 var drawnRectangle;
+var drawnBounds;
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
@@ -26,6 +29,14 @@ var drawControl = new L.Control.Draw({
     },
 });
 
+
+function startDrawing(event) {
+    if (event) event.preventDefault();
+    // Ativa o modo de desenho de retângulo
+    new L.Draw.Rectangle(map, drawControl.options.rectangle).enable();
+}
+
+
 map.addControl(drawControl);
 
 map.on('draw:created', function (e) {
@@ -33,7 +44,11 @@ map.on('draw:created', function (e) {
         map.removeLayer(drawnRectangle);
     }
     drawnRectangle = e.layer;
+    drawnBounds = e.layer.getBounds();
     map.addLayer(drawnRectangle);
+
+    // Ajustar o zoom do mapa para o retângulo desenhado
+    map.fitBounds(drawnBounds);
 
     // Obter as coordenadas do retângulo
     var bounds = drawnRectangle.getBounds();
@@ -48,6 +63,7 @@ map.on('draw:created', function (e) {
 
     drawnItems.addLayer(drawnRectangle);
 });
+
 
 map.on('click', function () {
     if (drawnRectangle) {
@@ -150,13 +166,97 @@ function downloadDados() {
 
 
 
-function exibirImagemNoMapa(urlDaImagem) {
+
+function exibirImagemNoMapa() {
     // Obter as coordenadas do formulário
     var latitudeInicial = document.getElementById('latitude_inicial').value;
     var longitudeInicial = document.getElementById('longitude_inicial').value;
     var latitudeFinal = document.getElementById('latitude_final').value;
     var longitudeFinal = document.getElementById('longitude_final').value;
-    
+
+    // Construir a URL da imagem
+    var urlDaImagem = `http://localhost:8000/wms?service=WMS&version=1.3.0&request=GetMap&layers=bh_aerial_image_1999&styles=&crs=EPSG:4326&bbox=${latitudeInicial},${longitudeInicial},${latitudeFinal},${longitudeFinal}&width=400&height=200&format=image/png`;
+
+    // Definir os limites da imagem
     var imageBounds = [[latitudeInicial, longitudeInicial], [latitudeFinal, longitudeFinal]];
+
+    // Adicionar a imagem como uma sobreposição ao mapa
     L.imageOverlay(urlDaImagem, imageBounds).addTo(map);
 }
+
+
+
+
+/*
+function addWMSLayer() {
+    if (!drawnBounds) {
+        alert("Por favor, desenhe um retângulo no mapa primeiro.");
+        return;
+    }
+
+    function updateWMSLayer() {
+        var southWest = drawnBounds.getSouthWest();
+        var northEast = drawnBounds.getNorthEast();
+
+        var southWest3857 = L.CRS.EPSG3857.project(southWest);
+        var northEast3857 = L.CRS.EPSG3857.project(northEast);
+
+        var bbox = [southWest3857.x, southWest3857.y, northEast3857.x, northEast3857.y].join(',');
+
+        // Calcula a resolução da imagem com base no zoom
+        var zoom = map.getZoom();
+        var width = Math.round((northEast3857.x - southWest3857.x) / Math.pow(2, 18 - zoom));
+        var height = Math.round((northEast3857.y - southWest3857.y) / Math.pow(2, 18 - zoom));
+
+        // Remove a sobreposição de imagem anterior, se houver
+        if (window.wmsOverlay) {
+            map.removeLayer(window.wmsOverlay);
+        }
+
+        // Constrói a URL para a imagem WMS
+        var imageUrl = 'http://localhost:8000/?service=WMS&request=GetMap&layers=bh_aerial_image_1999&styles=&format=image/png&transparent=true&version=1.3.0&width=' + width + '&height=' + height + '&crs=EPSG:3857&bbox=' + bbox;
+
+        // Adiciona a sobreposição de imagem WMS
+        window.wmsOverlay = L.imageOverlay(imageUrl, drawnBounds).addTo(map);
+    }
+
+    // Atualiza a camada WMS quando o zoom do mapa é alterado
+    map.on('zoomend', updateWMSLayer);
+
+    // Inicializa a camada WMS
+    updateWMSLayer();
+}
+*/
+
+function addWMSLayer() {
+    console.log(map.getZoom());
+    if (!drawnBounds) {
+        alert("Por favor, desenhe um retângulo no mapa primeiro.");
+        return;
+    }
+
+    // Obter o valor selecionado no dropdown 'produto'
+    var selectedLayer = document.getElementById('produto').value;
+
+    // Obter as datas de início e término do formulário
+    var startDate = document.getElementById('start_date').value;
+    var endDate = document.getElementById('end_date').value;
+
+    var timeParam = startDate && endDate ? startDate + '/' + endDate : '';
+
+    // Criar a URL com os parâmetros, incluindo o parâmetro TIME
+    var wmsParams = {
+        layers: selectedLayer,
+        format: 'image/png',
+        transparent: true,
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857,
+        bounds: drawnBounds,
+        time: timeParam
+    };
+
+    var wmsLayer = L.tileLayer.wms('http://localhost:8000', wmsParams);
+
+    wmsLayer.addTo(map);
+}
+

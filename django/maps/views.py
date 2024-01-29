@@ -85,7 +85,7 @@ def process_request(request):
     }
 
 def load_datacube_data(query):
-    product_name = 'aerial_image_1999'
+    product_name = 'bh_aerial_image_1999'
     dc = datacube.Datacube()
     product_info = dc.index.products.get_by_name(product_name)
     resolution = product_info.definition['storage']['resolution']

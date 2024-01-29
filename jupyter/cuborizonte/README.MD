@@ -1,6 +1,6 @@
 ### build dataset
 
-```python script.py /mnt/c/Users/diego/Documents/Mestrado/Dissertacao/cuborizonte/processed_data FOTO_1999 aerial_image_1999```
+```python script.py /mnt/c/Users/diego/Documents/Mestrado/Dissertacao/cuborizonte/processed_data FOTO_1999 bh_aerial_image_1999```
 
 ### divide bands
 

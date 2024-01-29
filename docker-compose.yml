@@ -2,13 +2,14 @@ version: '3'
 
 services:
   postgres:
-    image: kartoza/postgis:13-3.1
+    image: postgis/postgis:12-2.5-alpine
+    mem_limit: 1g
     environment:
-      - POSTGRES_DB=opendatacube
+      - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=opendatacubepassword
-      - POSTGRES_USER=opendatacube
+      - POSTGRES_USER=postgres
     volumes:
-      - ./data/pg:/var/lib/postgresql/data
+      #- ./data/pg:/var/lib/postgresql/data
       - ./data:/data
     ports:
       - 5432:5432
@@ -16,11 +17,12 @@ services:
 
   jupyter:
     build: ./jupyter
+    mem_limit: 1g
     environment:
       - DB_HOSTNAME=postgres
-      - DB_USERNAME=opendatacube
+      - DB_USERNAME=postgres
       - DB_PASSWORD=opendatacubepassword
-      - DB_DATABASE=opendatacube
+      - DB_DATABASE=postgres
       - AWS_NO_SIGN_REQUEST=true
       - STAC_API_URL=https://explorer.sandbox.dea.ga.gov.au/stac/
       - CIABPASSWORD=${CIABPASSWORD:-secretpassword}
@@ -36,31 +38,56 @@ services:
 
   checkdb:
     image: schaffdev/port_check:latest
+    mem_limit: 500m
     environment:
       - CHECK_HOST=postgres
       - CHECK_PORT=5432
 
   django:
     build: ./django
+    mem_limit: 1g
     environment:
       - DB_HOSTNAME=postgres
-      - DB_USERNAME=opendatacube
+      - DB_USERNAME=postgres
       - DB_PASSWORD=opendatacubepassword
-      - DB_DATABASE=opendatacube
+      - DB_DATABASE=postgres
+      - OWS_HOSTNAME=ows
     volumes:
       - ./django:/app
       - static_volume:/app/static
       - ./data:/data
     ports:
-      - "8000:8000"
+      - "8001:8000"
     restart: always
     depends_on:
       - postgres
+      - ows
     command: >
       sh -c "python manage.py makemigrations &&
             python manage.py migrate &&
             python manage.py collectstatic --noinput &&
             gunicorn cuborizonte.wsgi:application --bind 0.0.0.0:8000"
+  ows:
+    image: opendatacube/ows:latest
+    mem_limit: 1g
+    environment:
+      DB_HOSTNAME: postgres
+      DB_USERNAME: postgres
+      DB_PASSWORD: opendatacubepassword
+      DB_DATABASE: postgres
+      DB_PORT: 5432
+      PYTHONPATH: /env/config
+      DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    volumes:
+      - ./data:/data
+      - ./ows/products:/env/products
+      - ./ows/services/ows_refactored:/env/config/ows_refactored/
+      - ./ows/services/inventory:/env/config/inventory/
+      - ./ows/output:/env/config/output/
 
 volumes:
   static_volume:

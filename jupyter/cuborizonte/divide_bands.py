@@ -13,9 +13,10 @@ def get_image_list(image_dir):
     return image_list
 
 def divide_rgb_bands(image_list, output_dir):
-    total_images = len(image_list)
+    # Mapeamento do número da banda para o nome da banda
+    band_names = {1: 'red', 2: 'green', 3: 'blue'}
 
-    for idx, image_path in enumerate(image_list, start=1):
+    for image_path in tqdm(image_list, desc='Processing images', unit='image'):
         # Extract the file name without extension
         image_name = os.path.splitext(os.path.basename(image_path))[0]
 
@@ -25,24 +26,26 @@ def divide_rgb_bands(image_list, output_dir):
 
         # Open the multi-band TIFF file
         with rasterio.open(image_path) as src:
+            # Verifica se o número de bandas é compatível com o mapeamento
+            if src.count != len(band_names):
+                print(f"Aviso: A imagem '{image_name}' não tem 3 bandas. Pulando...")
+                continue
+
             # Loop through each band
-            with tqdm(total=src.count, desc=f'Processing {image_name}', unit='band') as pbar:
-                for band_number in range(1, src.count + 1):
-                    # Read the band data
-                    band = src.read(band_number)
+            for band_number in range(1, src.count + 1):
+                # Read the band data
+                band = src.read(band_number)
 
-                    # Create a new TIFF file for each band
-                    output_tif_path = os.path.join(output_image_dir, f'band_{band_number}.tif')
-                    with rasterio.open(output_tif_path, 'w', driver='GTiff',
-                                    width=src.width, height=src.height,
-                                    count=1, dtype=band.dtype, crs=src.crs,
-                                    transform=src.transform) as dst:
-                        dst.write(band, 1)
+                # Nome da banda com base no mapeamento
+                band_name = band_names[band_number]
 
-                    # Update the progress bar
-                    pbar.update(1)
-
-        # ... (mesmo código)
+                # Create a new TIFF file for the band
+                output_tif_path = os.path.join(output_image_dir, f'{band_name}.tif')
+                with rasterio.open(output_tif_path, 'w', driver='GTiff',
+                                   width=src.width, height=src.height,
+                                   count=1, dtype=band.dtype, crs=src.crs,
+                                   transform=src.transform) as dst:
+                    dst.write(band, 1)
 
 def main():
     parser = argparse.ArgumentParser(description="Divide imagens RGB em bandas individuais.")
