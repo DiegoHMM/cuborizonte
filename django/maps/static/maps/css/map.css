@@ -1,25 +1,154 @@
-#map {
-    height: 100vh;
-    width: 100vw;
-    flex: 3;
+/* Variáveis de Cores e Estilos Básicos */
+:root {
+    --primary-color: rgb(0, 73, 12);
+    --secondary-color: #ffffff; /* Branco */
+    --background-color: rgba(0, 63, 0, 0.8); /* Verde-água transparente */
+    --text-color: #f0f0f0; /* Cinza claro para mais contraste */
+    --border-radius: 10px;
+    --font-weight: 500; /* Peso médio para o texto */
+    --text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Sombra sutil para melhorar a legibilidade */
+    --input-bg-color: rgba(50, 50, 50, 0.8); /* Cor de fundo escura para inputs */
+    --input-border-color: #666; /* Cor da borda para inputs */
 }
 
+/* Layout Principal */
 #container {
     display: flex;
-}
-#sidebar {
-    position: absolute;
-    top: 10px;   
-    left: 80px;  
-    z-index: 1000; 
-    background: rgba(14, 221, 204, 0.7);
-    padding: 10px;
-    border-radius: 5px;
-    width: 300px;
+    height: 100vh;
 }
 
-#coordenadasForm input[type="text"],
-#coordenadasForm input[type="submit"] {
+#map {
+    flex-grow: 1;
+}
+
+/* Estilos da Sidebar */
+#sidebar {
+    position: absolute;
+    top: 20px;
+    left: 80px;
+    z-index: 1000;
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: var(--text-color);
+    font-weight: var(--font-weight);
+    text-shadow: var(--text-shadow);
+    transition: all 0.3s ease;
+}
+
+#sidebar:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Estilos dos Inputs */
+input[type="text"], input[type="date"], input[type="number"], select, input[type="range"] {
     width: 100%;
-    margin-bottom: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg-color);
+    color: var(--secondary-color);
+    box-sizing: border-box;
+}
+
+/* Estilos dos Botões */
+button {
+    width: 100%;
+    height: 10%;
+    margin: 10px;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease, border 0.3s ease;
+}
+
+button:hover {
+    background-color: darken(var(--primary-color), 10%);
+    border: 2px solid var(--secondary-color); /* Adiciona borda ao passar o mouse */
+}
+
+/* Estilos Personalizados do Slider */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+}
+
+input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+/* Esconder Controles do Leaflet Draw */
+.leaflet-draw-toolbar {
+    display: none !important;
+}
+
+/* Estilos para Contêineres de Campos Agrupados */
+.date-container, .lat-long-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px; /* Espaço entre os grupos de inputs */
+}
+
+/* Estilos para Grupos de Inputs */
+.input-group {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.input-group:last-child {
+    margin-right: 0; /* Remove margem direita do último elemento */
+}
+
+/* Estilos para o Botão SVG */
+.svg-button {
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--primary-color); /* Adiciona borda o tempo todo */
+    border-radius: var(--border-radius); /* Para manter a consistência com outros botões */
+    flex-grow: 1; /* Faz com que os botões preencham o espaço disponível */
+    margin-right: 10px; /* Adiciona margem à direita de cada botão, exceto o último */
+}
+
+.svg-button img {
+    margin-right: 10px; /* Adiciona espaço entre a imagem e o texto */
+    width: 32px; /* Ajuste conforme necessário */
+    height: 32px; /* Ajuste conforme necessário */
+}
+
+.svg-button span {
+    color: var(--secondary-color); /* Cor do texto, ajuste conforme necessário */
+    font-size: 14px; /* Tamanho do texto, ajuste conforme necessário */
+    text-shadow: var(--text-shadow); /* Sombra do texto, se aplicável */
+}
+
+.svg-button:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Opção para mudar ligeiramente o fundo ao passar o mouse */
+}
+
+
+.button-container {
+    display: flex; /* Isso alinha os itens (botões) horizontalmente */
+    justify-content: space-between; /* Isso adiciona espaço entre os botões */
+    margin-bottom: 15px; /* Espaço abaixo do contêiner dos botões */
 }

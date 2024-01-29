@@ -29,6 +29,14 @@ var drawControl = new L.Control.Draw({
     },
 });
 
+
+function startDrawing(event) {
+    if (event) event.preventDefault();
+    // Ativa o modo de desenho de retângulo
+    new L.Draw.Rectangle(map, drawControl.options.rectangle).enable();
+}
+
+
 map.addControl(drawControl);
 
 map.on('draw:created', function (e) {

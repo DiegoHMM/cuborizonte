@@ -19,7 +19,7 @@
         <div id="sidebar">
 
             <!-- Slider for image selection -->
-            <label for="imageSlider" id="imageSliderLabel">Select Image:</label><br>
+            <label for="imageSlider" id="imageSliderLabel">Linha do tempo:</label><br>
             <input type="range" id="imageSlider" name="imageSlider" min="0" max="0" value="0" step="1" style="width: 100%;" onchange="updateImage(this.value)">
 
 
@@ -34,29 +34,64 @@
                     <!-- Add more products as needed -->
                 </select><br>
 
-                <!-- Start Date -->
-                <label for="start_date">Start Date:</label><br>
-                <input type="date" id="start_date" name="start_date"><br>
-            
-                <!-- End Date -->
-                <label for="end_date">End Date:</label><br>
-                <input type="date" id="end_date" name="end_date"><br>
+                <!-- Contêiner para os Campos de Data -->
+                <div class="date-container">
+                    <!-- Start Date -->
+                    <div class="input-group">
+                        <label for="start_date">Start Date:</label><br>
+                        <input type="date" id="start_date" name="start_date">
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="input-group">
+                        <label for="end_date">End Date:</label><br>
+                        <input type="date" id="end_date" name="end_date">
+                    </div>
+                </div>
 
                 {% csrf_token %}
-                <label for="latitude_inicial">Latitude Inicial:</label><br>
-                <input type="number" id="latitude_inicial" name="latitude_inicial" step="any"><br>
-                <label for="longitude_inicial">Longitude Inicial:</label><br>
-                <input type="number" id="longitude_inicial" name="longitude_inicial" step="any"><br>
-                <label for="latitude_final">Latitude Final:</label><br>
-                <input type="number" id="latitude_final" name="latitude_final" step="any"><br>
-                <label for="longitude_final">Longitude Final:</label><br>
-                <input type="number" id="longitude_final" name="longitude_final" step="any"><br>
+                <!-- Campos de Latitude -->
+                <div class="lat-long-container">
+                    <div class="input-group">
+                        <label for="latitude_inicial">Latitude Inicial:</label><br>
+                        <input type="number" id="latitude_inicial" name="latitude_inicial" step="any" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="latitude_final">Latitude Final:</label><br>
+                        <input type="number" id="latitude_final" name="latitude_final" step="any" readonly>
+                    </div>
+                </div>
 
-                <button type="button" id="buscarDadosButton" onclick="addWMSLayer()">Buscar Dados</button>
+                <!-- Campos de Longitude -->
+                <div class="lat-long-container">
+                    <div class="input-group">
+                        <label for="longitude_inicial">Longitude Inicial:</label><br>
+                        <input type="number" id="longitude_inicial" name="longitude_inicial" step="any" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="longitude_final">Longitude Final:</label><br>
+                        <input type="number" id="longitude_final" name="longitude_final" step="any" readonly>
+                    </div>
+                </div>
+
+                <!-- Contêiner para os botões -->
+                <div class="button-container"> <!-- Adicionado novo contêiner aqui -->
+                    <!-- Botão de Desenho com SVG -->
+                    <button id="draw_retangle" type="button" onclick="startDrawing(event)" class="svg-button">
+                        <img src="{% static 'maps/asset/bbox.svg' %}" alt="Ícone de bounding box">
+                        <span>BBox</span>
+                    </button>                                       
+
+                    <!-- Botão de Busca -->
+                    <button id="buscarDadosButton" type="button" onclick="addWMSLayer()" class="svg-button" >
+                        <img src="{% static 'maps/asset/search.svg' %}" alt="Ícone de busca">
+                        <span>Buscar Dados</span>
+                    </button>
+                </div>
+                <!-- Botão de Download -->
                 <button type="button" id="downloadButton" onclick="downloadDados()">Download</button>
             </form>
-            
-            
+   
         </div>
 
         <!-- Container for the map -->
