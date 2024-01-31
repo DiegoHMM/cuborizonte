@@ -1,15 +1,15 @@
 # Translations for datacube-ows metadata instance:
 #      Cuborizonte - OGC Web Services
 #
-# Cuborizonte - UFMG 2024-01-26T16:26:10.856619
+# Cuborizonte - UFMG 2024-01-31T01:01:52.851346
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Cuborizonte - OGC Web Services "
-"2024-01-26T16:26:10.856619\n"
+"2024-01-31T01:01:52.851346\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-26 16:26+0000\n"
-"PO-Revision-Date: 2024-01-26 16:26+0000\n"
+"POT-Creation-Date: 2024-01-31 01:01+0000\n"
+"PO-Revision-Date: 2024-01-31 01:01+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pt_BR\n"
 "Language-Team: pt_BR <LL@li.org>\n"
@@ -27,9 +27,9 @@ msgstr "Cuborizonte - OGC Web Services"
 msgid "global.abstract"
 msgstr "Cuborizonte OGC Web Services"
 
-#. time-series,remote sensing,datacube
+#. datacube,time-series,remote sensing
 msgid "global.local_keywords"
-msgstr "time-series,remote sensing,datacube"
+msgstr "datacube,time-series,remote sensing"
 
 #. none
 msgid "global.fees"
@@ -54,15 +54,131 @@ msgstr "Cuborizonte OGC Web Services"
 msgid "folder.ows_root_hidden.0.local_keywords"
 msgstr ""
 
-#. Imagens Aéreas de Belo Horizonte - MG - 1999
+#. Planta da cidade de Belo Horizonte - MG - 1942
 msgid "folder.ows_root_hidden.0.0.title"
+msgstr "Planta da cidade de Belo Horizonte - MG - 1942"
+
+#. Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais
+msgid "folder.ows_root_hidden.0.0.abstract"
+msgstr ""
+"Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas "
+"Gerais"
+
+msgid "folder.ows_root_hidden.0.0.local_keywords"
+msgstr ""
+
+#. Plan of the city of Belo Horizonte, Brazil, 1942.
+msgid "layer.bh_plan_1942.title"
+msgstr "Plan of the city of Belo Horizonte, Brazil, 1942."
+
+#. Planta da cidade de Belo Horizonte, Minas Gerais, Brasil, feita em 1942.
+#. Esta imagem oferece uma visão detalhada da planta em 1942 com uma alta
+#. resolução.  Licença: CC-BY-4.0
+msgid "layer.bh_plan_1942.abstract"
+msgstr ""
+"\n"
+"Planta da cidade de Belo Horizonte, Minas Gerais, Brasil, feita em 1942. "
+"Esta imagem oferece uma visão detalhada da planta em 1942 com uma alta "
+"resolução.\n"
+"\n"
+"Licença: CC-BY-4.0\n"
+
+msgid "layer.bh_plan_1942.local_keywords"
+msgstr ""
+
+#. red
+msgid "layer.bh_plan_1942.bands.red"
+msgstr "red"
+
+#. green
+msgid "layer.bh_plan_1942.bands.green"
+msgstr "green"
+
+#. blue
+msgid "layer.bh_plan_1942.bands.blue"
+msgstr "blue"
+
+#. Simple RGB
+msgid "style.bh_plan_1942.simple_rgb.title"
+msgstr "Simple RGB"
+
+#. Simple true-colour image, using the red, green and blue bands
+msgid "style.bh_plan_1942.simple_rgb.abstract"
+msgstr "Simple true-colour image, using the red, green and blue bands"
+
+#. Enhanced Contrast
+msgid "style.bh_plan_1942.enhanced_contrast.title"
+msgstr "Enhanced Contrast"
+
+#. Enhanced contrast using the red, green, and blue bands
+msgid "style.bh_plan_1942.enhanced_contrast.abstract"
+msgstr "Enhanced contrast using the red, green, and blue bands"
+
+#. Color Inversion
+msgid "style.bh_plan_1942.inverted.title"
+msgstr "Color Inversion"
+
+#. Inverted colors of the red, green, and blue bands
+msgid "style.bh_plan_1942.inverted.abstract"
+msgstr "Inverted colors of the red, green, and blue bands"
+
+#. Red Emphasis
+msgid "style.bh_plan_1942.red_emphasis.title"
+msgstr "Red Emphasis"
+
+#. Emphasizes the red band
+msgid "style.bh_plan_1942.red_emphasis.abstract"
+msgstr "Emphasizes the red band"
+
+#. Green Emphasis
+msgid "style.bh_plan_1942.green_emphasis.title"
+msgstr "Green Emphasis"
+
+#. Emphasizes the green band
+msgid "style.bh_plan_1942.green_emphasis.abstract"
+msgstr "Emphasizes the green band"
+
+#. Blue Emphasis
+msgid "style.bh_plan_1942.blue_emphasis.title"
+msgstr "Blue Emphasis"
+
+#. Emphasizes the blue band
+msgid "style.bh_plan_1942.blue_emphasis.abstract"
+msgstr "Emphasizes the blue band"
+
+#. Red
+msgid "style.bh_plan_1942.red.title"
+msgstr "Red"
+
+#. Red band
+msgid "style.bh_plan_1942.red.abstract"
+msgstr "Red band"
+
+#. Green
+msgid "style.bh_plan_1942.green.title"
+msgstr "Green"
+
+#. Green band
+msgid "style.bh_plan_1942.green.abstract"
+msgstr "Green band"
+
+#. Blue
+msgid "style.bh_plan_1942.blue.title"
+msgstr "Blue"
+
+#. Blue band
+msgid "style.bh_plan_1942.blue.abstract"
+msgstr "Blue band"
+
+#. Imagens Aéreas de Belo Horizonte - MG - 1999
+msgid "folder.ows_root_hidden.0.1.title"
 msgstr "Imagens Aéreas de Belo Horizonte - MG - 1999"
 
 #. Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais
-msgid "folder.ows_root_hidden.0.0.abstract"
+msgid "folder.ows_root_hidden.0.1.abstract"
 msgstr "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais"
 
-msgid "folder.ows_root_hidden.0.0.local_keywords"
+msgid "folder.ows_root_hidden.0.1.local_keywords"
 msgstr ""
 
 #. Orthophoto of the city of Belo Horizonte, Brazil, 1999.
@@ -169,14 +285,14 @@ msgid "style.bh_ortophoto_1999.blue.abstract"
 msgstr "Blue band"
 
 #. Imagens Aéreas de Belo Horizonte - MG - 2007-2015
-msgid "folder.ows_root_hidden.0.1.title"
+msgid "folder.ows_root_hidden.0.2.title"
 msgstr "Imagens Aéreas de Belo Horizonte - MG - 2007-2015"
 
 #. Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais
-msgid "folder.ows_root_hidden.0.1.abstract"
+msgid "folder.ows_root_hidden.0.2.abstract"
 msgstr "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais"
 
-msgid "folder.ows_root_hidden.0.1.local_keywords"
+msgid "folder.ows_root_hidden.0.2.local_keywords"
 msgstr ""
 
 #. Orthophoto of the city of Belo Horizonte, Brazil, 2007-2015.

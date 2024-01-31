@@ -14,17 +14,17 @@ Licença: CC-BY-4.0
     "product_name": "bh_ortophoto_1999",
     "low_res_product_name": "bh_ortophoto_1999_lowres",
     "bands": ortophoto_bands,
-    "resource_limits": reslim_bh_images,  # Defina um limite de recursos apropriado
+    "resource_limits": reslim_bh_images,
     "image_processing": {
         "extent_mask_func": "datacube_ows.ogc_utils.mask_by_val",
-        "always_fetch_bands": ["red", "green", "blue"],  # Supondo que estas sejam as bandas do seu produto
-        "manual_merge": True,  # Defina conforme necessário
-        "apply_solar_corrections": False,  # Defina conforme necessário
+        "always_fetch_bands": ["red", "green", "blue"],
+        "manual_merge": True,
+        "apply_solar_corrections": False,
     },
     "native_crs": "EPSG:29193",
     "native_resolution": [0.399711, -0.399711],
     "styling": {
-        "default_style": "simple_rgb",  # Defina um estilo padrão apropriado
+        "default_style": "simple_rgb",
         "styles": styles_ortophoto_list,
     }
 }

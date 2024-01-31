@@ -1,10 +1,12 @@
-var map = L.map('map').setView([-19.917299, -43.934559], 13);
+var map = L.map('map', {
+    center: [-19.917299, -43.934559],
+    zoom: 10, // Defina o zoom inicial para o menor dos três níveis de zoom
+    minZoom: 16, // O menor nível de zoom permitido
+    maxZoom: 18, // O maior nível de zoom permitido
+    zoomSnap: 2, // Isso permite apenas zooms nos níveis 10, 12 e 14
+});
 
-
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 var drawnRectangle;
 var drawnBounds;
@@ -244,18 +246,17 @@ function addWMSLayer() {
 
     var timeParam = startDate && endDate ? startDate + '/' + endDate : '';
 
-    // Criar a URL com os parâmetros, incluindo o parâmetro TIME
-    var wmsParams = {
+
+    var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
         layers: selectedLayer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: drawnBounds,
-        time: timeParam
-    };
-
-    var wmsLayer = L.tileLayer.wms('http://localhost:8000', wmsParams);
+        time: timeParam,
+        //tileSize: 128
+    });
 
     wmsLayer.addTo(map);
 }

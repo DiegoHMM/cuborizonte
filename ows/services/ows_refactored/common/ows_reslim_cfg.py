@@ -3,29 +3,29 @@
 # Defines cache control on GetMap requests
 dataset_cache_rules = [
     {
-        "min_datasets": 5,
+        "min_datasets": 1,
         "max_age": 60 * 60 * 24,
     },
     {
-        "min_datasets": 9,
+        "min_datasets": 5,
         "max_age": 60 * 60 * 24 * 7,
     },
-    {
-        "min_datasets": 17,
-        "max_age": 60 * 60 * 24 * 30,
-    },
-    {
-        "min_datasets": 65,
-        "max_age": 60 * 60 * 24 * 120,
-    },
+    #{
+    #    "min_datasets": 10,
+    #    "max_age": 60 * 60 * 24 * 30,
+    #},
+    #{
+    #    "min_datasets": 15,
+    #    "max_age": 60 * 60 * 24 * 120,
+    #},
 ]
 
 
 reslim_bh_images = {
     "wms": {
         "zoomed_out_fill_colour": [0, 0, 0, 255],  # Cor de preenchimento quando afastado
-        "min_zoom_factor": 100.0,  # Limita o nível de zoom para manter o usuário mais próximo
-        #"max_datasets": 16,  #Pode ser definido se necessário limitar o número de datasets
+        "min_zoom_factor": 10,  # Limita o nível de zoom para manter o usuário mais próximo
+        "max_datasets": 5,  #Pode ser definido se necessário limitar o número de datasets
         "dataset_cache_rules": dataset_cache_rules,  # Regras de cache conforme necessário
     },
 }

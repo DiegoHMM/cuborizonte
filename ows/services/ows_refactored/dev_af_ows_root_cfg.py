@@ -82,6 +82,16 @@ ows_cfg = {
             "title": "Cuborizonte - OGC Web Services",
             "abstract": "Cuborizonte OGC Web Services",
             "layers": [
+                 {
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1942",
+                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.plan.bh_plan_1942_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
                 {
                     "title": "Imagens Aéreas de Belo Horizonte - MG - 1999",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
