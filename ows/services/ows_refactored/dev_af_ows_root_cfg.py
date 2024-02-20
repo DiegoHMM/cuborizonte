@@ -87,7 +87,17 @@ ows_cfg = {
                     "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.plan.bh_plan_1942_cfg.layer",
+                                    "include": "ows_refactored.planta.bh_planta_1942_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1972-1989",
+                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.planta.bh_planta_1972_1989_cfg.layer",
                                     "type": "python",
                                 },
                     ],

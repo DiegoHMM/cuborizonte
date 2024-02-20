@@ -1,18 +1,17 @@
-from ows_refactored.plan.bands_plan import plan_rgb_bands
-from ows_refactored.plan.style_plan_rgb_cfg import styles_plan_rgb_list
+from ows_refactored.planta.bands_plan import plan_rgb_bands
+from ows_refactored.planta.style_plan_rgb_cfg import styles_plan_rgb_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
 layer = {
     "title": "Plan of the city of Belo Horizonte, Brazil, 1942.",
-    "name": "bh_plan_1942",
+    "name": "bh_planta_1942",
     "abstract": """
 Planta da cidade de Belo Horizonte, Minas Gerais, Brasil, feita em 1942. Esta imagem oferece uma visão detalhada da planta em 1942 com uma alta resolução.
-
 Licença: CC-BY-4.0
 """,
-    "product_name": "bh_plan_1942",
-    "low_res_product_name": "bh_plan_1942_lowresolution",
+    "product_name": "bh_planta_1942",
+    "low_res_product_name": "bh_planta_1942_lowres",
     "bands": plan_rgb_bands,
     "resource_limits": reslim_bh_images,
     "image_processing": {

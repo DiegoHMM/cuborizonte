@@ -12,7 +12,7 @@ style_plan_rgb_enhanced_contrast = {
     "title": "Enhanced Contrast",
     "abstract": "Enhanced contrast using the red, green, and blue bands",
     "components": {"red": {"red": 1.0}, "green": {"green": 1.0}, "blue": {"blue": 1.0}},
-    "scale_range": [30.0, 220.0],  # Ajuste estes valores conforme necessário
+    "scale_range": [30.0, 220.0],
 }
 
 
