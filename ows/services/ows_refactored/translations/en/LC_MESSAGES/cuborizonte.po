@@ -1,14 +1,14 @@
 # Translations for datacube-ows metadata instance:
 # Cuborizonte - OGC Web Services
 #
-# Cuborizonte - UFMG 2024-02-20T18:55:24.811257
+# Cuborizonte - UFMG 2024-02-26T14:35:23.767032
 msgid ""
 msgstr ""
 "Project-Id-Version: Cuborizonte - OGC Web Services "
-"2024-02-20T18:55:24.811257\n"
+"2024-02-26T14:35:23.767032\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-02-20 18:55+0000\n"
-"PO-Revision-Date: 2024-02-20 18:55+0000\n"
+"POT-Creation-Date: 2024-02-26 14:35+0000\n"
+"PO-Revision-Date: 2024-02-26 14:35+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: pt_BR <LL@li.org>\n"
@@ -26,9 +26,9 @@ msgstr "Cuborizonte - OGC Web Services"
 msgid "global.abstract"
 msgstr "Cuborizonte OGC Web Services"
 
-#. datacube,time-series,remote sensing
+#. time-series,datacube,remote sensing
 msgid "global.local_keywords"
-msgstr "datacube,time-series,remote sensing"
+msgstr "time-series,datacube,remote sensing"
 
 #. none
 msgid "global.fees"

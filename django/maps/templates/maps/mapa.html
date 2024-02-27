@@ -14,13 +14,18 @@
 </head>
 <body>
 
+    
+      
+
     <div id="container">
         <!-- Sidebar -->
         <div id="sidebar">
 
             <!-- Slider for image selection -->
-            <label for="imageSlider" id="imageSliderLabel">Linha do tempo:</label><br>
-            <input type="range" id="imageSlider" name="imageSlider" min="0" max="0" value="0" step="1" style="width: 100%;" onchange="updateImage(this.value)">
+            <label for="imageSlider" id="imageSliderLabel" style="display: none;">Linha do tempo:</label>
+            <div id="linhaDoTempo">
+                <!-- Pontos da linha do tempo serão inseridos aqui via JavaScript -->
+            </div>
 
 
             <form id="coordenadasForm" method="post">
@@ -29,10 +34,8 @@
                 <!-- Product Dropdown -->
                 <label for="produto">Produto:</label><br>
                 <select id="produto" name="produto">
-                    <option value="bh_planta_1942">Planta 1942</option>
-                    <option value="bh_planta_1972_1989">Planta 1972-1989</option>
-                    <option value="bh_ortophoto_1999">Ortofoto 1999</option>
-                    <option value="bh_ortophoto_2007_2015">Ortofoto 2007-2015</option>
+                    <option value="ortofoto">Ortofotos</option>
+                    <option value="planta">Plantas</option>
                     <!-- Add more products as needed -->
                 </select><br>
 
@@ -85,7 +88,7 @@
                     </button>                                       
 
                     <!-- Botão de Busca -->
-                    <button id="buscarDadosButton" type="button" onclick="addWMSLayer()" class="svg-button" >
+                    <button id="buscarDadosButton" type="button" onclick="atualizarProdutosFiltrados()" class="svg-button" >
                         <img src="{% static 'maps/asset/search.svg' %}" alt="Ícone de busca">
                         <span>Buscar Dados</span>
                     </button>

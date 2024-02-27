@@ -7,7 +7,7 @@ ows_cfg = {
         },
         "services": {
             "wms": True,
-            "wcs": False,
+            "wcs": True,
             "wmts": True,
         },
         "published_CRSs": {
@@ -74,9 +74,26 @@ ows_cfg = {
     "wms": {
         # Config for WMS service, for all products/layers
         "s3_aws_zone": "sa-east-1",
-        "max_width": 10000,
-        "max_height": 10000,
+        "max_width": 512,
+        "max_height": 512,
     },  # END OF wms SECTION
+    "wcs": {
+        # Config for WCS service, for all products/coverages
+        "default_geographic_CRS": "EPSG:4326",
+        "formats": {
+            "GeoTIFF": {
+                # "renderer": "datacube_ows.wcs_utils.get_tiff",
+                "renderers": {
+                    "1": "datacube_ows.wcs1_utils.get_tiff",
+                    "2": "datacube_ows.wcs2_utils.get_tiff",
+                },
+                "mime": "image/geotiff",
+                "extension": "tif",
+                "multi-time": False,
+            },
+        },
+        "native_format": "GeoTIFF",
+    },  # END OF wcs SECTION
     "layers": [
         {
             "title": "Cuborizonte - OGC Web Services",

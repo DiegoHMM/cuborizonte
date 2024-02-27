@@ -1,9 +1,9 @@
 var map = L.map('map', {
     center: [-19.917299, -43.934559],
-    zoom: 10, // Defina o zoom inicial para o menor dos três níveis de zoom
-    minZoom: 16, // O menor nível de zoom permitido
-    maxZoom: 18, // O maior nível de zoom permitido
-    zoomSnap: 2, // Isso permite apenas zooms nos níveis 10, 12 e 14
+    zoom: 10,
+    minZoom: 16, 
+    maxZoom: 18,
+    zoomSnap: 2,
 });
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -30,6 +30,19 @@ var drawControl = new L.Control.Draw({
         },
     },
 });
+
+const produtosData = {
+    "planta": [
+        {"date": ["1942-01-01","1942-12-01"], "product": "bh_planta_1942"},
+        {"date": ["1972-01-01","1972-12-01"], "product": "bh_planta_1972_1989"},
+        {"date": ["1989-01-01","1989-12-01"], "product": "bh_planta_1972_1989"}
+    ],
+    "ortofoto": [
+        {"date": ["1999-01-01","1999-12-01"], "product": "bh_ortophoto_1999"},
+        {"date": ["2007-01-01","2007-12-01"], "product": "bh_ortophoto_2007_2015"},
+        {"date": ["2015-01-01","2015-12-01"], "product": "bh_ortophoto_2007_2015"}
+    ]
+};
 
 
 function startDrawing(event) {
@@ -109,34 +122,6 @@ function getCookie(name) {
 }
 
 
-function buscarDados() {
-    // Obtenha as coordenadas do formulário
-    var latitudeInicial = document.getElementById('latitude_inicial').value;
-    var longitudeInicial = document.getElementById('longitude_inicial').value;
-    var latitudeFinal = document.getElementById('latitude_final').value;
-    var longitudeFinal = document.getElementById('longitude_final').value;
-
-    // Construindo o objeto com os dados
-    var dados = {
-        latitude_inicial: latitudeInicial,
-        longitude_inicial: longitudeInicial,
-        latitude_final: latitudeFinal,
-        longitude_final: longitudeFinal,
-    };
-
-    // Enviando a requisição AJAX
-    enviarRequisicaoJson('/get_images/', dados)
-    .then(response => response.json())
-    .then(data => {
-        // Exibir cada imagem no mapa
-        data.images.forEach(urlDaImagem => {
-            exibirImagemNoMapa(urlDaImagem);
-        });
-    })
-    .catch(error => console.error('Erro ao buscar dados:', error));
-}
-
-
 function downloadDados() {
     var dados = {
         latitude_inicial: document.getElementById('latitude_inicial').value,
@@ -166,98 +151,75 @@ function downloadDados() {
     .catch(error => console.error('Erro ao baixar dados:', error));
 }
 
+function atualizarProdutosFiltrados() {
+    let categoriaSelecionada = document.getElementById('produto').value;
+    let startDate = new Date(document.getElementById('start_date').value);
+    let endDate = new Date(document.getElementById('end_date').value);
+
+    let produtosFiltrados = filtrarProdutosPorData(categoriaSelecionada, startDate, endDate);
+    adicionarBulletPoints(produtosFiltrados);
+}
 
 
+function filtrarProdutosPorData(categoriaSelecionada, startDate, endDate) {
+    let produtosFiltrados = [];
+    let categoriasParaFiltrar = categoriaSelecionada === 'todos' ? Object.keys(produtosData) : [categoriaSelecionada];
 
-function exibirImagemNoMapa() {
-    // Obter as coordenadas do formulário
-    var latitudeInicial = document.getElementById('latitude_inicial').value;
-    var longitudeInicial = document.getElementById('longitude_inicial').value;
-    var latitudeFinal = document.getElementById('latitude_final').value;
-    var longitudeFinal = document.getElementById('longitude_final').value;
+    categoriasParaFiltrar.forEach(categoria => {
+        produtosData[categoria].forEach(item => {
+            let itemStartDate = new Date(item.date[0]);
+            let itemEndDate = new Date(item.date[1]);
+            if (itemStartDate <= endDate && itemEndDate >= startDate) {
+                produtosFiltrados.push(item);
+            }
+        });
+    });
 
-    // Construir a URL da imagem
-    var urlDaImagem = `http://localhost:8000/wms?service=WMS&version=1.3.0&request=GetMap&layers=bh_aerial_image_1999&styles=&crs=EPSG:4326&bbox=${latitudeInicial},${longitudeInicial},${latitudeFinal},${longitudeFinal}&width=400&height=200&format=image/png`;
-
-    // Definir os limites da imagem
-    var imageBounds = [[latitudeInicial, longitudeInicial], [latitudeFinal, longitudeFinal]];
-
-    // Adicionar a imagem como uma sobreposição ao mapa
-    L.imageOverlay(urlDaImagem, imageBounds).addTo(map);
+    return produtosFiltrados;
 }
 
 
 
+function adicionarBulletPoints(produtosFiltrados) {
+    const linhaDoTempo = document.getElementById('linhaDoTempo');
+    linhaDoTempo.innerHTML = '';
 
-/*
-function addWMSLayer() {
-    if (!drawnBounds) {
-        alert("Por favor, desenhe um retângulo no mapa primeiro.");
-        return;
+    if (produtosFiltrados.length > 0) {
+        document.getElementById('imageSliderLabel').style.display = 'block';
     }
 
-    function updateWMSLayer() {
-        var southWest = drawnBounds.getSouthWest();
-        var northEast = drawnBounds.getNorthEast();
+    produtosFiltrados.sort((a, b) => new Date(a.date[0]) - new Date(b.date[0]));
 
-        var southWest3857 = L.CRS.EPSG3857.project(southWest);
-        var northEast3857 = L.CRS.EPSG3857.project(northEast);
+    produtosFiltrados.forEach(item => {
+        const bulletPoint = document.createElement('div');
+        bulletPoint.classList.add('bulletPoint');
+        bulletPoint.setAttribute('title', `${item.product} - De ${item.date[0]} até ${item.date[1]}`);
+        linhaDoTempo.appendChild(bulletPoint);
 
-        var bbox = [southWest3857.x, southWest3857.y, northEast3857.x, northEast3857.y].join(',');
-
-        // Calcula a resolução da imagem com base no zoom
-        var zoom = map.getZoom();
-        var width = Math.round((northEast3857.x - southWest3857.x) / Math.pow(2, 18 - zoom));
-        var height = Math.round((northEast3857.y - southWest3857.y) / Math.pow(2, 18 - zoom));
-
-        // Remove a sobreposição de imagem anterior, se houver
-        if (window.wmsOverlay) {
-            map.removeLayer(window.wmsOverlay);
-        }
-
-        // Constrói a URL para a imagem WMS
-        var imageUrl = 'http://localhost:8000/?service=WMS&request=GetMap&layers=bh_aerial_image_1999&styles=&format=image/png&transparent=true&version=1.3.0&width=' + width + '&height=' + height + '&crs=EPSG:3857&bbox=' + bbox;
-
-        // Adiciona a sobreposição de imagem WMS
-        window.wmsOverlay = L.imageOverlay(imageUrl, drawnBounds).addTo(map);
-    }
-
-    // Atualiza a camada WMS quando o zoom do mapa é alterado
-    map.on('zoomend', updateWMSLayer);
-
-    // Inicializa a camada WMS
-    updateWMSLayer();
+        bulletPoint.addEventListener('click', () => {
+            console.log(`Bullet point para o produto ${item.product} com intervalo de datas ${item.date} clicado.`);
+            addWMSLayer(item);
+        });
+    });
 }
-*/
 
-function addWMSLayer() {
+function addWMSLayer(item) {
     console.log(map.getZoom());
-    if (!drawnBounds) {
+    if (!drawnRectangle || !map.hasLayer(drawnRectangle)) {
         alert("Por favor, desenhe um retângulo no mapa primeiro.");
         return;
     }
-
-    // Obter o valor selecionado no dropdown 'produto'
-    var selectedLayer = document.getElementById('produto').value;
-
-    // Obter as datas de início e término do formulário
-    var startDate = document.getElementById('start_date').value;
-    var endDate = document.getElementById('end_date').value;
-
-    var timeParam = startDate && endDate ? startDate + '/' + endDate : '';
-
 
     var wmsLayer = L.tileLayer.wms('http://localhost:8000', {
-        layers: selectedLayer,
+        layers: item.product,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
-        bounds: drawnBounds,
-        time: timeParam,
-        //tileSize: 128
+        // Use os limites de drawnRectangle diretamente
+        bounds: drawnRectangle.getBounds(),
+        time: `${item.date[0]}/${item.date[1]}`,
     });
 
     wmsLayer.addTo(map);
 }
-
