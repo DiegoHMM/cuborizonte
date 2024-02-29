@@ -52,6 +52,28 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date):
     bounding_box = calculate_bounding_box(tif_path)
 
     file_name = os.path.splitext(os.path.basename(tif_path))[0]
+    band_dir = os.path.join(bands_path, file_name)
+
+    # Lista os arquivos no diretório da banda
+    band_files = [f for f in os.listdir(band_dir) if f.endswith('.tif')]
+    band_count = len(band_files)
+
+    measurements = {}
+    if band_count == 1:
+        # Se existir apenas um arquivo, assume que é uma banda 'gray'
+        gray_band_file = band_files[0]  # Pega o nome do arquivo
+        measurements = {
+            'gray': {'path': os.path.join(band_dir, gray_band_file)},
+        }
+    elif band_count == 3:
+        # Se existirem três arquivos, configura para as bandas RGB
+        measurements = {
+            'red': {'path': os.path.join(band_dir, 'red.tif')},
+            'green': {'path': os.path.join(band_dir, 'green.tif')},
+            'blue': {'path': os.path.join(band_dir, 'blue.tif')},
+        }
+    else:
+        raise ValueError(f"Número inesperado de arquivos de banda ({band_count}) para {file_name}")
 
     return { 
         'id': str(uuid.uuid4()),
@@ -61,17 +83,7 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date):
         },
         'crs': crs,
         'grids': grid,
-        'measurements': {    
-            'red': {
-                'path': os.path.join(bands_path, file_name, 'red.tif'),
-            },
-            'green': {
-                'path': os.path.join(bands_path, file_name, 'green.tif'),
-            },
-            'blue': {
-                'path': os.path.join(bands_path, file_name, 'blue.tif'),
-            },
-        },
+        'measurements': measurements,
         'properties': {
             'dtr:start_datetime': start_date,
             'dtr:end_datetime': end_date,

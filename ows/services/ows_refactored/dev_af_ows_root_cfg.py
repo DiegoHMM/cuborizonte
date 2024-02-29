@@ -7,7 +7,7 @@ ows_cfg = {
         },
         "services": {
             "wms": True,
-            "wcs": False,
+            "wcs": True,
             "wmts": True,
         },
         "published_CRSs": {
@@ -74,14 +74,51 @@ ows_cfg = {
     "wms": {
         # Config for WMS service, for all products/layers
         "s3_aws_zone": "sa-east-1",
-        "max_width": 10000,
-        "max_height": 10000,
+        "max_width": 512,
+        "max_height": 512,
     },  # END OF wms SECTION
+    "wcs": {
+        # Config for WCS service, for all products/coverages
+        "default_geographic_CRS": "EPSG:4326",
+        "formats": {
+            "GeoTIFF": {
+                # "renderer": "datacube_ows.wcs_utils.get_tiff",
+                "renderers": {
+                    "1": "datacube_ows.wcs1_utils.get_tiff",
+                    "2": "datacube_ows.wcs2_utils.get_tiff",
+                },
+                "mime": "image/geotiff",
+                "extension": "tif",
+                "multi-time": False,
+            },
+        },
+        "native_format": "GeoTIFF",
+    },  # END OF wcs SECTION
     "layers": [
         {
             "title": "Cuborizonte - OGC Web Services",
             "abstract": "Cuborizonte OGC Web Services",
             "layers": [
+                 {
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1942",
+                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.planta.bh_planta_1942_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1972-1989",
+                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.planta.bh_planta_1972_1989_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
                 {
                     "title": "Imagens Aéreas de Belo Horizonte - MG - 1999",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",

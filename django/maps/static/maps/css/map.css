@@ -21,6 +21,26 @@
     flex-grow: 1;
 }
 
+#linhaDoTempo {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .bulletPoint {
+    cursor: pointer;
+    padding: 5px;
+    background-color: #007bff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  
+
+
 /* Estilos da Sidebar */
 #sidebar {
     position: absolute;

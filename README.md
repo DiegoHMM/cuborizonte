@@ -1,29 +1,81 @@
-# Cuborizonte in a Box
+# Cubo em uma Caixa (Cube in a Box)
 
-The Cube in a Box is a simple way to run the [Open Data Cube](https://www.opendatacube.org).
+O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Data Cube](https://www.opendatacube.org), facilitando a gestão e análise de grandes volumes de dados de observação da Terra.
 
-## Setup - Docker:
+## Processamento de Dados
 
-  * If the above fails you can follow the following steps:
-    1. `docker-compose up`
-    2. When the a message like: `No web browser found: could not locate runnable browser` shows. Open a new shell and run the next commands
-    3. `docker-compose exec ows datacube -v system init` It starts DBs
-    4.    `docker-compose exec jupyter python /cuborizonte/divide_bands.py /data/raw/ORTOFOTO_2007 /data/processed/ORTOFOTO_2007`
-          `docker-compose exec jupyter python /cuborizonte/build_dataset_ortofoto.py /data/processed/ORTOFOTO_2007 /data/raw/ORTOFOTO_2007 bh_ortophoto_2007_2015 2007`
-    5. `docker-compose exec jupyter datacube product add https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/bh_ortophoto_2007_2015.yaml` It create product
-    6. `docker-compose exec jupyter python /cuborizonte/indexer.py /data/processed/ORTOFOTO_2007` It add datasets
+### Passos do Processamento:
 
-    7. You should now be able to go to <http://localhost>
-    8. Enter the password `secretpassword`
+1. **Verificação de Argumentos:** Confirma se todos os três argumentos necessários foram fornecidos. Em caso negativo, uma mensagem de uso é exibida e a execução é interrompida.
+   
+2. **Atribuição de Argumentos a Variáveis:** Os argumentos são armazenados em variáveis para facilitar seu uso ao longo do script.
 
-    9. docker-compose exec ows datacube-ows-update --schema --role postgres
-    10. docker-compose exec ows datacube-ows-update --views
+3. **Inicialização de Serviços Docker:** O script aguarda 60 segundos para assegurar a correta inicialização dos serviços Docker antes de prosseguir com as configurações do sistema.
 
-    * Is possible to update one specific layer at time:
-    11. docker-compose exec ows datacube-ows-update bh_ortophoto_2007_2015
+4. **Inicialização do Sistema de Banco de Dados:** Utiliza `docker-compose exec` para iniciar o sistema de banco de dados necessário para o Open Data Cube.
 
-    * To create metata:
-    12. docker-compose exec ows datacube-ows-cfg extract -m /env/config/ows_refactored/messages.po
-    13. docker-compose exec ows datacube-ows-cfg translation -n -D cuborizonte -d /env/config/ows_refactored/translations -m /env/config/ows_refactored/messages.po en pt_BR
-    ``` Now make the translation of each .po manually```
-    14. docker-compose exec ows datacube-ows-cfg compile -D cuborizonte -d /env/config/ows_refactored/translations en pt_BR
+5. **Processamento de Dados:** Executa scripts Python para separar as bandas das imagens e construir os conjuntos de dados com base nos parâmetros fornecidos.
+
+6. **Finalização:** Exibe uma mensagem indicando que as configurações foram concluídas com sucesso.
+
+### Requisitos:
+
+- Docker e Docker Compose instalados e configurados no sistema.
+- Dados brutos organizados na pasta especificada por `<pasta_de_origem>`.
+- O ambiente Docker deve ter acesso aos diretórios de dados brutos e processados.
+
+### Uso:
+
+#### Parâmetros:
+
+- `<pasta_de_origem>`: Caminho para a pasta contendo os dados brutos.
+- `<nome_do_produto>`: Identificador único do produto no Data Cube.
+- `<ano>`: Ano correspondente aos dados a serem processados.
+
+#### Sintaxe do Comando:
+
+```bash
+./start_processing.sh <pasta_de_origem> <nome_do_produto> <ano>
+```
+
+####  Exemplo de Uso:
+
+```bash
+./start_processing.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
+```
+
+
+## Indexação do Banco de Dados
+
+### Processo de Indexação:
+
+  1. **Adição de Produtos ao Data Cube:** Inclui definições de produtos no Data Cube, utilizando arquivos YAML localizados no repositório GitHub especificado.
+
+  2. **Indexação dos Conjuntos de Dados:** Realiza a indexação dos conjuntos de dados na pasta de origem fornecida, preparando-os para análise e visualização.
+
+  3. **Atualizações do OWS (Open Web Services):** Atualiza o esquema e as visualizações do OWS para incorporar os novos produtos e conjuntos de dados.
+
+  4. **Atualização de Uma Camada Específica:** Permite a atualização de uma camada específica no OWS, utilizando o nome do produto fornecido.
+
+### Requisitos:
+
+  - Docker e Docker Compose instalados e configurados no sistema.
+  - Acesso ao repositório de produtos do Open Data Cube no GitHub.
+  - Estrutura de diretórios correta para os dados de origem e processados.
+
+### Uso:
+
+#### Parâmetros:
+
+  - `<nome_do_produto>`: Nome do produto no Data Cube, correspondendo ao nome do arquivo YAML no repositório GitHub.
+  - `<pasta_de_origem>`: Pasta onde os dados de origem estão localizados e acessíveis pelo Docker Compose e pelo script.
+
+#### Sintaxe do Comando:
+```bash
+./nome_do_script.sh <nome_do_produto> <pasta_de_origem>
+```
+
+####  Exemplo de Uso:
+```bash
+./nome_do_script.sh bh_ortophoto_1999 ORTOFOTO_1999
+```
