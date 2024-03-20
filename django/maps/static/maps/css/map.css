@@ -1,24 +1,80 @@
 /* Variáveis de Cores e Estilos Básicos */
 :root {
-    --primary-color: rgb(0, 73, 12);
+    --primary-color: rgb(0, 70, 12);
     --secondary-color: #ffffff; /* Branco */
-    --background-color: rgba(0, 63, 0, 0.8); /* Verde-água transparente */
-    --text-color: #f0f0f0; /* Cinza claro para mais contraste */
+    --background-color: rgba(252, 252, 252, 0.8); /* Verde-água transparente */
+    --text-color: rgb(0, 70, 12); /* Cinza claro para mais contraste */
     --border-radius: 10px;
     --font-weight: 500; /* Peso médio para o texto */
     --text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Sombra sutil para melhorar a legibilidade */
-    --input-bg-color: rgba(50, 50, 50, 0.8); /* Cor de fundo escura para inputs */
+    --input-bg-color: rgba(207, 206, 206, 0.8); /* Cor de fundo escura para inputs */
     --input-border-color: #666; /* Cor da borda para inputs */
+}
+
+
+
+/* Cabeçalho */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px; 
+    padding: 0 20px;
+    font-size: 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    z-index: 1001;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra um pouco mais proeminente */
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-right{
+    margin-right: 20px;
+}
+
+.logo {
+    height: 60px;
+    margin-right: 20px;
+}
+
+/* Botões do Cabeçalho */
+.home-button, .documentation-button, .about-button {
+    padding: 10px 20px;
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+
+.home-button:hover, .documentation-button:hover, .about-button:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
 }
 
 /* Layout Principal */
 #container {
     display: flex;
-    height: 100vh;
+    flex-direction: row; /* Organiza o conteúdo horizontalmente */
+    top: 60px; /* Início abaixo do cabeçalho */
+    position: absolute;
+    width: 100%;
+    height: calc(100vh - 60px); /* Altura total menos a altura do cabeçalho */
 }
 
 #map {
     flex-grow: 1;
+    height: 100%;
 }
 
 #linhaDoTempo {
@@ -43,18 +99,17 @@
 
 /* Estilos da Sidebar */
 #sidebar {
-    position: absolute;
-    top: 20px;
-    left: 80px;
-    z-index: 1000;
+    position: fixed;
+    top: 60px; /* Altura do header */
+    left: 0;
+    width: 320px; /* Largura do sidebar */
+    height: calc(100vh - 60px); /* Altura total menos a altura do header */
     background: var(--background-color);
+    overflow-y: auto;
+    z-index: 500; 
     padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    color: var(--text-color);
-    font-weight: var(--font-weight);
-    text-shadow: var(--text-shadow);
-    transition: all 0.3s ease;
+    font-size: 18px; /* Aumenta a fonte do sidebar */
+    line-height: 1.6; /* Melhora a legibilidade do texto */
 }
 
 #sidebar:hover {
@@ -69,7 +124,7 @@ input[type="text"], input[type="date"], input[type="number"], select, input[type
     border: 1px solid var(--input-border-color);
     border-radius: var(--border-radius);
     background-color: var(--input-bg-color);
-    color: var(--secondary-color);
+    color: var(--primary-color);
     box-sizing: border-box;
 }
 
@@ -80,7 +135,7 @@ button {
     margin: 10px;
     padding: 10px;
     background-color: var(--primary-color);
-    color: var(--secondary-color);
+    color: var(--primary-color);
     border: none;
     border-radius: var(--border-radius);
     cursor: pointer;
@@ -89,7 +144,7 @@ button {
 
 button:hover {
     background-color: darken(var(--primary-color), 10%);
-    border: 2px solid var(--secondary-color); /* Adiciona borda ao passar o mouse */
+    border: 2px solid var(--primary-color); /* Adiciona borda ao passar o mouse */
 }
 
 /* Estilos Personalizados do Slider */
@@ -144,31 +199,48 @@ input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid var(--primary-color); /* Adiciona borda o tempo todo */
-    border-radius: var(--border-radius); /* Para manter a consistência com outros botões */
-    flex-grow: 1; /* Faz com que os botões preencham o espaço disponível */
-    margin-right: 10px; /* Adiciona margem à direita de cada botão, exceto o último */
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    flex-grow: 1;
+    margin-right: 10px;
 }
 
 .svg-button img {
-    margin-right: 10px; /* Adiciona espaço entre a imagem e o texto */
-    width: 32px; /* Ajuste conforme necessário */
-    height: 32px; /* Ajuste conforme necessário */
+    margin-right: 10px;
+    width: 32px;
+    height: 32px;
 }
 
 .svg-button span {
-    color: var(--secondary-color); /* Cor do texto, ajuste conforme necessário */
-    font-size: 14px; /* Tamanho do texto, ajuste conforme necessário */
-    text-shadow: var(--text-shadow); /* Sombra do texto, se aplicável */
+    font-size: 14px;
 }
 
 .svg-button:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Opção para mudar ligeiramente o fundo ao passar o mouse */
+    background-color: var(--primary-color);
+    color: var(--secondary-color) !important;
 }
 
 
 .button-container {
-    display: flex; /* Isso alinha os itens (botões) horizontalmente */
-    justify-content: space-between; /* Isso adiciona espaço entre os botões */
-    margin-bottom: 15px; /* Espaço abaixo do contêiner dos botões */
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+
+.secondary-button{
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+}
+
+
+/* menu de utilidades leaflet */
+
+.leaflet-left .leaflet-control{
+    margin-left: 380px !important;     
 }
