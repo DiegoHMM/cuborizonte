@@ -35,13 +35,13 @@ O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Dat
 #### Sintaxe do Comando:
 
 ```bash
-./start_processing.sh <pasta_de_origem> <nome_do_produto> <ano>
+./process_raw_data.sh <pasta_de_origem> <nome_do_produto> <ano>
 ```
 
 ####  Exemplo de Uso:
 
 ```bash
-./start_processing.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
+./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
 ```
 
 
@@ -72,10 +72,10 @@ O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Dat
 
 #### Sintaxe do Comando:
 ```bash
-./nome_do_script.sh <nome_do_produto> <pasta_de_origem>
+./setup_datacube.sh <nome_do_produto> <pasta_de_origem>
 ```
 
 ####  Exemplo de Uso:
 ```bash
-./nome_do_script.sh bh_ortophoto_1999 ORTOFOTO_1999
+./setup_datacube.sh bh_ortophoto_1999 ORTOFOTO_1999
 ```

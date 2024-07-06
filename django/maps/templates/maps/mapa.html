@@ -7,13 +7,24 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <!-- Load Leaflet Draw -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <!-- Load Custom CSS -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'maps/css/map.css' %}">
 </head>
 <body>
-
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <a href="mapa.html" class="home-button">Home</a>
+            <img src="{% static 'maps/asset/logo.png' %}" alt="Logo" class="logo">
+        </div>
+        <div class="header-right">
+            <a href="documentation.html" class="documentation-button">Documentação</a>
+            <a href="about.html" class="about-button">Sobre</a>
+        </div>
+    </div>
     
       
 
@@ -94,7 +105,10 @@
                     </button>
                 </div>
                 <!-- Botão de Download -->
-                <button type="button" id="downloadButton" onclick="downloadDados()">Download</button>
+                <button type="button" id="downloadButton" class="svg-button" onclick="downloadDados()">
+                    <img src="{% static 'maps/asset/download.svg' %}" alt="Ícone de download">
+                    <span>Download</span>
+                </button>
             </form>
    
         </div>
