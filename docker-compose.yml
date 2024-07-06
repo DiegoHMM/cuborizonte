@@ -64,9 +64,10 @@ services:
       - ows
     command: >
       sh -c "python manage.py makemigrations &&
-            python manage.py migrate &&
-            python manage.py collectstatic --noinput &&
-            gunicorn cuborizonte.wsgi:application --bind 0.0.0.0:8000"
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn -b '0.0.0.0:8000' --workers=3 --threads=2 -k gevent --timeout 121 --pid /app/gunicorn.pid --log-level info --worker-tmp-dir /dev/shm cuborizonte.wsgi:application"
+
   ows:
     image: opendatacube/ows:latest
     mem_limit: 1g
