@@ -21,7 +21,7 @@ echo "Iniciando configurações do sistema..."
 docker-compose exec ows datacube -v system init
 
 # Dividir bandas e construir dataset
-docker-compose exec jupyter python /cuborizonte/divide_bands.py "/data/raw/${PASTA_DE_ORIGEM}" "/data/processed/${PASTA_DE_ORIGEM}"
-docker-compose exec jupyter python /cuborizonte/build_dataset_ortofoto.py "/data/processed/${PASTA_DE_ORIGEM}" "/data/raw/${PASTA_DE_ORIGEM}" $NOME_DO_PRODUTO $ANO
+docker-compose exec ows python /handle_data_functions/divide_bands.py "/data/raw/${PASTA_DE_ORIGEM}" "/data/processed/${PASTA_DE_ORIGEM}"
+docker-compose exec ows python /handle_data_functions/build_dataset_ortofoto.py "/data/processed/${PASTA_DE_ORIGEM}" "/data/raw/${PASTA_DE_ORIGEM}" $NOME_DO_PRODUTO $ANO
 
 echo "Configurações concluídas."

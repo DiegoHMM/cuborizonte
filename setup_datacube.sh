@@ -18,11 +18,11 @@ set -e
 docker-compose exec ows datacube -v system init
 
 # Adicionar produtos ao Data Cube
-docker-compose exec jupyter datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${NOME_DO_PRODUTO}.yaml"
-docker-compose exec jupyter datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${NOME_DO_PRODUTO}_lowres.yaml"
+docker-compose exec ows datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${NOME_DO_PRODUTO}.yaml"
+docker-compose exec ows datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${NOME_DO_PRODUTO}_lowres.yaml"
 
 # Indexar os datasets
-docker-compose exec jupyter python /cuborizonte/indexer.py "/data/processed/${PASTA_DE_ORIGEM}"
+docker-compose exec ows python /handle_data_functions/indexer.py "/data/processed/${PASTA_DE_ORIGEM}"
 
 # Atualizações do OWS
 docker-compose exec ows datacube-ows-update --schema --role postgres

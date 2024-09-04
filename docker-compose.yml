@@ -13,27 +13,6 @@ services:
       - 5432:5432
     restart: always
 
-  jupyter:
-    build: ./jupyter
-    mem_limit: 1g
-    environment:
-      - DB_HOSTNAME=postgres
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=opendatacubepassword
-      - DB_DATABASE=postgres
-      - AWS_NO_SIGN_REQUEST=true
-      - STAC_API_URL=https://explorer.sandbox.dea.ga.gov.au/stac/
-      - CIABPASSWORD=${CIABPASSWORD:-secretpassword}
-    ports:
-      - "80:8888"
-    volumes:
-      - ./jupyter/notebooks:/jupyter/notebooks
-      - ./jupyter/cuborizonte:/jupyter/cuborizonte
-      - ./data:/data
-    restart: always
-    depends_on:
-      - postgres
-
   checkdb:
     image: schaffdev/port_check:latest
     mem_limit: 500m
@@ -67,7 +46,9 @@ services:
       gunicorn -b '0.0.0.0:8000' --workers=3 --threads=2 -k gevent --timeout 121 --pid /app/gunicorn.pid --log-level info --worker-tmp-dir /dev/shm cuborizonte.wsgi:application"
 
   ows:
-    image: opendatacube/ows:latest
+    build:
+      context: ./ows
+      dockerfile: Dockerfile
     mem_limit: 1g
     environment:
       DB_HOSTNAME: postgres
@@ -87,6 +68,7 @@ services:
       - ./ows/services/ows_refactored:/env/config/ows_refactored/
       - ./ows/services/inventory:/env/config/inventory/
       - ./ows/output:/env/config/output/
+      - ./ows/handle_data_functions:/handle_data_functions
 
 volumes:
   static_volume:
