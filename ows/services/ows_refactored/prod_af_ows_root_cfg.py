@@ -35,6 +35,8 @@ ows_cfg = {
         },
         "allowed_urls": [
             "http://localhost:8000/",
+            "http://localhost:8001/",
+            "http://localhost:8004/",
         ],
         # Metadata to go straight into GetCapabilities documents
         "title": "Cuborizonte - OGC Web Services",

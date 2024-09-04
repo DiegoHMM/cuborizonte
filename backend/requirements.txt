@@ -1,0 +1,13 @@
+anyio
+click
+datacube
+fastapi
+h11
+httptools
+numpy
+pydantic
+psycopg2-binary
+python-dotenv
+sniffio
+starlette
+uvicorn

@@ -37,7 +37,7 @@ def map_view(request):
     return render(request, 'maps/mapa.html', {'mapa': m})
 
 
-def download_cube(request):
+def addWMSLayer(request):
     if request.method == 'POST':
         query = process_request(request)
         data, crs = load_datacube_data(query)
@@ -46,28 +46,6 @@ def download_cube(request):
     else:
         return JsonResponse({"status": "error", "message": "Method not supported"})
     
-
-def get_images(request):
-    if request.method == 'POST':
-        query = process_request(request)
-        data, _ = load_datacube_data(query)
-        print("************")
-        print(query)
-
-        images_base64 = []
-        for i in range(data.shape[-1]):
-            img = data[:, :, i]  # Pegue a imagem do canal i
-            buffered = io.BytesIO()
-            plt.imsave(buffered, img, format="png")
-            img_str = base64.b64encode(buffered.getvalue()).decode()
-            images_base64.append(f"data:image/png;base64,{img_str}")
-
-        return JsonResponse({'images': images_base64})
-    else:
-        return JsonResponse({"status": "error", "message": "Method not supported"})
-    
-
-# Utils
 
 def process_request(request):
     data = json.loads(request.body)
