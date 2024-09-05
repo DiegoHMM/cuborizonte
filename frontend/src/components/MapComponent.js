@@ -11,19 +11,20 @@ const MapComponent = ({ onBoundingBoxSelected, wmsLayer }) => {
   // Handler para quando uma forma é criada
   const handleCreated = (e) => {
     const layer = e.layer;
-    const drawnItems = new L.FeatureGroup();
-    drawnItems.addLayer(layer);
     const bounds = layer.getBounds();
     const southWest = bounds.getSouthWest();
     const northEast = bounds.getNorthEast();
 
-    onBoundingBoxSelected({
+    const bbox = {
       latitudeInicial: southWest.lat,
       longitudeInicial: southWest.lng,
       latitudeFinal: northEast.lat,
       longitudeFinal: northEast.lng,
-    });
+    };
+    console.log("BBox criada:", bbox); // Verificar as coordenadas criadas
+    onBoundingBoxSelected(bbox);
   };
+
 
   return (
     <MapContainer

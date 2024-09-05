@@ -8,17 +8,19 @@ function App() {
   const [boundingBox, setBoundingBox] = useState(null);
   const [wmsData, setWmsData] = useState(null);
 
+  // Dentro do App.js
   const handleBoundingBoxSelected = (bbox) => {
+    console.log("Bounding box selecionada:", bbox); // Adicione este log
     setBoundingBox(bbox);
   };
 
+
   const handleFormSubmit = async (formData) => {
-    // Atualizar o estado wmsData com as informações do formulário e do retângulo selecionado
     if (!boundingBox) {
       alert("Por favor, desenhe um retângulo no mapa antes de submeter o formulário.");
       return;
     }
-
+  
     const wmsLayerData = {
       product: formData.layer,
       latitudeInicial: boundingBox.latitudeInicial,
@@ -28,14 +30,20 @@ function App() {
       startDate: formData.startDate,
       endDate: formData.endDate
     };
-
+  
     setWmsData(wmsLayerData);
+    resetBoundingBox();
   };
+  
+  const resetBoundingBox = () => {
+    setBoundingBox(null); // Isso permitirá ao usuário desenhar uma nova bounding box
+  };
+  
 
   return (
     <div>
       <h1>Mapa Interativo com Bounding Box e Requisições WMS</h1>
-      <WMSForm onSubmit={handleFormSubmit} />
+      <WMSForm boundingBox={boundingBox} onSubmit={handleFormSubmit} />
       <MapComponent onBoundingBoxSelected={handleBoundingBoxSelected} wmsLayer={wmsData} />
     </div>
   );

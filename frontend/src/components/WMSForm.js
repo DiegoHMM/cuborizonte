@@ -1,7 +1,6 @@
 // src/components/WMSForm.js
 import React, { useEffect, useState } from 'react';
 
-
 const WMSForm = ({ boundingBox, onSubmit }) => {
   const [formData, setFormData] = useState({
     latitudeInicial: '',
@@ -13,17 +12,21 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
     endDate: ''
   });
 
+  // Atualiza o formulário com as novas coordenadas quando a bounding box muda
   useEffect(() => {
     if (boundingBox) {
-      setFormData((prevData) => ({
-        ...prevData,
-        latitudeInicial: boundingBox.latitudeInicial,
-        longitudeInicial: boundingBox.longitudeInicial,
-        latitudeFinal: boundingBox.latitudeFinal,
-        longitudeFinal: boundingBox.longitudeFinal,
-      }));
+        console.log("Atualizando formulário com:", boundingBox);
+        setFormData(prevData => ({
+            ...prevData,
+            latitudeInicial: boundingBox.latitudeInicial.toFixed(6),
+            longitudeInicial: boundingBox.longitudeInicial.toFixed(6),
+            latitudeFinal: boundingBox.latitudeFinal.toFixed(6),
+            longitudeFinal: boundingBox.longitudeFinal.toFixed(6),
+        }));
     }
-  }, [boundingBox]);
+}, [boundingBox]);
+
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
