@@ -1,26 +1,22 @@
-// src/components/MapComponent.js
 import React, { useRef } from 'react';
-import { MapContainer, TileLayer, FeatureGroup } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, WMSTileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { EditControl } from 'react-leaflet-draw';
 import L from 'leaflet';
 
-const MapComponent = ({ onBoundingBoxSelected }) => {
-  // Referência para o grupo de itens desenhados
-  const drawnItemsRef = useRef(new L.FeatureGroup());
+const MapComponent = ({ onBoundingBoxSelected, wmsLayer }) => {
+  const mapRef = useRef();
 
-  // Função para lidar com o evento de criação de uma forma no mapa
+  // Handler para quando uma forma é criada
   const handleCreated = (e) => {
     const layer = e.layer;
-    drawnItemsRef.current.addLayer(layer);
-
-    // Obtém os limites (bounding box) do retângulo desenhado
+    const drawnItems = new L.FeatureGroup();
+    drawnItems.addLayer(layer);
     const bounds = layer.getBounds();
     const southWest = bounds.getSouthWest();
     const northEast = bounds.getNorthEast();
 
-    // Envia as coordenadas da bounding box para o componente pai
     onBoundingBoxSelected({
       latitudeInicial: southWest.lat,
       longitudeInicial: southWest.lng,
@@ -31,25 +27,19 @@ const MapComponent = ({ onBoundingBoxSelected }) => {
 
   return (
     <MapContainer
-      center={[-19.917299, -43.934559]} // Centro inicial do mapa
-      zoom={16} // Nível de zoom inicial
-      style={{ height: '600px', width: '100%' }} // Estilo do contêiner do mapa
+      center={[-19.917299, -43.934559]}
+      zoom={16}
+      style={{ height: '600px', width: '100%' }}
+      ref={mapRef}
     >
-      {/* Camada de mapa base usando OpenStreetMap */}
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="© OpenStreetMap contributors"
-      />
-      
-      {/* Grupo de features para desenhar no mapa */}
-      <FeatureGroup ref={drawnItemsRef}>
-        {/* Controle de edição para permitir o desenho de retângulos */}
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap contributors" />
+      <FeatureGroup>
         <EditControl
-          position="topright" // Posição do controle de desenho
-          onCreated={handleCreated} // Função chamada quando um retângulo é criado
+          position="topright"
+          onCreated={handleCreated}
           draw={{
-            rectangle: true,  // Habilita o desenho de retângulos
-            polyline: false,  // Desabilita outras formas
+            rectangle: true,
+            polyline: false,
             circle: false,
             circlemarker: false,
             polygon: false,
@@ -57,6 +47,18 @@ const MapComponent = ({ onBoundingBoxSelected }) => {
           }}
         />
       </FeatureGroup>
+      {wmsLayer && (
+        <WMSTileLayer
+          url="http://localhost:8000"
+          layers={wmsLayer.product}
+          format="image/png"
+          transparent={true}
+          version="1.3.0"
+          crs={L.CRS.EPSG3857}
+          bounds={[[wmsLayer.latitudeInicial, wmsLayer.longitudeInicial], [wmsLayer.latitudeFinal, wmsLayer.longitudeFinal]]}
+          time={`${wmsLayer.startDate}/${wmsLayer.endDate}`}
+        />
+      )}
     </MapContainer>
   );
 };

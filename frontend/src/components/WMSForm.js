@@ -1,6 +1,7 @@
 // src/components/WMSForm.js
 import React, { useEffect, useState } from 'react';
 
+
 const WMSForm = ({ boundingBox, onSubmit }) => {
   const [formData, setFormData] = useState({
     latitudeInicial: '',
