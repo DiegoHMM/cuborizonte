@@ -1,6 +1,4 @@
-// src/App.js
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
 
@@ -8,12 +6,18 @@ function App() {
   const [boundingBox, setBoundingBox] = useState(null);
   const [wmsData, setWmsData] = useState(null);
 
-  // Dentro do App.js
+  useEffect(() => {
+    console.log("Atualização do estado boundingBox:", boundingBox);
+  }, [boundingBox]);
+
+  useEffect(() => {
+    console.log("Atualização do estado wmsData:", wmsData);
+  }, [wmsData]);
+
   const handleBoundingBoxSelected = (bbox) => {
-    console.log("Bounding box selecionada:", bbox); // Adicione este log
+    console.log("Bounding box selecionada:", bbox);
     setBoundingBox(bbox);
   };
-
 
   const handleFormSubmit = async (formData) => {
     if (!boundingBox) {
@@ -21,6 +25,7 @@ function App() {
       return;
     }
   
+    console.log("Dados do formulário recebidos:", formData);
     const wmsLayerData = {
       product: formData.layer,
       latitudeInicial: boundingBox.latitudeInicial,
@@ -30,15 +35,16 @@ function App() {
       startDate: formData.startDate,
       endDate: formData.endDate
     };
-  
-    setWmsData(wmsLayerData);
+
+    console.log("Configurando dados da camada WMS:", wmsLayerData);
+    setWmsData({ ...wmsLayerData });  // Atualiza o estado com os novos dados da camada WMS
     resetBoundingBox();
   };
   
   const resetBoundingBox = () => {
-    setBoundingBox(null); // Isso permitirá ao usuário desenhar uma nova bounding box
+    console.log("Resetando boundingBox");
+    setBoundingBox(null);  // Permite ao usuário desenhar uma nova bounding box
   };
-  
 
   return (
     <div>

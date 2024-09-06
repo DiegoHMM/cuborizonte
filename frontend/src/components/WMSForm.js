@@ -12,7 +12,6 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
     endDate: ''
   });
 
-  // Atualiza o formulário com as novas coordenadas quando a bounding box muda
   useEffect(() => {
     if (boundingBox) {
         console.log("Atualizando formulário com:", boundingBox);
