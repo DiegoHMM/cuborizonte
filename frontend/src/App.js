@@ -37,13 +37,13 @@ function App() {
     };
 
     console.log("Configurando dados da camada WMS:", wmsLayerData);
-    setWmsData({ ...wmsLayerData });  // Atualiza o estado com os novos dados da camada WMS
+    setWmsData({ ...wmsLayerData });
     resetBoundingBox();
   };
   
   const resetBoundingBox = () => {
     console.log("Resetando boundingBox");
-    setBoundingBox(null);  // Permite ao usuário desenhar uma nova bounding box
+    setBoundingBox(null);
   };
 
   return (

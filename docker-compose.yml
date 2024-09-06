@@ -1,48 +1,26 @@
 services:
-  postgres:
-    image: postgis/postgis:12-2.5-alpine
-    mem_limit: 1g
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_PASSWORD=opendatacubepassword
-      - POSTGRES_USER=postgres
-    volumes:
-      - ./data:/data
-    ports:
-      - 5432:5432
-    restart: always
 
-  checkdb:
-    image: schaffdev/port_check:latest
-    mem_limit: 500m
-    environment:
-      - CHECK_HOST=postgres
-      - CHECK_PORT=5432
+  frontend:
+    build:
+      context: frontend/.
+      dockerfile: Dockerfile
+    command: sh -c "npm run start -- --port=3000 --host"
+    container_name: frontend
+    networks:
+      - shared_network
 
-  django:
-    build: ./django
-    mem_limit: 1g
-    environment:
-      - DB_HOSTNAME=postgres
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=opendatacubepassword
-      - DB_DATABASE=postgres
-      - OWS_HOSTNAME=ows
+  backend:
+    build:
+      context: ./backend
     volumes:
-      - ./django:/app
-      - static_volume:/app/static
-      - ./data:/data
-    ports:
-      - "8001:8000"
+      - ./backend:/app
     restart: always
     depends_on:
       - postgres
-      - ows
     command: >
-      sh -c "python manage.py makemigrations &&
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      gunicorn -b '0.0.0.0:8000' --workers=3 --threads=2 -k gevent --timeout 121 --pid /app/gunicorn.pid --log-level info --worker-tmp-dir /dev/shm cuborizonte.wsgi:application"
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+    networks:
+      - shared_network
 
   ows:
     build:
@@ -68,26 +46,55 @@ services:
       - ./ows/services/inventory:/env/config/inventory/
       - ./ows/output:/env/config/output/
       - ./ows/handle_data_functions:/handle_data_functions
+    networks:
+      - shared_network
 
-  backend:
-    build:
-      context: ./backend  # Diretório onde está o Dockerfile do backend
+  postgres:
+    image: postgis/postgis:12-2.5-alpine
     mem_limit: 1g
     environment:
-      DB_HOSTNAME: postgres
-      DB_USERNAME: postgres
-      DB_PASSWORD: opendatacubepassword
-      DB_DATABASE: postgres
-      DB_PORT: 5432
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: opendatacubepassword
+      POSTGRES_USER: postgres
     volumes:
-      - ./backend:/app  # Monta o diretório do código do backend
+      - ./data:/data
     ports:
-      - "8004:8004"  # Porta exposta do backend
+      - "5432:5432"
     restart: always
-    depends_on:
-      - postgres
-    command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+    networks:
+      - shared_network
+
+  checkdb:
+    image: schaffdev/port_check:latest
+    mem_limit: 500m
+    environment:
+      CHECK_HOST: postgres
+      CHECK_PORT: 5432
+    networks:
+      - shared_network
+
+  nginx-proxy:
+      build:
+        context: nginx/.
+        dockerfile: Dockerfile
+      container_name: nginx
+      depends_on:
+        - frontend
+        - backend
+        - ows
+      environment:
+        - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+        - BACKEND_SERVICE=backend
+        - FRONTEND_SERVICE=frontend
+        - OWS_SERVICE=ows
+      ports:
+        - "80:80"
+      networks:
+        - shared_network
+
+networks:
+  shared_network:
+    external: false
 
 volumes:
-  static_volume:
+  postgres_data:
