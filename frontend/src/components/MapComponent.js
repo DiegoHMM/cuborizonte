@@ -7,7 +7,7 @@ import L from 'leaflet';
 
 const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
   return (
-    <MapContainer center={[-19.917299, -43.934559]} zoom={16} style={{ height: '600px', width: '100%' }}>
+    <MapContainer center={[-19.917299, -43.934559]} zoom={16} style={{ height: '100vh', width: '100%' }}>
       <TileLayer 
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
         attribution="© OpenStreetMap contributors" 

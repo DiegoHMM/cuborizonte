@@ -1,6 +1,7 @@
 // src/components/WMSForm.js
 import React, { useEffect, useState } from 'react';
-import './WMSForm.css'; 
+import '../styles/WMSForm.css'; 
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 const WMSForm = ({ boundingBox, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -38,12 +39,13 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="floating-form container mt-4">
+    <form onSubmit={handleSubmit} className="floating-form form-group">
       <div className="form-group">
         <label>Latitude Inicial:</label>
         <input
           type="text"
           name="latitudeInicial"
+          className="form-control"
           value={formData.latitudeInicial}
           onChange={handleChange}
           readOnly
@@ -54,6 +56,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="text"
           name="longitudeInicial"
+          className="form-control"
           value={formData.longitudeInicial}
           onChange={handleChange}
           readOnly
@@ -64,6 +67,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="text"
           name="latitudeFinal"
+          className="form-control"
           value={formData.latitudeFinal}
           onChange={handleChange}
           readOnly
@@ -74,6 +78,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="text"
           name="longitudeFinal"
+          className="form-control"
           value={formData.longitudeFinal}
           onChange={handleChange}
           readOnly
@@ -84,6 +89,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="text"
           name="layer"
+          className="form-control"
           value={formData.layer}
           onChange={handleChange}
         />
@@ -93,6 +99,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="date"
           name="startDate"
+          className="form-control"
           value={formData.startDate}
           onChange={handleChange}
         />
@@ -102,6 +109,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         <input
           type="date"
           name="endDate"
+          className="form-control"
           value={formData.endDate}
           onChange={handleChange}
         />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
+import Header from './components/Header';
 
 function App() {
   const [boundingBox, setBoundingBox] = useState(null);
@@ -48,7 +49,7 @@ function App() {
 
   return (
     <div>
-      <h1>Mapa Interativo com Bounding Box e Requisições WMS</h1>
+      <Header />
       <WMSForm boundingBox={boundingBox} onSubmit={handleFormSubmit} />
       <MapComponent onBoundingBoxSelected={handleBoundingBoxSelected} wmsLayer={wmsData} />
     </div>
