@@ -1,0 +1,12 @@
+.floating-form {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px; /* Ajuste a largura conforme necessário */
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Garante que o formulário fique acima de outros elementos */
+  }
+  

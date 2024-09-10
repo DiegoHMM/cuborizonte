@@ -1,5 +1,6 @@
 // src/components/WMSForm.js
 import React, { useEffect, useState } from 'react';
+import './WMSForm.css'; 
 
 const WMSForm = ({ boundingBox, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -37,8 +38,8 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-      <div>
+    <form onSubmit={handleSubmit} className="floating-form container mt-4">
+      <div className="form-group">
         <label>Latitude Inicial:</label>
         <input
           type="text"
@@ -48,7 +49,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           readOnly
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Longitude Inicial:</label>
         <input
           type="text"
@@ -58,7 +59,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           readOnly
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Latitude Final:</label>
         <input
           type="text"
@@ -68,7 +69,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           readOnly
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Longitude Final:</label>
         <input
           type="text"
@@ -78,7 +79,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           readOnly
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Camada:</label>
         <input
           type="text"
@@ -87,7 +88,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           onChange={handleChange}
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Data Inicial:</label>
         <input
           type="date"
@@ -96,7 +97,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           onChange={handleChange}
         />
       </div>
-      <div>
+      <div className="form-group mt-3">
         <label>Data Final:</label>
         <input
           type="date"
@@ -105,7 +106,7 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
           onChange={handleChange}
         />
       </div>
-      <button type="submit">Fazer Requisição</button>
+      <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
     </form>
   );
 };
