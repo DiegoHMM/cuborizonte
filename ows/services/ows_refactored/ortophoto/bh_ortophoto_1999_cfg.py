@@ -1,5 +1,5 @@
-from ows_refactored.ortophoto.bands_ortophoto import ortophoto_bands
-from ows_refactored.ortophoto.style_ortophoto_cfg import styles_ortophoto_list
+from ows_refactored.ortophoto.bands_rgb_ortophoto import ortophoto_bands
+from ows_refactored.ortophoto.style_ortophoto_rgb_cfg import styles_ortophoto_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 

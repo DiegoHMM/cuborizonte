@@ -79,6 +79,18 @@ ows_cfg = {
         "s3_aws_zone": "sa-east-1",
         "max_width": 512,
         "max_height": 512,
+        "formats": {
+            "image/png": {
+                "renderer": "datacube_ows.wms_utils.png_renderer",
+                "mime": "image/png",
+                "extension": "png"
+            },
+            "image/geotiff": {
+                "renderer": "datacube_ows.wms_utils.tiff_renderer",
+                "mime": "image/geotiff",
+                "extension": "tif"
+            },
+        },
     },  # END OF wms SECTION
     "wcs": {
         # Config for WCS service, for all products/coverages

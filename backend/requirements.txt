@@ -11,3 +11,4 @@ python-dotenv
 sniffio
 starlette
 uvicorn
+requests
