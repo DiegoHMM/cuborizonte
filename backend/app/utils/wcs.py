@@ -1,3 +1,4 @@
+import numpy as np
 import requests
 import xml.etree.ElementTree as ET
 import rasterio
@@ -118,7 +119,11 @@ def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):
             pixel_values = {}
             for idx in range(1, dataset.count + 1):
                 band = dataset.read(idx)
-                value = band[0, 0]
+                value = band[0, 0]  # Valor do pixel
+                
+                # Convertendo para tipos nativos de Python
+                value = int(value) if isinstance(value, np.integer) else float(value)
+
                 if idx == 1:
                     channel = 'R'
                 elif idx == 2:
@@ -129,7 +134,9 @@ def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):
                     channel = 'DMS'
                 else:
                     channel = f'Banda_{idx}'
+
                 pixel_values[channel] = value
+
         return pixel_values
     else:
         raise Exception(f"Falha ao obter o valor do pixel. Código HTTP: {response.status_code}")

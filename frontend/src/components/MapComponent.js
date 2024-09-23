@@ -15,6 +15,7 @@ const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
   const MapClickHandler = () => {
     useMapEvent('click', (e) => {
       console.log('Coordenadas clicadas:', e.latlng);
+      
     });
     return null;
   };
