@@ -1,5 +1,5 @@
-from ows_refactored.ortophoto.bands_ortophoto import ortophoto_bands
-from ows_refactored.ortophoto.style_ortophoto_cfg import styles_ortophoto_list
+from ows_refactored.ortophoto.bands_rgb_dsm_ortophoto import ortophoto_bands
+from ows_refactored.ortophoto.style_ortophoto_rgb_dsm_cfg import styles_ortophoto_dsm_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
@@ -25,6 +25,6 @@ Licença: CC-BY-4.0
     "native_resolution": [0.2, -0.2],
     "styling": {
         "default_style": "simple_rgb",  # Defina um estilo padrão apropriado
-        "styles": styles_ortophoto_list,
+        "styles": styles_ortophoto_dsm_list,
     }
 }
