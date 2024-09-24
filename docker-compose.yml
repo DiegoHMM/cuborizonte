@@ -5,7 +5,7 @@ services:
       context: frontend/.
       dockerfile: Dockerfile
     environment:
-      REACT_APP_OWS_URL: http://localhost/ows
+      REACT_APP_OWS_URL: http://ows:8000/ows
     command: sh -c "npm run start -- --port=3000 --host"
     container_name: frontend
     networks:
@@ -17,7 +17,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      OWS_URL: http://localhost/ows
+      OWS_URL: http://ows:8000
     restart: always
     depends_on:
       - postgres

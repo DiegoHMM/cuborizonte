@@ -91,6 +91,7 @@ def get_layer_resolution(wcs_url, layer):
         resolution = (abs(res_x) + abs(res_y)) / 2
         return resolution
     else:
+        print(response.content)
         raise Exception(f"Falha ao obter a resolução da camada {layer}. Código HTTP: {response.status_code}")
 
 def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):

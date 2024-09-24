@@ -1,22 +1,33 @@
 import React from 'react';
 import { MapContainer, TileLayer, WMSTileLayer, FeatureGroup, useMapEvent } from 'react-leaflet';
+import { getPixelValues } from '../services/api';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import L from 'leaflet';
 
 const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
+
   const wmsUrl = process.env.REACT_APP_OWS_URL;
+
 
   console.log("WMS URL:", wmsUrl);
 
 
   
   const MapClickHandler = () => {
-    useMapEvent('click', (e) => {
-      console.log('Coordenadas clicadas:', e.latlng);
-      
+    useMapEvent('click', async (e) => {
+        const { lat, lng } = e.latlng;
+        console.log('Coordenadas clicadas:', lat, lng);
+
+        try {
+            const data = await getPixelValues(lat, lng);
+            console.log('Dados retornados do backend:', data);
+        } catch (error) {
+            console.error('Erro ao fazer a requisição:', error);
+        }
     });
+
     return null;
   };
 
