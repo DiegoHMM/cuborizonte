@@ -8,7 +8,7 @@ import L from 'leaflet';
 
 const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
 
-  const wmsUrl = process.env.REACT_APP_OWS_URL;
+  const wmsUrl = '/ows';
 
 
   console.log("WMS URL:", wmsUrl);

@@ -12,21 +12,24 @@ router = APIRouter()
 @router.post("/get_pixel_values")
 def api_get_pixel_values(coords: Coordinates):
     try:
+        values = []
         x, y = transform_coordinates(coords.latitude, coords.longitude)
         wcs_url = f"{ows_url}"
-        print(wcs_url)
-        print(wcs_url)
-        print(wcs_url)
-        resolution = get_layer_resolution(wcs_url, 'bh_ortophoto_2007_2015')
-        pixel_values = get_pixel_values(coords.latitude, coords.longitude, 'bh_ortophoto_2007_2015', x, y, resolution, wcs_url)
-        return {"latitude": coords.latitude, "longitude": coords.longitude, "pixel_values": pixel_values}
+        #get products
+        products = get_available_products_with_metadata(wcs_url)
+
+        for product in products:
+            resolution = get_layer_resolution(wcs_url, product.get('name'))
+            pixel_values = get_pixel_values(coords.latitude, coords.longitude, product.get('name'), x, y, resolution, wcs_url)
+            values.append(pixel_values)
+        return values
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/get_wcs_products")
-def api_get_wcs_products(wcs_url: str):
+def api_get_wcs_products():
     try:
-        return get_available_products_with_metadata(wcs_url)
+        return get_available_products_with_metadata(ows_url)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
