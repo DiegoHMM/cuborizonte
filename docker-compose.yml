@@ -4,8 +4,6 @@ services:
     build:
       context: frontend/.
       dockerfile: Dockerfile
-    environment:
-      REACT_APP_OWS_URL: http://ows:8000
     command: sh -c "npm run start -- --port=3000 --host"
     container_name: frontend
     networks:

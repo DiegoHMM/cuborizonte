@@ -1,6 +1,6 @@
 // services/api.js
 export const getPixelValues = async (latitude, longitude) => {
-    const response = await fetch('/api/get_pixel_values', {
+    const response = await fetch('/api/get_pixel_class', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

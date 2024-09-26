@@ -154,6 +154,16 @@ ows_cfg = {
                                 },
                     ],
                 },
+                {
+                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 2007-2015",
+                    "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.class_layers.bh_classes_2007_2015_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
             ],
         },
     ],
