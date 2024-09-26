@@ -94,7 +94,7 @@ def get_layer_resolution(wcs_url, layer):
         print(response.content)
         raise Exception(f"Falha ao obter a resolução da camada {layer}. Código HTTP: {response.status_code}")
 
-def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):
+def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url):
     half_pixel = resolution / 2
     minx = x - half_pixel
     maxx = x + half_pixel
@@ -117,7 +117,9 @@ def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):
 
     if response.status_code == 200:
         with rasterio.open(BytesIO(response.content)) as dataset:
-            pixel_values = {}
+            #print metadata
+            print(dataset.profile)
+
             for idx in range(1, dataset.count + 1):
                 band = dataset.read(idx)
                 value = band[0, 0]  # Valor do pixel
@@ -125,19 +127,13 @@ def get_pixel_values(lat, lon, product, x, y, resolution, wcs_url):
                 # Convertendo para tipos nativos de Python
                 value = int(value) if isinstance(value, np.integer) else float(value)
 
-                if idx == 1:
-                    channel = 'R'
-                elif idx == 2:
-                    channel = 'G'
-                elif idx == 3:
-                    channel = 'B'
-                elif idx == 4:
-                    channel = 'DMS'
-                else:
-                    channel = f'Banda_{idx}'
+                if idx == 1 and value == 255:
+                    return 'vegetation'
+                elif idx == 2 and value == 255:
+                    return 'building'
+                elif idx == 3 and value == 255:
+                    return 'background'
 
-                pixel_values[channel] = value
-
-        return pixel_values
+        return 'no_data'
     else:
         raise Exception(f"Falha ao obter o valor do pixel. Código HTTP: {response.status_code}")

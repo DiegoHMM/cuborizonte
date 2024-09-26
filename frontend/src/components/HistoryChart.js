@@ -1,56 +1,87 @@
-import React, { useState, useEffect } from 'react';
+// PixelChart.js
+import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { getPixelValues } from '../services/api'; // Importe a função que faz a requisição
-import 'chart.js/auto';
+import 'chartjs-adapter-date-fns'; // Para adaptar as datas
+import { registerables, Chart } from 'chart.js';
+Chart.register(...registerables);
 
-const HistoryChart = ({ lat, lng }) => {
-  const [chartData, setChartData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const classMapping = {
+  'building': 1,
+  'vegetation': 2,
+  'background': 3,
+};
 
-  useEffect(() => {
-    const fetchPixelValues = async () => {
-      try {
-        const data = await getPixelValues(lat, lng);
-        const processedData = processPixelData(data);
-        setChartData(processedData);
-        setLoading(false);
-      } catch (err) {
-        console.error('Erro ao fazer a requisição:', err);
-        setError('Erro ao carregar os dados.');
-        setLoading(false);
-      }
-    };
+const classNames = Object.keys(classMapping);
 
-    fetchPixelValues();
-  }, [lat, lng]);
+const PixelChart = ({ data }) => {
+  const dates = Object.keys(data);
+  const classes = Object.values(data);
 
-  const processPixelData = (data) => {
-    const labels = Object.keys(data); // Datas (X)
-    const values = Object.values(data); // Classes (Y)
+  const numericClasses = classes.map(cls => classMapping[cls]);
 
-    return {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Valores de Classe',
-          data: values,
-          fill: false,
-          borderColor: 'rgba(75,192,192,1)',
-          tension: 0.1,
-        },
-      ],
-    };
+  const chartData = {
+    labels: dates.map(date => {
+      const [day, month, year] = date.split('/');
+      return new Date(`${year}-${month}-${day}`);
+    }),
+    datasets: [
+      {
+        label: 'Mudança ao Longo do Tempo',
+        data: numericClasses,
+        borderColor: 'rgb(54, 162, 235)',
+        fill: false,
+        stepped: true,
+      },
+    ],
   };
 
-  if (loading) return <div>Carregando...</div>;
-  if (error) return <div>{error}</div>;
+  const options = {
+    scales: {
+      y: {
+        ticks: {
+          callback: function(value) {
+            const className = classNames.find(name => classMapping[name] === value);
+            return className || value;
+          },
+        },
+        title: {
+          display: true,
+          text: 'Classe',
+        },
+        suggestedMin: 0,
+        suggestedMax: 4,
+        stepSize: 1,
+      },
+      x: {
+        type: 'time',
+        time: {
+          unit: 'month',
+          tooltipFormat: 'dd/MM/yyyy',
+        },
+        title: {
+          display: true,
+          text: 'Data',
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const value = context.parsed.y;
+            const className = classNames.find(name => classMapping[name] === value);
+            return `Classe: ${className}`;
+          },
+        },
+      },
+    },
+  };
 
   return (
-    <div style={{ height: '40vh', width: '100%' }}>
-      {chartData ? <Line data={chartData} /> : <div>Nenhum dado encontrado.</div>}
+    <div style={{ width: '80%', margin: '20px auto' }}>
+      <Line data={chartData} options={options} />
     </div>
   );
 };
 
-export default HistoryChart;
+export default PixelChart;
