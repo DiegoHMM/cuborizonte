@@ -85,7 +85,15 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
                 else:
                     raise ValueError(f"Expected band '{band_name}' not found in {band_dir}")
         else:
-            raise ValueError(f"Número inesperado de arquivos de banda ({band_count}) para {file_name}")
+            # Map available bands (assuming file names correspond to band names)
+            for band_name, band_file in band_files.items():
+                measurements[band_name] = {'path': os.path.join(band_dir, band_file)}
+
+    # Calcular a data média entre start_date e end_date
+    start_datetime = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+    end_datetime = datetime.strptime(end_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+    middle_datetime = start_datetime + (end_datetime - start_datetime) / 2
+    datetime_str = middle_datetime.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
     return { 
         'id': str(uuid.uuid4()),
@@ -97,6 +105,7 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
         'grids': grid,
         'measurements': measurements,
         'properties': {
+            'datetime': datetime_str,  # Adiciona o atributo datetime
             'dtr:start_datetime': start_date,
             'dtr:end_datetime': end_date,
             'bounds': bounding_box,
@@ -104,6 +113,7 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
         'file_format': 'GeoTIFF',
         'lineage': {},
     }, file_name
+
 
 if __name__ == '__main__':
     random.seed(42)

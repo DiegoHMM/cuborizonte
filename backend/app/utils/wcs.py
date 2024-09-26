@@ -42,6 +42,7 @@ def get_available_products_with_metadata(wcs_url):
         products = []
 
         for coverage in coverage_offerings:
+
             product_info = {}
             # Nome da cobertura
             name_elem = coverage.find('wcs:name', ns)
@@ -58,13 +59,65 @@ def get_available_products_with_metadata(wcs_url):
             if desc_elem is not None:
                 product_info['description'] = desc_elem.text
 
-            products.append(product_info)
+            date_time = get_coverage_datetime(wcs_url, product_info['name'])
+
+
+
+            products.append({'name': product_info['name'], 'label': product_info['label'], 'description': product_info['description'], 'datetime': date_time})
 
         return products
     else:
         # Trata erros na requisição
         raise Exception(f"Falha ao obter as capacidades do serviço WCS. Código HTTP: {response.status_code}")
 
+def get_coverage_datetime(wcs_url, coverage_name):
+    params = {
+        'SERVICE': 'WCS',
+        'VERSION': '1.0.0',
+        'REQUEST': 'DescribeCoverage',
+        'COVERAGE': coverage_name
+    }
+    response = requests.get(wcs_url, params=params)
+    if response.status_code == 200:
+        root = ET.fromstring(response.content)
+        ns = {
+            'wcs': 'http://www.opengis.net/wcs',
+            'gml': 'http://www.opengis.net/gml',
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+        }
+
+        # Tenta encontrar o elemento que contém o datetime
+        datetime_value = None
+
+        # Tenta extrair de um elemento 'timePosition'
+        time_positions = root.findall('.//gml:timePosition', ns)
+        if time_positions:
+            datetime_value = time_positions[0].text.strip()
+            return datetime_value
+
+        # Se não encontrar, tente acessar metadados personalizados
+        metadata_links = root.findall('.//wcs:metadataLink', ns)
+        for metadata_link in metadata_links:
+            href = metadata_link.get('{http://www.w3.org/1999/xlink}href')
+            if href:
+                metadata_response = requests.get(href)
+                if metadata_response.status_code == 200:
+                    try:
+                        metadata_content = metadata_response.content.decode('utf-8')
+                        # Assume que o metadado está em formato YAML
+                        import yaml
+                        metadata_dict = yaml.safe_load(metadata_content)
+                        datetime_value = metadata_dict.get('properties', {}).get('datetime')
+                        if datetime_value:
+                            return datetime_value
+                    except Exception as e:
+                        print(f"Erro ao analisar metadados: {e}")
+                        continue
+
+        return None
+    else:
+        raise Exception(f"Falha ao obter DescribeCoverage para {coverage_name}. Código HTTP: {response.status_code}")
 
 def get_layer_resolution(wcs_url, layer):
     params = {

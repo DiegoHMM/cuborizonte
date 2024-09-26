@@ -1,7 +1,7 @@
 #!/bin/bash
-#./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
-#./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto_2007_2015 2007
-#./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto_2007_2015 2015
+./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
+./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto_2007_2015 2007
+./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto_2007_2015 2015
 #./process_raw_data.sh CLASSES_2015 bh_class_layer_2007_2015 2015 vegetation building background
 
 

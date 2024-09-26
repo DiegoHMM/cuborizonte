@@ -21,7 +21,7 @@ def api_get_pixel_class(coords: Coordinates):
         for product in products:
             resolution = get_layer_resolution(wcs_url, product.get('name'))
             pixel_class = get_pixel_class(coords.latitude, coords.longitude, product.get('name'), x, y, resolution, wcs_url)
-            pixel_classes.append(pixel_class)
+            pixel_classes.append({'product': product.get('name'), 'class': pixel_class, 'date_time': product.get('datetime')})
         return pixel_classes
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
