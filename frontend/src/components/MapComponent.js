@@ -1,38 +1,53 @@
-import React from 'react';
-import { MapContainer, TileLayer, WMSTileLayer, FeatureGroup, useMapEvent } from 'react-leaflet';
-import { getPixelValues } from '../services/api';
+// MapComponent.js
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, WMSTileLayer, FeatureGroup, useMapEvents } from 'react-leaflet';
+import { getPixelValues } from '../services/api'; // Certifique-se de que o caminho está correto
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import L from 'leaflet';
 
-const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
+const MapComponent = ({ wmsLayer, onBoundingBoxSelected, selectingPixel, onPixelSelected }) => {
+  const mapRef = React.useRef();
 
-  const wmsUrl = '/ows';
+  useEffect(() => {
+    if (mapRef.current) {
+      const mapContainer = mapRef.current.getContainer();
+      if (selectingPixel) {
+        mapContainer.classList.add('pointer');
+      } else {
+        mapContainer.classList.remove('pointer');
+      }
+    }
+  }, [selectingPixel]);
 
-
-  console.log("WMS URL:", wmsUrl);
-
-
-  
   const MapClickHandler = () => {
-    useMapEvent('click', async (e) => {
-        const { lat, lng } = e.latlng;
-        console.log('Coordenadas clicadas:', lat, lng);
+    useMapEvents({
+      click: async (e) => {
+        if (selectingPixel) {
+          const { lat, lng } = e.latlng;
+          console.log('Coordenadas clicadas:', lat, lng);
 
-        try {
+          try {
             const data = await getPixelValues(lat, lng);
             console.log('Dados retornados do backend:', data);
-        } catch (error) {
+            onPixelSelected(data); // Passar os dados para o App.js
+          } catch (error) {
             console.error('Erro ao fazer a requisição:', error);
+          }
         }
+      },
     });
-
     return null;
   };
 
   return (
-    <MapContainer center={[-19.917299, -43.934559]} zoom={16} style={{ height: '100vh', width: '100%' }}>
+    <MapContainer
+      center={[-19.917299, -43.934559]}
+      zoom={16}
+      style={{ height: '100vh', width: '100%' }}
+      whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
+    >
       <MapClickHandler />
       <TileLayer 
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
@@ -64,7 +79,7 @@ const MapComponent = ({ wmsLayer, onBoundingBoxSelected }) => {
       {wmsLayer && (
         <WMSTileLayer
           key={JSON.stringify(wmsLayer)}
-          url={wmsUrl}
+          url="/ows"
           layers={wmsLayer.product}
           format="image/png"
           transparent={true}

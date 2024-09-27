@@ -1,9 +1,9 @@
-// src/components/WMSForm.js
+// WMSForm.js
 import React, { useEffect, useState } from 'react';
 import '../styles/WMSForm.css'; 
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-const WMSForm = ({ boundingBox, onSubmit }) => {
+const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
   const [formData, setFormData] = useState({
     latitudeInicial: '',
     longitudeInicial: '',
@@ -16,18 +16,16 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
 
   useEffect(() => {
     if (boundingBox) {
-        console.log("Atualizando formulário com:", boundingBox);
-        setFormData(prevData => ({
-            ...prevData,
-            latitudeInicial: boundingBox.latitudeInicial.toFixed(6),
-            longitudeInicial: boundingBox.longitudeInicial.toFixed(6),
-            latitudeFinal: boundingBox.latitudeFinal.toFixed(6),
-            longitudeFinal: boundingBox.longitudeFinal.toFixed(6),
-        }));
+      console.log("Atualizando formulário com:", boundingBox);
+      setFormData(prevData => ({
+        ...prevData,
+        latitudeInicial: boundingBox.latitudeInicial.toFixed(6),
+        longitudeInicial: boundingBox.longitudeInicial.toFixed(6),
+        latitudeFinal: boundingBox.latitudeFinal.toFixed(6),
+        longitudeFinal: boundingBox.longitudeFinal.toFixed(6),
+      }));
     }
-}, [boundingBox]);
-
-
+  }, [boundingBox]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -115,6 +113,9 @@ const WMSForm = ({ boundingBox, onSubmit }) => {
         />
       </div>
       <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
+      <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={onSelectPixel}>
+        Selecionar Pixel
+      </button>
     </form>
   );
 };
