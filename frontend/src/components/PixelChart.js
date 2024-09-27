@@ -1,29 +1,34 @@
 // PixelChart.js
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import 'chartjs-adapter-date-fns'; // Adaptador para lidar com datas
-import { registerables, Chart } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 const classMapping = {
-  'no_data': 0,
-  'background': 1,
+  'building': 1,
   'vegetation': 2,
-  'building': 3,
-  
+  'background': 3,
+  'no_data': 4,
 };
 
+const classColors = {
+  'building': 'rgb(255, 99, 132)',      // Vermelho
+  'vegetation': 'rgb(75, 192, 192)',    // Verde
+  'background': 'rgb(201, 203, 207)',   // Cinza
+  'no_data': 'rgb(150, 150, 150)',      // Cinza escuro
+};
 
 const classNames = Object.keys(classMapping);
 
 const PixelChart = ({ data }) => {
-  // Certifique-se de que os dados estão ordenados por data
   data.sort((a, b) => new Date(a.date_time) - new Date(b.date_time));
 
   const dates = data.map(item => new Date(item.date_time));
   const classes = data.map(item => item.class);
 
   const numericClasses = classes.map(cls => classMapping[cls]);
+  const colors = classes.map(cls => classColors[cls]);
 
   const chartData = {
     labels: dates,
@@ -31,17 +36,25 @@ const PixelChart = ({ data }) => {
       {
         label: 'Classe do Pixel ao Longo do Tempo',
         data: numericClasses,
-        borderColor: 'rgb(54, 162, 235)',
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: colors,
+        backgroundColor: colors,
         fill: false,
         stepped: true,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        showLine: false,
       },
     ],
   };
 
+  const legendItems = classNames.map(cls => ({
+    text: cls,
+    fillStyle: classColors[cls],
+  }));
+
   const options = {
     responsive: true,
-    maintainAspectRatio: false, // Permitir que o gráfico se ajuste ao tamanho do contêiner
+    maintainAspectRatio: false,
     scales: {
       y: {
         ticks: {
@@ -73,6 +86,19 @@ const PixelChart = ({ data }) => {
       },
     },
     plugins: {
+      legend: {
+        display: true,
+        labels: {
+          generateLabels: function(chart) {
+            return legendItems.map(item => ({
+              text: item.text,
+              fillStyle: item.fillStyle,
+              strokeStyle: item.fillStyle,
+              pointStyle: 'circle',
+            }));
+          },
+        },
+      },
       tooltip: {
         callbacks: {
           label: function(context) {
@@ -81,9 +107,6 @@ const PixelChart = ({ data }) => {
             return `Classe: ${className}`;
           },
         },
-      },
-      legend: {
-        display: false, // Ocultar a legenda para economizar espaço
       },
     },
   };

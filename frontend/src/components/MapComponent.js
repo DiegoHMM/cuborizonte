@@ -1,7 +1,7 @@
 // MapComponent.js
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, WMSTileLayer, FeatureGroup, useMapEvents } from 'react-leaflet';
-import { getPixelValues } from '../services/api'; // Certifique-se de que o caminho está correto
+import { getPixelValues } from '../services/api';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
