@@ -86,7 +86,6 @@ const MapComponent = ({ wmsLayer, onBoundingBoxSelected, selectingPixel, onPixel
           version="1.3.0"
           crs={L.CRS.EPSG3857}
           bounds={[[wmsLayer.latitudeInicial, wmsLayer.longitudeInicial], [wmsLayer.latitudeFinal, wmsLayer.longitudeFinal]]}
-          time={`${wmsLayer.startDate}/${wmsLayer.endDate}`}
         />
       )}
     </MapContainer>
