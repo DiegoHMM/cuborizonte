@@ -153,7 +153,7 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
       </div>
       <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
       <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={onSelectPixel}>
-        Selecionar Pixel
+        Selecionar Ponto
       </button>
     </form>
   );
