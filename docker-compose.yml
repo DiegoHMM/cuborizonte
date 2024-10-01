@@ -93,9 +93,12 @@ services:
         - "80:80"
       networks:
         - shared_network
+        - docker_default
 
 networks:
   shared_network:
+    external: false
+  docker_default:
     external: false
 
 volumes:
