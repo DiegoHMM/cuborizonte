@@ -5,7 +5,6 @@ services:
       context: frontend/.
       dockerfile: Dockerfile
     command: sh -c "npm run start -- --port=3000 --host"
-    container_name: frontend
     networks:
       - shared_network
 
@@ -37,8 +36,8 @@ services:
       DB_PORT: 5432
       PYTHONPATH: /env/config
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
-    ports:
-      - 8000:8000
+    expose:
+      - "8000"
     depends_on:
       - postgres
     volumes:
@@ -60,8 +59,8 @@ services:
       POSTGRES_USER: postgres
     volumes:
       - ./data:/data
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     restart: always
     networks:
       - shared_network
@@ -75,11 +74,10 @@ services:
     networks:
       - shared_network
 
-  nginx-proxy:
+  cuborizonte:
       build:
         context: nginx/.
         dockerfile: Dockerfile
-      container_name: nginx
       depends_on:
         - frontend
         - backend
@@ -93,13 +91,13 @@ services:
         - "80:80"
       networks:
         - shared_network
-        - docker_default
+        - docker
 
 networks:
   shared_network:
     external: false
-  docker_default:
-    external: false
+  docker:
+    name: docker_default
 
 volumes:
   postgres_data:

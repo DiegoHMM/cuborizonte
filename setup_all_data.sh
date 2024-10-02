@@ -19,9 +19,9 @@
 ./setup_datacube.sh bh_ortophoto_2007_2015 ORTOFOTO_2015
 
 #Plan
-./setup_datacube.sh bh_planta_1942 PLANTA_1942
-./setup_datacube.sh bh_planta_1972_1989 PLANTA_1972
-./setup_datacube.sh bh_planta_1972_1989 PLANTA_1989
+#./setup_datacube.sh bh_planta_1942 PLANTA_1942
+#./setup_datacube.sh bh_planta_1972_1989 PLANTA_1972
+#./setup_datacube.sh bh_planta_1972_1989 PLANTA_1989
 
 #Masks
 ./setup_datacube.sh bh_class_layer_2007_2015 CLASSES_2015

@@ -17,6 +17,10 @@ COPY requirements.txt .
 # Instala as dependências listadas no requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Verifica se uvicorn está instalado e onde está localizado
+RUN which uvicorn
+RUN echo $PATH
+
 # Copia o restante do código do backend para o diretório de trabalho no container
 COPY . .
 
