@@ -3,7 +3,7 @@ name: Continuous Deployment
 on:
   push:
     branches:
-      - main  # O deploy ocorrerá quando houver commits na branch main
+      - main
 
 jobs:
   deploy:
@@ -11,23 +11,23 @@ jobs:
 
     steps:
     - name: Check out the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
-    - name: Set up Node.js # Alterar conforme o ambiente (Python, Java, etc)
-      uses: actions/setup-node@v2
+    - name: Start SSH agent
+      uses: webfactory/ssh-agent@v0.5.3
       with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to server
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
         DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
       run: |
-        echo "$SSH_PRIVATE_KEY" | ssh-add -
-        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "cd $DEPLOY_DIR && git checkout main && docker-compose -f docker-compose.yml down && git pull && docker-compose -f docker-compose.yml up -d --build'
-        
+        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "
+          cd $DEPLOY_DIR && \
+          git checkout main && \
+          git pull && \
+          docker-compose down && \
+          docker-compose up -d --build
+        "
