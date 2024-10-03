@@ -1,33 +1,28 @@
-name: Continuous Deployment
+name: Deploy
 
 on:
   pull_request:
     branches:
-      - main
+      - main  # Ou a branch que você deseja monitorar
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v3
+    - name: Checar o repositório
+      uses: actions/checkout@v2
 
-    - name: Start SSH agent
+    - name: Configurar SSH
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Deploy to server
-      env:
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+    - name: Deploy via SSH
       run: |
-        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "
-          cd $DEPLOY_DIR && \
-          git checkout main && \
-          git pull && \
-          docker-compose down && \
-          docker-compose up -d --build
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+          cd ${{ secrets.DEPLOY_DIR }};
+          git pull origin main;
+          docker-compose down;
+          docker-compose up -d --build;
         "
