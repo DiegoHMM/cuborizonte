@@ -96,8 +96,6 @@ services:
 networks:
   shared_network:
     external: false
-  docker:
-    external: true
-
+    
 volumes:
   postgres_data:
