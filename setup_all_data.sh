@@ -15,7 +15,7 @@
 
 #Ortophoto
 ./setup_datacube.sh Orthophoto bh_ortophoto_1999 ORTOFOTO_1999
-./setup_datacube.sh Orthophoto bh_ortophoto_2007_ORTOFOTO_2007
+./setup_datacube.sh Orthophoto bh_ortophoto_2007 ORTOFOTO_2007
 ./setup_datacube.sh Orthophoto bh_ortophoto_2015 ORTOFOTO_2015
 
 #Plan
