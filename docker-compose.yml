@@ -91,12 +91,13 @@ services:
       - "80:80"
     networks:
       - shared_network
-      - docker_default
+      - docker
 
 networks:
   shared_network:
     external: false
-  docker_default:
+  docker:
+    name: docker_default
     external: true
 
 
