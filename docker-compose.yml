@@ -75,30 +75,29 @@ services:
       - shared_network
 
   cuborizonte:
-      build:
-        context: nginx/.
-        dockerfile: Dockerfile
-      depends_on:
-        - frontend
-        - backend
-        - ows
-      environment:
-        - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
-        - BACKEND_SERVICE=backend
-        - FRONTEND_SERVICE=frontend
-        - OWS_SERVICE=ows
-      ports:
-        - "80:80"
-      networks:
-        - shared_network
-        - docker
+    build:
+      context: nginx/.
+      dockerfile: Dockerfile
+    depends_on:
+      - frontend
+      - backend
+      - ows
+    environment:
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+      - BACKEND_SERVICE=backend
+      - FRONTEND_SERVICE=frontend
+      - OWS_SERVICE=ows
+    ports:
+      - "80:80"
+    networks:
+      - shared_network
+      - docker
 
 networks:
   shared_network:
     external: false
   docker:
     external: true
-
 
 volumes:
   postgres_data:
