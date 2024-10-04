@@ -4,15 +4,15 @@ from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
 layer = {
-    "title": "Semantic segmentation mask of the city of Belo Horizonte, Brazil, 2007-2015.",
-    "name": "bh_class_layer_2007_2015",
+    "title": "Semantic segmentation mask of the city of Belo Horizonte, Brazil, 2007.",
+    "name": "bh_class_layer_2007",
     "abstract": """
-Mascara de segmentação semantica de Belo Horizonte, Minas Gerais, Brasil, classificada com as imagens capturadas em 2007-2015. As imagens foram classificadas entre vegetação, edificações e background.
+Mascara de segmentação semantica de Belo Horizonte, Minas Gerais, Brasil, classificada com as imagens capturadas em 2007. As imagens foram classificadas entre vegetação, edificações e background.
 
 Licença: CC-BY-4.0
 """,
-    "product_name": "bh_class_layer_2007_2015",
-    "low_res_product_name": "bh_class_layer_2007_2015_lowres",
+    "product_name": "bh_class_layer_2007",
+    "low_res_product_name": "bh_class_layer_2007_lowres",
     "bands": classes_bands,
     "resource_limits": reslim_bh_images,  # Defina um limite de recursos apropriado
     "image_processing": {
