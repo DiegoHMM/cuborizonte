@@ -4,15 +4,15 @@ from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
 layer = {
-    "title": "Plan of the city of Belo Horizonte, Brazil, 1972-1989.",
-    "name": "bh_planta_1972_1989",
+    "title": "Plan of the city of Belo Horizonte, Brazil, 1989.",
+    "name": "bh_planta_1989",
     "abstract": """
-Planta da cidade de Belo Horizonte, Minas Gerais, Brasil, feita de 1972 a 1989. Esta imagem oferece uma visão detalhada da planta da cidade de 1972 a 1989 com uma alta resolução.
+Planta da cidade de Belo Horizonte, Minas Gerais, Brasil, feita de 1989. Esta imagem oferece uma visão detalhada da planta da cidade de 1989 com uma alta resolução.
 
 Licença: CC-BY-4.0
 """,
-    "product_name": "bh_planta_1972_1989",
-    "low_res_product_name": "bh_planta_1972_1989_lowres",
+    "product_name": "bh_planta_1989",
+    "low_res_product_name": "bh_planta_1989_lowres",
     "bands": plan_grayscale_bands,
     "resource_limits": reslim_bh_images,
     "image_processing": {

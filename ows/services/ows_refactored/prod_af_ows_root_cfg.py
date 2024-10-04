@@ -37,6 +37,7 @@ ows_cfg = {
             "http://localhost:8000/",
             "http://localhost:8001/",
             "http://localhost:8004/",
+            
         ],
         # Metadata to go straight into GetCapabilities documents
         "title": "Cuborizonte - OGC Web Services",
@@ -124,11 +125,21 @@ ows_cfg = {
                     ],
                 },
                 {
-                    "title": "Planta da cidade de Belo Horizonte - MG - 1972-1989",
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1972",
                     "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.planta.bh_planta_1972_1989_cfg.layer",
+                                    "include": "ows_refactored.planta.bh_planta_1972_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Planta da cidade de Belo Horizonte - MG - 1989",
+                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.planta.bh_planta_1989_cfg.layer",
                                     "type": "python",
                                 },
                     ],
@@ -144,11 +155,41 @@ ows_cfg = {
                     ],
                 },
                 {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2007-2015",
+                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2007",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2007_2015_cfg.layer",
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2007_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2015",
+                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2015_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 2007",
+                    "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.class_layers.bh_classes_2007_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
+                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 2015",
+                    "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.class_layers.bh_classes_2015_cfg.layer",
                                     "type": "python",
                                 },
                     ],

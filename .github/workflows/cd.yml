@@ -3,7 +3,7 @@ name: Deploy
 on:
   pull_request:
     branches:
-      - main  # Ou a branch que você deseja monitorar
+      - main
 
 jobs:
   deploy:
