@@ -91,10 +91,15 @@ services:
       - "80:80"
     networks:
       - shared_network
+      - docker
 
 networks:
   shared_network:
     external: false
+  docker:
+    name: docker_default
 
 volumes:
   postgres_data:
+
+
