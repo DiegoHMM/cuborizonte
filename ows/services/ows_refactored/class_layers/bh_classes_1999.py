@@ -22,7 +22,7 @@ Licença: CC-BY-4.0
         "apply_solar_corrections": False,
     },
     "native_crs": "EPSG:31983",
-    "native_resolution": [0.2, -0.2],
+    "native_resolution": [0.399711, -0.399711],
     "styling": {
         "default_style": "simple_class",
         "styles": styles_classes_list,
