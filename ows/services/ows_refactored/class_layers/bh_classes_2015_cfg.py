@@ -14,17 +14,17 @@ Licença: CC-BY-4.0
     "product_name": "bh_class_layer_2015",
     "low_res_product_name": "bh_class_layer_2015_lowres",
     "bands": classes_bands,
-    "resource_limits": reslim_bh_images,  # Defina um limite de recursos apropriado
+    "resource_limits": reslim_bh_images,
     "image_processing": {
         "extent_mask_func": "datacube_ows.ogc_utils.mask_by_val",
-        "always_fetch_bands": ["vegetation", "building", "background"],  # Supondo que estas sejam as bandas do seu produto
-        "manual_merge": True,  # Defina conforme necessário
-        "apply_solar_corrections": False,  # Defina conforme necessário
+        "always_fetch_bands": ["vegetation", "building", "background"],
+        "manual_merge": True,
+        "apply_solar_corrections": False,
     },
     "native_crs": "EPSG:31983",
     "native_resolution": [0.2, -0.2],
     "styling": {
-        "default_style": "simple_class",  # Defina um estilo padrão apropriado
+        "default_style": "simple_class",
         "styles": styles_classes_list,
     }
 }
