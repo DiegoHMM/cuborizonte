@@ -8,8 +8,45 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-side-by-side';
 import { getPixelValues } from '../services/api';
 
-// Se você baixou o CSS e incluiu em src/styles
-import '../styles/leaflet-side-by-side.css'; // Importe o CSS do Side by Side
+// Importe o CSS do Side by Side se você o baixou e incluiu no projeto
+import '../styles/leaflet-side-by-side.css';
+
+const SingleLayer = ({ wmsData }) => {
+  const map = useMap();
+  const layerRef = useRef(null);
+
+  useEffect(() => {
+    if (wmsData) {
+      // Remove camada existente se houver
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+      }
+
+      // Criar camada WMS usando L.tileLayer.wms
+      const layer = L.tileLayer.wms('/ows', {
+        layers: wmsData.product,
+        format: 'image/png',
+        transparent: true,
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857,
+      });
+
+      layerRef.current = layer;
+
+      // Adicionar camada ao mapa
+      layer.addTo(map);
+
+      return () => {
+        // Limpar ao desmontar
+        if (layerRef.current) {
+          map.removeLayer(layerRef.current);
+        }
+      };
+    }
+  }, [map, wmsData]);
+
+  return null;
+};
 
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   const map = useMap();
@@ -97,13 +134,16 @@ const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
 };
 
 const MapComponent = ({
-  wmsLayerLeft,
-  wmsLayerRight,
+  viewMode,
+  wmsData,
+  wmsDataLeft,
+  wmsDataRight,
   onBoundingBoxSelected,
   selectingPixel,
   onPixelSelected,
 }) => {
   const mapRef = useRef();
+  const featureGroupRef = useRef();
 
   useEffect(() => {
     if (mapRef.current) {
@@ -115,6 +155,29 @@ const MapComponent = ({
       }
     }
   }, [selectingPixel]);
+
+  const onCreated = (e) => {
+    const layer = e.layer;
+
+    // Remover camadas existentes no FeatureGroup
+    if (featureGroupRef.current) {
+      featureGroupRef.current.clearLayers();
+    }
+
+    // Adicionar a nova camada ao FeatureGroup
+    if (featureGroupRef.current) {
+      featureGroupRef.current.addLayer(layer);
+    }
+
+    // Obter as coordenadas do retângulo
+    const { _southWest, _northEast } = layer.getBounds();
+    onBoundingBoxSelected({
+      latitudeInicial: _southWest.lat,
+      longitudeInicial: _southWest.lng,
+      latitudeFinal: _northEast.lat,
+      longitudeFinal: _northEast.lng,
+    });
+  };
 
   return (
     <MapContainer
@@ -130,19 +193,10 @@ const MapComponent = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="© OpenStreetMap contributors"
       />
-      <FeatureGroup>
+      <FeatureGroup ref={featureGroupRef}>
         <EditControl
           position="topright"
-          onCreated={(e) => {
-            const { layer } = e;
-            const { _southWest, _northEast } = layer.getBounds();
-            onBoundingBoxSelected({
-              latitudeInicial: _southWest.lat,
-              longitudeInicial: _southWest.lng,
-              latitudeFinal: _northEast.lat,
-              longitudeFinal: _northEast.lng,
-            });
-          }}
+          onCreated={onCreated}
           draw={{
             rectangle: true,
             polyline: false,
@@ -151,10 +205,15 @@ const MapComponent = ({
             polygon: false,
             marker: false,
           }}
+          edit={{
+            edit: false,
+            remove: false,
+          }}
         />
       </FeatureGroup>
-      {wmsLayerLeft && wmsLayerRight && (
-        <SideBySideLayers wmsLayerLeft={wmsLayerLeft} wmsLayerRight={wmsLayerRight} />
+      {viewMode === 'single' && wmsData && <SingleLayer wmsData={wmsData} />}
+      {viewMode === 'comparison' && wmsDataLeft && wmsDataRight && (
+        <SideBySideLayers wmsLayerLeft={wmsDataLeft} wmsLayerRight={wmsDataRight} />
       )}
     </MapContainer>
   );

@@ -21,10 +21,10 @@ Licença: CC-BY-4.0
         "manual_merge": True,
         "apply_solar_corrections": False,
     },
-    "native_crs": "EPSG:29193",
+    "native_crs": "EPSG:31983",
     "native_resolution": [0.00001, -0.00001],
     "styling": {
-        "default_style": "simple_rgb",
-        "styles": styles_ortophoto_list,
+        "default_style": "simple_grayscale",
+        "styles": styles_ortophoto_grayscale_list,
     }
 }
