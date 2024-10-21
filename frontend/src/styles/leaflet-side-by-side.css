@@ -1,0 +1,45 @@
+/* Adicione este CSS ao seu arquivo App.css ou outro arquivo CSS global */
+
+/* Estilos para o controle Leaflet Side by Side */
+.leaflet-sbs-range {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.leaflet-sbs-divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: #000;
+  width: 2px;
+  height: 100%;
+  z-index: 999;
+}
+
+.leaflet-sbs-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  background: transparent;
+  width: 30px;
+  height: 100%;
+  z-index: 1000;
+  cursor: ew-resize;
+}
+
+.leaflet-sbs-handle:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -15px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid #000;
+  border-radius: 50%;
+}

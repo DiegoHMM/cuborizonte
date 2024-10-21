@@ -6,8 +6,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-side-by-side';
-import '../styles/side_by_side.css'
 import { getPixelValues } from '../services/api';
+
+// Se você baixou o CSS e incluiu em src/styles
+import '../styles/leaflet-side-by-side.css'; // Importe o CSS do Side by Side
 
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   const map = useMap();
@@ -17,6 +19,17 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
   useEffect(() => {
     if (wmsLayerLeft && wmsLayerRight) {
+      // Remove camadas existentes se houver
+      if (leftLayerRef.current) {
+        map.removeLayer(leftLayerRef.current);
+      }
+      if (rightLayerRef.current) {
+        map.removeLayer(rightLayerRef.current);
+      }
+      if (sideBySideRef.current) {
+        sideBySideRef.current.remove();
+      }
+
       // Criar camadas WMS usando L.tileLayer.wms
       const leftLayer = L.tileLayer.wms('/ows', {
         layers: wmsLayerLeft.product,
@@ -24,30 +37,38 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
-        bounds: [[wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial], [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal]],
       });
+
       const rightLayer = L.tileLayer.wms('/ows', {
         layers: wmsLayerRight.product,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
-        bounds: [[wmsLayerRight.latitudeInicial, wmsLayerRight.longitudeInicial], [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal]],
       });
-
-      leftLayer.addTo(map);
-      rightLayer.addTo(map);
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
 
+      // Adicionar camadas ao mapa
+      leftLayer.addTo(map);
+      rightLayer.addTo(map);
+
+      // Inicializar o controle Side by Side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
 
       return () => {
-        map.removeLayer(leftLayer);
-        map.removeLayer(rightLayer);
-        sideBySide.remove();
+        // Limpar ao desmontar
+        if (leftLayerRef.current) {
+          map.removeLayer(leftLayerRef.current);
+        }
+        if (rightLayerRef.current) {
+          map.removeLayer(rightLayerRef.current);
+        }
+        if (sideBySideRef.current) {
+          sideBySideRef.current.remove();
+        }
       };
     }
   }, [map, wmsLayerLeft, wmsLayerRight]);
@@ -75,7 +96,13 @@ const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
   return null;
 };
 
-const MapComponent = ({ wmsLayerLeft, wmsLayerRight, onBoundingBoxSelected, selectingPixel, onPixelSelected }) => {
+const MapComponent = ({
+  wmsLayerLeft,
+  wmsLayerRight,
+  onBoundingBoxSelected,
+  selectingPixel,
+  onPixelSelected,
+}) => {
   const mapRef = useRef();
 
   useEffect(() => {
@@ -94,12 +121,14 @@ const MapComponent = ({ wmsLayerLeft, wmsLayerRight, onBoundingBoxSelected, sele
       center={[-19.917299, -43.934559]}
       zoom={16}
       style={{ height: '100vh', width: '100%' }}
-      whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
+      whenCreated={(mapInstance) => {
+        mapRef.current = mapInstance;
+      }}
     >
       <MapClickHandler selectingPixel={selectingPixel} onPixelSelected={onPixelSelected} />
-      <TileLayer 
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
-        attribution="© OpenStreetMap contributors" 
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="© OpenStreetMap contributors"
       />
       <FeatureGroup>
         <EditControl
