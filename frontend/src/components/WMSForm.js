@@ -5,16 +5,21 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import { get_ortho_products, get_plan_products, get_classified_products } from '../services/api';
 
 const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
+  // Estados para seleção de produtos esquerdo e direito
+  const [productTypeLeft, setProductTypeLeft] = useState('');
+  const [productsLeft, setProductsLeft] = useState([]);
+  const [selectedProductLeft, setSelectedProductLeft] = useState(null);
+
+  const [productTypeRight, setProductTypeRight] = useState('');
+  const [productsRight, setProductsRight] = useState([]);
+  const [selectedProductRight, setSelectedProductRight] = useState(null);
+
   const [formData, setFormData] = useState({
     latitudeInicial: '',
     longitudeInicial: '',
     latitudeFinal: '',
     longitudeFinal: '',
   });
-
-  const [productType, setProductType] = useState('');
-  const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     if (boundingBox) {
@@ -29,11 +34,11 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     }
   }, [boundingBox]);
 
-  const handleProductTypeChange = async (e) => {
+  const handleProductTypeChangeLeft = async (e) => {
     const type = e.target.value;
-    setProductType(type);
-    setSelectedProduct(null); // Resetar produto selecionado
-    setProducts([]); // Resetar lista de produtos
+    setProductTypeLeft(type);
+    setSelectedProductLeft(null); // Resetar produto selecionado
+    setProductsLeft([]); // Resetar lista de produtos
 
     try {
       let productsData = [];
@@ -46,68 +51,137 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
       }
       // Ordenar produtos por data
       productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-      setProducts(productsData);
+      setProductsLeft(productsData);
     } catch (error) {
       console.error('Erro ao obter os produtos:', error);
     }
   };
 
-  const handleProductSelection = (product) => {
-    setSelectedProduct(product);
+  const handleProductTypeChangeRight = async (e) => {
+    const type = e.target.value;
+    setProductTypeRight(type);
+    setSelectedProductRight(null); // Resetar produto selecionado
+    setProductsRight([]); // Resetar lista de produtos
+
+    try {
+      let productsData = [];
+      if (type === 'Ortofoto') {
+        productsData = await get_ortho_products();
+      } else if (type === 'Planta') {
+        productsData = await get_plan_products();
+      } else if (type === 'Classificados') {
+        productsData = await get_classified_products();
+      }
+      // Ordenar produtos por data
+      productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+      setProductsRight(productsData);
+    } catch (error) {
+      console.error('Erro ao obter os produtos:', error);
+    }
+  };
+
+  const handleProductSelectionLeft = (product) => {
+    setSelectedProductLeft(product);
+  };
+
+  const handleProductSelectionRight = (product) => {
+    setSelectedProductRight(product);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedProductLeft || !selectedProductRight) {
+      alert('Por favor, selecione os dois produtos.');
+      return;
+    }
+    const dataToSubmit = {
+      ...formData,
+      layerLeft: selectedProductLeft.name,
+      layerRight: selectedProductRight.name,
+    };
+    onSubmit(dataToSubmit);
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedProduct) {
-      alert('Por favor, selecione um produto.');
-      return;
-    }
-    const dataToSubmit = {
-      ...formData,
-      layer: selectedProduct.name,
-    };
-    onSubmit(dataToSubmit);
-  };
-
   return (
     <form onSubmit={handleSubmit} className="floating-form form-group">
-      <div className="form-group mt-3">
-        <label>Tipo de Produto:</label>
-        <select
-          name="productType"
-          className="form-control"
-          value={productType}
-          onChange={handleProductTypeChange}
-        >
-          <option value="">Selecione um tipo de produto</option>
-          <option value="Ortofoto">Ortofoto</option>
-          <option value="Planta">Planta</option>
-          <option value="Classificados">Classificados</option>
-        </select>
-      </div>
-      {/* Exibir produtos como botões em uma linha do tempo */}
-      {products.length > 0 && (
-        <div className="form-group mt-3">
-          <label>Produtos:</label>
-          <div className="product-timeline">
-            {products.map(product => (
-              <button
-                key={product.name}
-                type="button"
-                className={`btn btn-outline-primary me-2 mt-2 ${selectedProduct && selectedProduct.name === product.name ? 'active' : ''}`}
-                onClick={() => handleProductSelection(product)}
-              >
-                {new Date(product.datetime).getFullYear()}
-              </button>
-            ))}
+      <h3>Seleção de Produtos</h3>
+      <div className="product-selection d-flex">
+        {/* Seleção do Produto Esquerdo */}
+        <div className="product-left me-3">
+          <h4>Produto Esquerdo</h4>
+          <div className="form-group mt-3">
+            <label>Tipo de Produto:</label>
+            <select
+              name="productTypeLeft"
+              className="form-control"
+              value={productTypeLeft}
+              onChange={handleProductTypeChangeLeft}
+            >
+              <option value="">Selecione um tipo de produto</option>
+              <option value="Ortofoto">Ortofoto</option>
+              <option value="Planta">Planta</option>
+              <option value="Classificados">Classificados</option>
+            </select>
           </div>
+          {productsLeft.length > 0 && (
+            <div className="form-group mt-3">
+              <label>Produtos:</label>
+              <div className="product-timeline">
+                {productsLeft.map(product => (
+                  <button
+                    key={product.name}
+                    type="button"
+                    className={`btn btn-outline-primary me-2 mt-2 ${selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : ''}`}
+                    onClick={() => handleProductSelectionLeft(product)}
+                  >
+                    {new Date(product.datetime).getFullYear()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-      <div className="form-group">
+        {/* Seleção do Produto Direito */}
+        <div className="product-right">
+          <h4>Produto Direito</h4>
+          <div className="form-group mt-3">
+            <label>Tipo de Produto:</label>
+            <select
+              name="productTypeRight"
+              className="form-control"
+              value={productTypeRight}
+              onChange={handleProductTypeChangeRight}
+            >
+              <option value="">Selecione um tipo de produto</option>
+              <option value="Ortofoto">Ortofoto</option>
+              <option value="Planta">Planta</option>
+              <option value="Classificados">Classificados</option>
+            </select>
+          </div>
+          {productsRight.length > 0 && (
+            <div className="form-group mt-3">
+              <label>Produtos:</label>
+              <div className="product-timeline">
+                {productsRight.map(product => (
+                  <button
+                    key={product.name}
+                    type="button"
+                    className={`btn btn-outline-primary me-2 mt-2 ${selectedProductRight && selectedProductRight.name === product.name ? 'active' : ''}`}
+                    onClick={() => handleProductSelectionRight(product)}
+                  >
+                    {new Date(product.datetime).getFullYear()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="form-group mt-3">
         <label>Latitude Inicial:</label>
         <input
           type="text"

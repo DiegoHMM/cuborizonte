@@ -8,7 +8,8 @@ import './styles/App.css';
 
 function App() {
   const [boundingBox, setBoundingBox] = useState(null);
-  const [wmsData, setWmsData] = useState(null);
+  const [wmsDataLeft, setWmsDataLeft] = useState(null);
+  const [wmsDataRight, setWmsDataRight] = useState(null);
   const [selectingPixel, setSelectingPixel] = useState(false);
   const [pixelData, setPixelData] = useState(null);
 
@@ -17,8 +18,9 @@ function App() {
   }, [boundingBox]);
 
   useEffect(() => {
-    console.log("Atualização do estado wmsData:", wmsData);
-  }, [wmsData]);
+    console.log("Atualização do estado wmsDataLeft:", wmsDataLeft);
+    console.log("Atualização do estado wmsDataRight:", wmsDataRight);
+  }, [wmsDataLeft, wmsDataRight]);
 
   const handleBoundingBoxSelected = (bbox) => {
     console.log("Bounding box selecionada:", bbox);
@@ -32,18 +34,25 @@ function App() {
     }
 
     console.log("Dados do formulário recebidos:", formData);
-    const wmsLayerData = {
-      product: formData.layer,
+    const wmsLayerDataLeft = {
+      product: formData.layerLeft,
       latitudeInicial: boundingBox.latitudeInicial,
       longitudeInicial: boundingBox.longitudeInicial,
       latitudeFinal: boundingBox.latitudeFinal,
       longitudeFinal: boundingBox.longitudeFinal,
-      startDate: formData.startDate,
-      endDate: formData.endDate
     };
 
-    console.log("Configurando dados da camada WMS:", wmsLayerData);
-    setWmsData({ ...wmsLayerData });
+    const wmsLayerDataRight = {
+      product: formData.layerRight,
+      latitudeInicial: boundingBox.latitudeInicial,
+      longitudeInicial: boundingBox.longitudeInicial,
+      latitudeFinal: boundingBox.latitudeFinal,
+      longitudeFinal: boundingBox.longitudeFinal,
+    };
+
+    console.log("Configurando dados das camadas WMS:", wmsLayerDataLeft, wmsLayerDataRight);
+    setWmsDataLeft({ ...wmsLayerDataLeft });
+    setWmsDataRight({ ...wmsLayerDataRight });
     resetBoundingBox();
   };
 
@@ -73,7 +82,8 @@ function App() {
       <div className="map-container">
         <MapComponent
           onBoundingBoxSelected={handleBoundingBoxSelected}
-          wmsLayer={wmsData}
+          wmsLayerLeft={wmsDataLeft}
+          wmsLayerRight={wmsDataRight}
           selectingPixel={selectingPixel}
           onPixelSelected={handlePixelSelected}
         />
