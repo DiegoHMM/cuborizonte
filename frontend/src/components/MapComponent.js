@@ -23,7 +23,7 @@ const SingleLayer = ({ wmsData }) => {
       }
 
       // Criar camada WMS usando L.tileLayer.wms
-      const layer = L.tileLayer.wms('/ows', {
+      const layer = L.tileLayer.wms('/cuborizonte/ows/', {
         layers: wmsData.product,
         format: 'image/png',
         transparent: true,
@@ -68,7 +68,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       }
 
       // Criar camadas WMS usando L.tileLayer.wms
-      const leftLayer = L.tileLayer.wms('/ows', {
+      const leftLayer = L.tileLayer.wms('/cuborizonte/ows/', {
         layers: wmsLayerLeft.product,
         format: 'image/png',
         transparent: true,
@@ -76,7 +76,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         crs: L.CRS.EPSG3857,
       });
 
-      const rightLayer = L.tileLayer.wms('/ows', {
+      const rightLayer = L.tileLayer.wms('/cuborizonte/ows/', {
         layers: wmsLayerRight.product,
         format: 'image/png',
         transparent: true,
