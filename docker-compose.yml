@@ -87,8 +87,6 @@ services:
       - BACKEND_SERVICE=backend
       - FRONTEND_SERVICE=frontend
       - OWS_SERVICE=ows
-    ports:
-      - "80:80"
     networks:
       - shared_network
       - docker
