@@ -145,6 +145,16 @@ ows_cfg = {
                     ],
                 },
                 {
+                    "title": "Imagens Aéreas de Belo Horizonte - MG - 1989",
+                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_1989_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
+                {
                     "title": "Imagens Aéreas de Belo Horizonte - MG - 1999",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [

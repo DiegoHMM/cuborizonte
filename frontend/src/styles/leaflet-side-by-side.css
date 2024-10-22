@@ -1,0 +1,36 @@
+.leaflet-sbs-range {
+  position: absolute;
+  pointer-events: none;
+}
+
+.leaflet-sbs-divider {
+  position: absolute;
+  pointer-events: none;
+  background: white;
+  width: 5px;
+  height: 100%;
+  z-index: 999;
+}
+
+.leaflet-sbs-handle {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+  width: 30px;
+  height: 100%;
+  z-index: 1000;
+  cursor: ew-resize;
+}
+
+.leaflet-sbs-handle:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -15px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid #000;
+  border-radius: 50%;
+}
