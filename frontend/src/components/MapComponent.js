@@ -22,19 +22,33 @@ const SingleLayer = ({ wmsData }) => {
         map.removeLayer(layerRef.current);
       }
 
-      // Criar camada WMS usando L.tileLayer.wms
-      const layer = L.tileLayer.wms('/ows', {
-        layers: wmsData.product,
-        format: 'image/png',
-        transparent: true,
-        version: '1.3.0',
-        crs: L.CRS.EPSG3857,
-      });
+      // Obter o bounding box
+      const bbox = [
+        wmsData.longitudeInicial,
+        wmsData.latitudeInicial,
+        wmsData.longitudeFinal,
+        wmsData.latitudeFinal,
+      ];
+
+      // Construir a URL WMS com os parâmetros necessários, incluindo o BBOX
+      const wmsUrl = `/cuborizonte/ows?service=WMS&request=GetMap&layers=${wmsData.product}&styles=&format=image/png&transparent=true&version=1.3.0&crs=EPSG:4326&bbox=${bbox.join(',')}&width=1024&height=1024`;
+
+      // Criar uma imagem overlay usando L.imageOverlay
+      const layer = L.imageOverlay(wmsUrl, [
+        [wmsData.latitudeInicial, wmsData.longitudeInicial],
+        [wmsData.latitudeFinal, wmsData.longitudeFinal],
+      ]);
 
       layerRef.current = layer;
 
       // Adicionar camada ao mapa
       layer.addTo(map);
+
+      // Ajustar o mapa para caber no bounding box
+      map.fitBounds([
+        [wmsData.latitudeInicial, wmsData.longitudeInicial],
+        [wmsData.latitudeFinal, wmsData.longitudeFinal],
+      ]);
 
       return () => {
         // Limpar ao desmontar
@@ -67,22 +81,36 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         sideBySideRef.current.remove();
       }
 
-      // Criar camadas WMS usando L.tileLayer.wms
-      const leftLayer = L.tileLayer.wms('/ows', {
-        layers: wmsLayerLeft.product,
-        format: 'image/png',
-        transparent: true,
-        version: '1.3.0',
-        crs: L.CRS.EPSG3857,
-      });
+      // Obter os bounding boxes
+      const bboxLeft = [
+        wmsLayerLeft.longitudeInicial,
+        wmsLayerLeft.latitudeInicial,
+        wmsLayerLeft.longitudeFinal,
+        wmsLayerLeft.latitudeFinal,
+      ];
 
-      const rightLayer = L.tileLayer.wms('/ows', {
-        layers: wmsLayerRight.product,
-        format: 'image/png',
-        transparent: true,
-        version: '1.3.0',
-        crs: L.CRS.EPSG3857,
-      });
+      const bboxRight = [
+        wmsLayerRight.longitudeInicial,
+        wmsLayerRight.latitudeInicial,
+        wmsLayerRight.longitudeFinal,
+        wmsLayerRight.latitudeFinal,
+      ];
+
+      // Construir URLs WMS para ambas as camadas
+      const wmsUrlLeft = `/cuborizonte/ows?service=WMS&request=GetMap&layers=${wmsLayerLeft.product}&styles=&format=image/png&transparent=true&version=1.3.0&crs=EPSG:4326&bbox=${bboxLeft.join(',')}&width=1024&height=1024`;
+
+      const wmsUrlRight = `/cuborizonte/ows?service=WMS&request=GetMap&layers=${wmsLayerRight.product}&styles=&format=image/png&transparent=true&version=1.3.0&crs=EPSG:4326&bbox=${bboxRight.join(',')}&width=1024&height=1024`;
+
+      // Criar imagens overlay para ambas as camadas
+      const leftLayer = L.imageOverlay(wmsUrlLeft, [
+        [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
+        [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
+      ]);
+
+      const rightLayer = L.imageOverlay(wmsUrlRight, [
+        [wmsLayerRight.latitudeInicial, wmsLayerRight.longitudeInicial],
+        [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
+      ]);
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
@@ -90,6 +118,10 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       // Adicionar camadas ao mapa
       leftLayer.addTo(map);
       rightLayer.addTo(map);
+
+      // Ajustar o mapa para caber no bounding box combinado
+      const group = new L.FeatureGroup([leftLayer, rightLayer]);
+      map.fitBounds(group.getBounds());
 
       // Inicializar o controle Side by Side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);

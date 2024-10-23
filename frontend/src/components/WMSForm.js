@@ -195,7 +195,9 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
                   <button
                     key={product.name}
                     type="button"
-                    className={`btn btn-outline-primary me-2 mt-2 ${selectedProduct && selectedProduct.name === product.name ? 'active' : ''}`}
+                    className={`btn btn-outline-primary me-2 mt-2 ${
+                      selectedProduct && selectedProduct.name === product.name ? 'active' : ''
+                    }`}
                     onClick={() => handleProductSelection(product)}
                   >
                     {new Date(product.datetime).getFullYear()}
@@ -235,7 +237,11 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : ''}`}
+                        className={`btn btn-outline-primary me-2 mt-2 ${
+                          selectedProductLeft && selectedProductLeft.name === product.name
+                            ? 'active'
+                            : ''
+                        }`}
                         onClick={() => handleProductSelectionLeft(product)}
                       >
                         {new Date(product.datetime).getFullYear()}
@@ -270,7 +276,11 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductRight && selectedProductRight.name === product.name ? 'active' : ''}`}
+                        className={`btn btn-outline-primary me-2 mt-2 ${
+                          selectedProductRight && selectedProductRight.name === product.name
+                            ? 'active'
+                            : ''
+                        }`}
                         onClick={() => handleProductSelectionRight(product)}
                       >
                         {new Date(product.datetime).getFullYear()}
@@ -329,7 +339,9 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
           readOnly
         />
       </div>
-      <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
+      <button type="submit" className="btn btn-primary mt-3">
+        Fazer Requisição
+      </button>
       <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={onSelectPixel}>
         Selecionar Ponto
       </button>
