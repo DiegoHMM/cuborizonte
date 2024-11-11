@@ -1,6 +1,6 @@
 // services/api.js
 export const getPixelValues = async (latitude, longitude) => {
-    const response = await fetch('/cuborizonte/api/get_pixel_class', {
+    const response = await fetch('api/get_pixel_class', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export const getPixelValues = async (latitude, longitude) => {
 
 
 export const get_classified_products = async () => {
-    const response = await fetch('/cuborizonte/api/get_classified_products', {
+    const response = await fetch('api/get_classified_products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export const get_classified_products = async () => {
 
 
 export const get_ortho_products = async () => {
-    const response = await fetch('/cuborizonte/api/get_ortho_products', {
+    const response = await fetch('api/get_ortho_products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export const get_ortho_products = async () => {
 
 
 export const get_plan_products = async () => {
-    const response = await fetch('/cuborizonte/api/get_plan_products', {
+    const response = await fetch('api/get_plan_products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

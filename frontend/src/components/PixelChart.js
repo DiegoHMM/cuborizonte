@@ -62,6 +62,7 @@ const PixelChart = ({ data }) => {
             const className = classNames.find(name => classMapping[name] === value);
             return className || value;
           },
+          stepSize: 1,
         },
         title: {
           display: true,
@@ -69,9 +70,6 @@ const PixelChart = ({ data }) => {
         },
         min: 1,
         max: Object.keys(classMapping).length,
-        ticks: {
-          stepSize: 1,
-        },
       },
       x: {
         type: 'time',
