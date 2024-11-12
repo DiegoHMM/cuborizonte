@@ -74,6 +74,7 @@ const SingleLayer = ({ wmsData }) => {
   return null;
 };
 
+
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   const map = useMap();
   const leftLayerRef = useRef(null);
@@ -145,6 +146,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
   return null;
 };
+
 
 const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
   useMapEvents({
