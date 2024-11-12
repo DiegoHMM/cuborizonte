@@ -8,8 +8,32 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-side-by-side';
 import { getPixelValues } from '../services/api';
 
-// Importe o CSS do Side by Side se você o baixou e incluiu no projeto
+// Import the CSS for Side by Side if you have it
 import '../styles/leaflet-side-by-side.css';
+
+// Define the custom bounded tile layer
+L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
+  initialize: function (url, options) {
+    L.TileLayer.WMS.prototype.initialize.call(this, url, options);
+    if (options.bounds) {
+      this._bounds = L.latLngBounds(options.bounds);
+    }
+  },
+
+  getTileUrl: function (coords) {
+    // Get the tile bounds
+    const tileBounds = this._tileCoordsToBounds(coords);
+
+    // Check if the tile bounds intersect the bounding box
+    if (this._bounds && !this._bounds.overlaps(tileBounds)) {
+      // Return a transparent tile to prevent loading
+      return L.Util.emptyImageUrl;
+    }
+
+    // Call the original getTileUrl function
+    return L.TileLayer.WMS.prototype.getTileUrl.call(this, coords);
+  },
+});
 
 const SingleLayer = ({ wmsData }) => {
   const map = useMap();
@@ -17,27 +41,29 @@ const SingleLayer = ({ wmsData }) => {
 
   useEffect(() => {
     if (wmsData) {
-      // Remove camada existente se houver
       if (layerRef.current) {
         map.removeLayer(layerRef.current);
       }
 
-      // Criar camada WMS usando L.tileLayer.wms
-      const layer = L.tileLayer.wms('/cuborizonte/ows/', {
+      const bounds = L.latLngBounds([
+        [wmsData.latitudeInicial, wmsData.longitudeInicial],
+        [wmsData.latitudeFinal, wmsData.longitudeFinal],
+      ]);
+
+      const layer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
         layers: wmsData.product,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
+        bounds: bounds,
       });
 
       layerRef.current = layer;
 
-      // Adicionar camada ao mapa
       layer.addTo(map);
 
       return () => {
-        // Limpar ao desmontar
         if (layerRef.current) {
           map.removeLayer(layerRef.current);
         }
@@ -56,7 +82,6 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
   useEffect(() => {
     if (wmsLayerLeft && wmsLayerRight) {
-      // Remove camadas existentes se houver
       if (leftLayerRef.current) {
         map.removeLayer(leftLayerRef.current);
       }
@@ -67,36 +92,44 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         sideBySideRef.current.remove();
       }
 
-      // Criar camadas WMS usando L.tileLayer.wms
-      const leftLayer = L.tileLayer.wms('/cuborizonte/ows/', {
+      const boundsLeft = L.latLngBounds([
+        [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
+        [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
+      ]);
+
+      const boundsRight = L.latLngBounds([
+        [wmsLayerRight.latitudeInicial, wmsLayerRight.longitudeInicial],
+        [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
+      ]);
+
+      const leftLayer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
         layers: wmsLayerLeft.product,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
+        bounds: boundsLeft,
       });
 
-      const rightLayer = L.tileLayer.wms('/cuborizonte/ows/', {
+      const rightLayer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
         layers: wmsLayerRight.product,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
+        bounds: boundsRight,
       });
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
 
-      // Adicionar camadas ao mapa
       leftLayer.addTo(map);
       rightLayer.addTo(map);
 
-      // Inicializar o controle Side by Side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
 
       return () => {
-        // Limpar ao desmontar
         if (leftLayerRef.current) {
           map.removeLayer(leftLayerRef.current);
         }
@@ -118,14 +151,14 @@ const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
     click: async (e) => {
       if (selectingPixel) {
         const { lat, lng } = e.latlng;
-        console.log('Coordenadas clicadas:', lat, lng);
+        console.log('Clicked coordinates:', lat, lng);
 
         try {
           const data = await getPixelValues(lat, lng);
-          console.log('Dados retornados do backend:', data);
-          onPixelSelected(data); // Passar os dados para o App.js
+          console.log('Data returned from backend:', data);
+          onPixelSelected(data);
         } catch (error) {
-          console.error('Erro ao fazer a requisição:', error);
+          console.error('Error making request:', error);
         }
       }
     },
@@ -159,17 +192,17 @@ const MapComponent = ({
   const onCreated = (e) => {
     const layer = e.layer;
 
-    // Remover camadas existentes no FeatureGroup
+    // Clear existing layers in the FeatureGroup
     if (featureGroupRef.current) {
       featureGroupRef.current.clearLayers();
     }
 
-    // Adicionar a nova camada ao FeatureGroup
+    // Add the new layer to the FeatureGroup
     if (featureGroupRef.current) {
       featureGroupRef.current.addLayer(layer);
     }
 
-    // Obter as coordenadas do retângulo
+    // Get the coordinates of the rectangle
     const { _southWest, _northEast } = layer.getBounds();
     onBoundingBoxSelected({
       latitudeInicial: _southWest.lat,
