@@ -1,3 +1,4 @@
+from pyproj import Transformer
 import os
 import sys
 import uuid
@@ -9,30 +10,103 @@ import random
 import argparse
 
 def format_date(year, month, day):
-    date_object = datetime(year, month, day, 0, 0, 0)
-    date_str = date_object.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    return date_str
+    try:
+        date_object = datetime(year, month, day, 0, 0, 0)
+        date_str = date_object.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        return date_str
+    except Exception as e:
+        print(f"Erro ao formatar a data: {e}")
+        return None
 
 def get_crs(tif_path):
-    with rasterio.open(tif_path) as src:
-        crs = src.crs
-    return crs
+    try:
+        with rasterio.open(tif_path) as src:
+            crs = src.crs
+        return crs
+    except Exception as e:
+        print(f"Erro ao obter o CRS: {e}")
+        return None
 
 def get_grids(tif_path):
-    with rasterio.open(tif_path) as src:
-        transform = src.transform
-        shape = src.shape
+    try:
+        with rasterio.open(tif_path) as src:
+            transform = src.transform
+            shape = src.shape
 
-        transform = np.array(transform).flatten().tolist()
-        shape = np.array(shape).flatten().tolist()
+            transform = np.array(transform).flatten().tolist()
+            shape = np.array(shape).flatten().tolist()
 
-    return {
-        'default': {
-            'shape': shape,
-            'transform': transform,
+        return {
+            'default': {
+                'shape': shape,
+                'transform': transform,
+            }
         }
-    }
+    except Exception as e:
+        print(f"Erro ao obter os grids: {e}")
+        return None
 
+def validate_bounding_box(bounds):
+    try:
+        """Valida se o bounding box está dentro dos limites de Minas Gerais."""
+        mg_limits = {
+            'latitude': {'start': -23.21, 'end': -14.00},
+            'longitude': {'start': -51.21, 'end': -39.85},
+        }
+
+        # Verificar se o bounding box excede os limites de Minas Gerais
+        if (bounds['latitude']['start'] < mg_limits['latitude']['start'] or
+            bounds['latitude']['end'] > mg_limits['latitude']['end'] or
+            bounds['longitude']['start'] < mg_limits['longitude']['start'] or
+            bounds['longitude']['end'] > mg_limits['longitude']['end']):
+            return False
+        return True
+    except Exception as e:
+        print(f"Erro ao validar o bounding box: {e}")
+        return False
+
+def convert_bounds_to_epsg4326(bounds, src_crs):
+    try:
+        """Converte os limites do bounding box para EPSG:4326."""
+        transformer = Transformer.from_crs(src_crs, "EPSG:4326", always_xy=True)
+
+        # Converter os 4 cantos do bounding box
+        min_lon, min_lat = transformer.transform(bounds.left, bounds.bottom)
+        max_lon, max_lat = transformer.transform(bounds.right, bounds.top)
+        return {
+            'latitude': {'start': min_lat, 'end': max_lat},
+            'longitude': {'start': min_lon, 'end': max_lon},
+        }
+    except Exception as e:
+        print(f"Erro ao converter os limites do bounding box para EPSG:4326: {e}")
+        raise Exception(f"Erro ao converter os limites do bounding box para EPSG:4326: {e}")
+
+
+
+
+def calculate_bounding_box(tif_path):
+    try:
+        """Calcula e valida o bounding box para Minas Gerais."""
+        with rasterio.open(tif_path) as src:
+            bounds = src.bounds
+            src_crs = src.crs.to_string()
+
+            # Converter bounding box para EPSG:4326
+            bounding_box = convert_bounds_to_epsg4326(bounds, src_crs)
+
+            # Validar bounding box
+            if not validate_bounding_box(bounding_box):
+                print(f"Arquivo fora dos limites de Minas Gerais: {tif_path}")
+                #trough exception to skip the file
+                raise Exception(f"Bounding box fora dos limites de Minas Gerais, Arquivo: {tif_path}")
+            return bounding_box
+    except Exception as e:
+        print(f"Erro ao calcular o bounding box: {e}")
+        raise Exception(f"Erro ao calcular o bounding box: {e}")
+
+    
+
+'''
 def calculate_bounding_box(tif_path):
     with rasterio.open(tif_path) as src:
         bounds = src.bounds
@@ -41,10 +115,14 @@ def calculate_bounding_box(tif_path):
         'latitude': {'start': bounds.bottom, 'end': bounds.top},
         'longitude': {'start': bounds.left, 'end': bounds.right},
     }
+'''
 
 def save_yaml(dataset, output_file):
-    with open(output_file, 'w') as yaml_file:
-        yaml.dump(dataset, yaml_file, default_flow_style=False)
+    try:
+        with open(output_file, 'w') as yaml_file:
+            yaml.dump(dataset, yaml_file, default_flow_style=False)
+    except Exception as e:
+        print(f"Erro ao salvar o arquivo YAML: {e}")
 
 def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band_names=None):
     crs = str(get_crs(tif_path))
@@ -136,11 +214,15 @@ if __name__ == '__main__':
     all_files = os.listdir(photo_folder)
 
     for tif_file in all_files:
-        tif_path = os.path.join(photo_folder, tif_file)
-        
-        start_date = format_date(year, 1, 1)
-        end_date = format_date(year, 12, 31)
+        try:
+            tif_path = os.path.join(photo_folder, tif_file)
+            
+            start_date = format_date(year, 1, 1)
+            end_date = format_date(year, 12, 31)
 
-        dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date, band_names)
+            dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date, band_names)
 
-        save_yaml(dataset, os.path.join(bands_path, file_name, file_name + '.yaml'))
+            save_yaml(dataset, os.path.join(bands_path, file_name, file_name + '.yaml'))
+        except Exception as e:
+            print(f"Erro ao processar o arquivo {tif_file}: {e}")
+            continue
