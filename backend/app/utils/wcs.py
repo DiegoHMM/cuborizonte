@@ -205,11 +205,11 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url):
                 value = int(value) if isinstance(value, np.integer) else float(value)
 
                 if idx == 1 and value == 255:
-                    return 'vegetation'
+                    return 'Vegetation'
                 elif idx == 2 and value == 255:
-                    return 'building'
+                    return 'Building'
                 elif idx == 3 and value == 255:
-                    return 'background'
+                    return 'Background'
 
         return 'no_data'
     else:

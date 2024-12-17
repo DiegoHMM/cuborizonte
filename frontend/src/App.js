@@ -30,6 +30,12 @@ function App() {
     setBoundingBox(bbox);
   };
 
+  const handleMapClick = () => {
+    if (pixelData) {
+      setPixelData(null);
+    }
+  };
+
   const handleFormSubmit = async (formData) => {
     if (!boundingBox) {
       alert("Por favor, desenhe um retângulo no mapa antes de submeter o formulário.");
@@ -109,6 +115,7 @@ function App() {
           wmsDataRight={wmsDataRight}
           selectingPixel={selectingPixel}
           onPixelSelected={handlePixelSelected}
+          onMapClick={handleMapClick}
         />
         {pixelData && (
           <div className="chart-overlay">
