@@ -1,11 +1,11 @@
-# Dockerfile-frontend
-FROM node:18-alpine
+FROM node:18-alpine as build-stage
 
 WORKDIR /frontend-app
-
-COPY . /frontend-app
-
+COPY package*.json /frontend-app/
 RUN npm install
+COPY . /frontend-app/
 RUN npm run build
 
-EXPOSE 3000
+FROM nginx:1.19-alpine as production-stage
+COPY --from=build-stage /frontend-app/build /usr/share/nginx/html
+

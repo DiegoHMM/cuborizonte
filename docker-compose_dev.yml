@@ -7,9 +7,6 @@ services:
     command: sh -c "npm run start -- --port=3000 --host"
     networks:
       - shared_network
-    #ports:
-    #- "3000:3000"
-
 
   backend:
     build:
@@ -41,8 +38,6 @@ services:
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
     expose:
       - "8000"
-    ports:
-      - "8000:8000"
     depends_on:
       - postgres
     volumes:
@@ -64,8 +59,6 @@ services:
       POSTGRES_USER: postgres
     volumes:
       - ./data:/data
-    #ports:
-    #  - "5432:5432"
     expose:
       - "5432"
     restart: always
@@ -97,8 +90,6 @@ services:
     networks:
       - shared_network
       - docker
-    ports:
-      - "80:80"
 
 networks:
   shared_network:
@@ -108,5 +99,8 @@ networks:
 
 volumes:
   postgres_data:
+
+
+
 
 
