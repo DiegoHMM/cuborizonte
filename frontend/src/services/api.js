@@ -1,8 +1,10 @@
 const baseApiURL = process.env.REACT_APP_API_BASE_URL || '/api/'; 
 
 // services/api.js
+
+
 export const getPixelValues = async (latitude, longitude) => {
-    const response = await fetch(`${baseApiURL}/get_pixel_class/`, {
+    const response = await fetch(`${baseApiURL}/get_pixel_class`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
