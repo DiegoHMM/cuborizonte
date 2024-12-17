@@ -11,6 +11,8 @@
   // Import the CSS for Side by Side if you have it
   import '../styles/leaflet-side-by-side.css';
 
+  const baseWmsURL = process.env.REACT_APP_WMS_BASE_URL || '/ows/'; 
+
   // Define the custom bounded tile layer
   L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
     initialize: function (url, options) {
@@ -61,7 +63,7 @@
           [wmsData.latitudeFinal, wmsData.longitudeFinal],
         ]);
 
-        const layer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
+        const layer = new L.BoundedTileLayerWMS(`${baseWmsURL}`, {
           layers: wmsData.product,
           format: 'image/png',
           transparent: true,
@@ -114,7 +116,7 @@
           [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
         ]);
 
-        const leftLayer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
+        const leftLayer = new L.BoundedTileLayerWMS(`${baseWmsURL}`, {
           layers: wmsLayerLeft.product,
           format: 'image/png',
           transparent: true,
@@ -123,7 +125,7 @@
           bounds: boundsLeft,
         });
 
-        const rightLayer = new L.BoundedTileLayerWMS('/cuborizonte/ows/', {
+        const rightLayer = new L.BoundedTileLayerWMS(`${baseWmsURL}`, {
           layers: wmsLayerRight.product,
           format: 'image/png',
           transparent: true,
