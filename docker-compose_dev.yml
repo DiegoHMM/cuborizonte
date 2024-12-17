@@ -2,14 +2,12 @@ services:
 
   frontend:
     build:
-      context: frontend/.
+      context: ./frontend
       dockerfile: Dockerfile
-    command: sh -c "npm run start -- --port=3000 --host"
+    ports:
+      - "3000:80"
     networks:
       - shared_network
-    #ports:
-    #- "3000:3000"
-
 
   backend:
     build:
@@ -83,8 +81,8 @@ services:
 
   cuborizonte:
     build:
-      context: nginx/.
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: nginx/Dockerfile
     depends_on:
       - frontend
       - backend
