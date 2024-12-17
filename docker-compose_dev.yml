@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: frontend/.
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     command: sh -c "npm run start -- --port=3000 --host"
     networks:
       - shared_network
@@ -77,19 +77,21 @@ services:
   cuborizonte:
     build:
       context: nginx/.
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     depends_on:
       - frontend
       - backend
       - ows
     environment:
-      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+      - COPY default.conf.template /etc/nginx/templates/default.conf.template
       - BACKEND_SERVICE=backend
       - FRONTEND_SERVICE=frontend
       - OWS_SERVICE=ows
     networks:
       - shared_network
       - docker
+    ports:
+      - "80:80"
 
 networks:
   shared_network:
