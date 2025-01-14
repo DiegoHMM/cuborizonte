@@ -32,9 +32,11 @@ def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depend
         query = {
             "x": (request.x_min, request.x_max),
             "y": (request.y_min, request.y_max),
-            "time": (request.time[0], request.time[1]),  # Agora aceita um intervalo
+            "time": (request.time[0], request.time[1]),
             "measurements": request.measurements,
             "resolution": (-request.resolution, request.resolution),
+            "like": None,  # optional reference
+            "dask_chunks": {"x": 512, "y": 512}  # added for chunking
         }
 
         # Iterar sobre os produtos e carregar dados
