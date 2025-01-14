@@ -1,4 +1,4 @@
-FROM opendatacube/ows:latest
+FROM opendatacube/ows:1.8.0-rc1
 
 # Alternar para o usuário root para instalar pacotes
 USER root

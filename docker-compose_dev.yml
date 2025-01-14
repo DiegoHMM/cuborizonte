@@ -24,11 +24,14 @@ services:
       sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
     ports:
       - "8004:8004"
+    expose:
+      - "8004"
     networks:
       - shared_network
 
 
   ows:
+    image: opendatacube/opendatacube:1.8.19
     build:
       context: ./ows
       dockerfile: Dockerfile
@@ -71,15 +74,6 @@ services:
     expose:
       - "5432"
     restart: always
-    networks:
-      - shared_network
-
-  checkdb:
-    image: schaffdev/port_check:latest
-    mem_limit: 500m
-    environment:
-      CHECK_HOST: postgres
-      CHECK_PORT: 5432
     networks:
       - shared_network
 
