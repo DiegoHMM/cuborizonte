@@ -269,9 +269,11 @@ const MapComponent = ({
       />
 
       {/* Renderização das camadas WMS (single ou comparison) */}
-      {viewMode === 'single' && wmsData && (
-        <SingleLayer wmsData={wmsData} />
-      )}
+      {viewMode === 'single' && wmsData.length > 0 && 
+        wmsData.map((layerData, index) => (
+          <SingleLayer key={index} wmsData={layerData} />
+        ))
+      }
       {viewMode === 'comparison' && wmsDataLeft && wmsDataRight && (
         <SideBySideLayers
           wmsLayerLeft={wmsDataLeft}

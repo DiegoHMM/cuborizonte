@@ -17,6 +17,7 @@ const WMSForm = ({
   const [productType, setProductType] = useState('');
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProducts, setShowProducts] = useState(false);
 
   // Estados de produtos (esquerda/direita) para comparação
   const [productTypeLeft, setProductTypeLeft] = useState('');
@@ -50,6 +51,15 @@ const WMSForm = ({
       }));
     }
   }, [boundingBox]);
+
+  const handleCarregarProdutos = () => {
+    if(productType) {
+      loadProducts(productType, setProducts);
+      setShowProducts(true); 
+    } else {
+      alert('Selecione um tipo de produto primeiro');
+    }
+  };
 
   // Filtrar lista de produtos pela data
   const filterByDate = (productsData) => {
@@ -93,8 +103,8 @@ const WMSForm = ({
     setProductType(type);
     setSelectedProduct(null);
     setProducts([]);
-    loadProducts(type, setProducts);
   };
+
   const handleProductTypeChangeLeft = async (e) => {
     const type = e.target.value;
     setProductTypeLeft(type);
@@ -102,6 +112,7 @@ const WMSForm = ({
     setProductsLeft([]);
     loadProducts(type, setProductsLeft);
   };
+
   const handleProductTypeChangeRight = async (e) => {
     const type = e.target.value;
     setProductTypeRight(type);
@@ -113,6 +124,12 @@ const WMSForm = ({
   // Handlers para seleção de um produto da lista
   const handleProductSelection = (product) => {
     setSelectedProduct(product);
+    // Chama onSubmit imediatamente ao clicar em um produto
+    onSubmit({
+      ...formData,
+      viewMode,
+      layer: product.name,
+    });
   };
   const handleProductSelectionLeft = (product) => {
     setSelectedProductLeft(product);
@@ -124,12 +141,14 @@ const WMSForm = ({
   // Submissão do formulário
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     if (viewMode === 'single') {
       if (!selectedProduct) {
-        alert('Por favor, selecione um produto.');
-        return;
+        // Se nenhum produto estiver selecionado, carregar e mostrar produtos
+        handleCarregarProdutos();
+        return; // Interrompe o envio para aguardar a seleção do produto
       }
+      // Se um produto já foi selecionado, prosseguir com o envio normal
       onSubmit({
         ...formData,
         viewMode,
@@ -148,7 +167,6 @@ const WMSForm = ({
       });
     }
   };
-
   // Handler genérico para inputs (datas e coords)
   const handleChange = (e) => {
     setFormData({
