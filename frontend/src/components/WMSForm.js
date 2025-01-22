@@ -22,11 +22,14 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
   const [productsRight, setProductsRight] = useState([]);
   const [selectedProductRight, setSelectedProductRight] = useState(null);
 
+  // Estado para campos do formulário, incluindo intervalo de datas
   const [formData, setFormData] = useState({
     latitudeInicial: '',
     longitudeInicial: '',
     latitudeFinal: '',
     longitudeFinal: '',
+    dataInicio: '', // Campo para data inicial
+    dataFim: '',    // Campo para data final
   });
 
   useEffect(() => {
@@ -42,6 +45,23 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     }
   }, [boundingBox]);
 
+  // Função para filtrar produtos pela data
+  const filterByDate = (productsData) => {
+    const { dataInicio, dataFim } = formData;
+    // Se não há datas preenchidas, retorna a lista inteira
+    if (!dataInicio || !dataFim) return productsData;
+
+    const start = new Date(dataInicio);
+    const end = new Date(dataFim);
+
+    // Filtro pelos campos datetime dos produtos
+    return productsData.filter((product) => {
+      const productDate = new Date(product.datetime);
+      // Filtra somente se a data do produto estiver dentro do [start, end]
+      return productDate >= start && productDate <= end;
+    });
+  };
+
   // Funções para carregar produtos com base no tipo selecionado
   const loadProducts = async (type, setProductsFunc) => {
     try {
@@ -53,9 +73,13 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
       } else if (type === 'Classificados') {
         productsData = await get_classified_products();
       }
-      // Ordenar produtos por data
+      // Ordenar produtos por data (crescente)
       productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-      setProductsFunc(productsData);
+      
+      // Filtrar de acordo com data início e data fim
+      const filteredProducts = filterByDate(productsData);
+
+      setProductsFunc(filteredProducts);
     } catch (error) {
       console.error('Erro ao obter os produtos:', error);
     }
@@ -127,8 +151,12 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     }
   };
 
+  // Handler para mudanças em qualquer input do form (incluindo data início/fim)
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ 
+      ...formData, 
+      [e.target.name]: e.target.value 
+    });
   };
 
   const handleViewModeChange = (mode) => {
@@ -171,6 +199,29 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
         </li>
       </ul>
 
+      {/* Campos de Data (Filtro) */}
+      <div className="form-group mt-3">
+        <label>Data Início:</label>
+        <input
+          type="date"
+          name="dataInicio"
+          className="form-control"
+          value={formData.dataInicio}
+          onChange={handleChange}
+        />
+      </div>
+      <div className="form-group mt-3">
+        <label>Data Fim:</label>
+        <input
+          type="date"
+          name="dataFim"
+          className="form-control"
+          value={formData.dataFim}
+          onChange={handleChange}
+        />
+      </div>
+
+      {/* Seção para 'single' */}
       {viewMode === 'single' && (
         <div className="product-single mt-3">
           <div className="form-group">
@@ -189,16 +240,20 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
           </div>
           {products.length > 0 && (
             <div className="form-group mt-3">
-              <label>Produtos:</label>
+              <label>Produtos (filtrados pela data):</label>
               <div className="product-timeline">
                 {products.map(product => (
                   <button
                     key={product.name}
                     type="button"
-                    className={`btn btn-outline-primary me-2 mt-2 ${selectedProduct && selectedProduct.name === product.name ? 'active' : ''}`}
+                    className={`btn btn-outline-primary me-2 mt-2 ${
+                      selectedProduct && selectedProduct.name === product.name ? 'active' : ''
+                    }`}
                     onClick={() => handleProductSelection(product)}
                   >
-                    {new Date(product.datetime).getFullYear()}
+                    {/* Exemplo de label: ano e mês. Ajuste conforme necessidade */}
+                    {new Date(product.datetime).getFullYear()}-
+                    {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                   </button>
                 ))}
               </div>
@@ -207,6 +262,7 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
         </div>
       )}
 
+      {/* Seção para 'comparison' */}
       {viewMode === 'comparison' && (
         <div className="product-comparison mt-3">
           <div className="product-selection d-flex">
@@ -229,16 +285,19 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
               </div>
               {productsLeft.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Produtos (filtrados pela data):</label>
                   <div className="product-timeline">
                     {productsLeft.map(product => (
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : ''}`}
+                        className={`btn btn-outline-primary me-2 mt-2 ${
+                          selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : ''
+                        }`}
                         onClick={() => handleProductSelectionLeft(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}
+                        {new Date(product.datetime).getFullYear()}-
+                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                       </button>
                     ))}
                   </div>
@@ -264,16 +323,19 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
               </div>
               {productsRight.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Produtos (filtrados pela data):</label>
                   <div className="product-timeline">
                     {productsRight.map(product => (
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductRight && selectedProductRight.name === product.name ? 'active' : ''}`}
+                        className={`btn btn-outline-primary me-2 mt-2 ${
+                          selectedProductRight && selectedProductRight.name === product.name ? 'active' : ''
+                        }`}
                         onClick={() => handleProductSelectionRight(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}
+                        {new Date(product.datetime).getFullYear()}-
+                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                       </button>
                     ))}
                   </div>
@@ -329,8 +391,16 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
           readOnly
         />
       </div>
-      <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
-      <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={onSelectPixel}>
+
+      {/* Botões de Ação */}
+      <button type="submit" className="btn btn-primary mt-3">
+        Fazer Requisição
+      </button>
+      <button
+        type="button"
+        className="btn btn-secondary mt-3 ms-2"
+        onClick={onSelectPixel}
+      >
         Selecionar Ponto
       </button>
     </form>
