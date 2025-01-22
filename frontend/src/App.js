@@ -13,7 +13,7 @@ function App() {
   const [viewMode, setViewMode] = useState('single');
 
   // Dados de WMS para visualização única
-  const [wmsData, setWmsData] = useState(null);
+  const [wmsData, setWmsData] = useState([]);
 
   // Dados de WMS para comparação lado a lado
   const [wmsDataLeft, setWmsDataLeft] = useState(null);
@@ -52,8 +52,7 @@ function App() {
   };
 
   // Chamado ao enviar o formulário
-  const handleFormSubmit = (formData) => {
-    // Checa se desenhamos algo
+  const handleFormSubmit = async (formData) => {
     if (!boundingBox) {
       alert("Por favor, desenhe um retângulo no mapa antes de submeter o formulário.");
       return;
@@ -64,16 +63,17 @@ function App() {
 
     if (formData.viewMode === 'single') {
       const wmsLayerData = {
-        product: formData.layer,
-        latitudeInicial: boundingBox.latitudeInicial,
-        longitudeInicial: boundingBox.longitudeInicial,
-        latitudeFinal: boundingBox.latitudeFinal,
-        longitudeFinal: boundingBox.longitudeFinal,
-      };
-      console.log("Camada WMS (single):", wmsLayerData);
-      setWmsData(wmsLayerData);
-      setWmsDataLeft(null);
-      setWmsDataRight(null);
+          product: formData.layer,
+          latitudeInicial: boundingBox.latitudeInicial,
+          longitudeInicial: boundingBox.longitudeInicial,
+          latitudeFinal: boundingBox.latitudeFinal,
+          longitudeFinal: boundingBox.longitudeFinal,
+        };
+        console.log("Adicionando nova camada WMS:", wmsLayerData);
+        // Adiciona a nova camada ao array existente
+        setWmsData(prevLayers => [...prevLayers, wmsLayerData]);
+        setWmsDataLeft(null);
+        setWmsDataRight(null);
 
     } else if (formData.viewMode === 'comparison') {
       const wmsLayerDataLeft = {
