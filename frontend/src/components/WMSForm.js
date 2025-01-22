@@ -1,19 +1,24 @@
-// WMSForm.js
 import React, { useEffect, useState } from 'react';
 import '../styles/WMSForm.css'; 
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { get_ortho_products, get_plan_products, get_classified_products } from '../services/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
-  // Estado para o modo de visualização
-  const [viewMode, setViewMode] = useState('single'); // 'single' ou 'comparison'
+const WMSForm = ({
+  boundingBox,
+  onSubmit,
+  onSelectPixel,
+  selectingRectangle,
+  setSelectingRectangle,
+}) => {
+  const [viewMode, setViewMode] = useState('single'); // "single" ou "comparison"
 
-  // Estados para seleção de produtos
+  // Estados de produtos
   const [productType, setProductType] = useState('');
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // Estados de produtos (esquerda/direita) para comparação
   const [productTypeLeft, setProductTypeLeft] = useState('');
   const [productsLeft, setProductsLeft] = useState([]);
   const [selectedProductLeft, setSelectedProductLeft] = useState(null);
@@ -22,13 +27,17 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
   const [productsRight, setProductsRight] = useState([]);
   const [selectedProductRight, setSelectedProductRight] = useState(null);
 
+  // Dados do formulário (datas, etc.)
   const [formData, setFormData] = useState({
     latitudeInicial: '',
     longitudeInicial: '',
     latitudeFinal: '',
     longitudeFinal: '',
+    dataInicio: '',
+    dataFim: '',
   });
 
+  // Quando boundingBox muda, atualizar os campos
   useEffect(() => {
     if (boundingBox) {
       console.log("Atualizando formulário com:", boundingBox);
@@ -42,7 +51,21 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     }
   }, [boundingBox]);
 
-  // Funções para carregar produtos com base no tipo selecionado
+  // Filtrar lista de produtos pela data
+  const filterByDate = (productsData) => {
+    const { dataInicio, dataFim } = formData;
+    if (!dataInicio || !dataFim) return productsData;
+
+    const start = new Date(dataInicio);
+    const end = new Date(dataFim);
+
+    return productsData.filter((product) => {
+      const productDate = new Date(product.datetime);
+      return productDate >= start && productDate <= end;
+    });
+  };
+
+  // Carrega lista de produtos (Ortofoto, Planta, Classificados)
   const loadProducts = async (type, setProductsFunc) => {
     try {
       let productsData = [];
@@ -53,15 +76,18 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
       } else if (type === 'Classificados') {
         productsData = await get_classified_products();
       }
-      // Ordenar produtos por data
+      // Ordena por data (crescente)
       productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-      setProductsFunc(productsData);
+
+      // Filtra pelo período
+      const filteredProducts = filterByDate(productsData);
+      setProductsFunc(filteredProducts);
     } catch (error) {
       console.error('Erro ao obter os produtos:', error);
     }
   };
 
-  // Handlers para mudança de tipo de produto
+  // Handlers para mudança no "tipo de produto"
   const handleProductTypeChange = async (e) => {
     const type = e.target.value;
     setProductType(type);
@@ -69,7 +95,6 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     setProducts([]);
     loadProducts(type, setProducts);
   };
-
   const handleProductTypeChangeLeft = async (e) => {
     const type = e.target.value;
     setProductTypeLeft(type);
@@ -77,7 +102,6 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     setProductsLeft([]);
     loadProducts(type, setProductsLeft);
   };
-
   const handleProductTypeChangeRight = async (e) => {
     const type = e.target.value;
     setProductTypeRight(type);
@@ -86,54 +110,57 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     loadProducts(type, setProductsRight);
   };
 
-  // Handlers para seleção de produtos
+  // Handlers para seleção de um produto da lista
   const handleProductSelection = (product) => {
     setSelectedProduct(product);
   };
-
   const handleProductSelectionLeft = (product) => {
     setSelectedProductLeft(product);
   };
-
   const handleProductSelectionRight = (product) => {
     setSelectedProductRight(product);
   };
 
+  // Submissão do formulário
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (viewMode === 'single') {
       if (!selectedProduct) {
         alert('Por favor, selecione um produto.');
         return;
       }
-      const dataToSubmit = {
+      onSubmit({
         ...formData,
         viewMode,
         layer: selectedProduct.name,
-      };
-      onSubmit(dataToSubmit);
+      });
     } else if (viewMode === 'comparison') {
       if (!selectedProductLeft || !selectedProductRight) {
         alert('Por favor, selecione os dois produtos.');
         return;
       }
-      const dataToSubmit = {
+      onSubmit({
         ...formData,
         viewMode,
         layerLeft: selectedProductLeft.name,
         layerRight: selectedProductRight.name,
-      };
-      onSubmit(dataToSubmit);
+      });
     }
   };
 
+  // Handler genérico para inputs (datas e coords)
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
+  // Alternar entre single e comparison
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
-    // Resetar seleções ao mudar o modo
+    // Resetar estados de seleção
     setProductType('');
     setProducts([]);
     setSelectedProduct(null);
@@ -149,7 +176,6 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
     <form onSubmit={handleSubmit} className="floating-form form-group">
       <h3>Seleção de Produtos</h3>
 
-      {/* Opção de Modo de Visualização */}
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <button
@@ -171,6 +197,28 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
         </li>
       </ul>
 
+      <div className="form-group mt-3">
+        <label>Data Início:</label>
+        <input
+          type="date"
+          name="dataInicio"
+          className="form-control"
+          value={formData.dataInicio}
+          onChange={handleChange}
+        />
+      </div>
+      <div className="form-group mt-3">
+        <label>Data Fim:</label>
+        <input
+          type="date"
+          name="dataFim"
+          className="form-control"
+          value={formData.dataFim}
+          onChange={handleChange}
+        />
+      </div>
+
+      {/* Seção SINGLE */}
       {viewMode === 'single' && (
         <div className="product-single mt-3">
           <div className="form-group">
@@ -189,16 +237,20 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
           </div>
           {products.length > 0 && (
             <div className="form-group mt-3">
-              <label>Produtos:</label>
+              <label>Produtos (filtrados pela data):</label>
               <div className="product-timeline">
                 {products.map(product => (
                   <button
                     key={product.name}
                     type="button"
-                    className={`btn btn-outline-primary me-2 mt-2 ${selectedProduct && selectedProduct.name === product.name ? 'active' : ''}`}
+                    className={
+                      "btn btn-outline-primary me-2 mt-2 " +
+                      (selectedProduct && selectedProduct.name === product.name ? 'active' : '')
+                    }
                     onClick={() => handleProductSelection(product)}
                   >
-                    {new Date(product.datetime).getFullYear()}
+                    {new Date(product.datetime).getFullYear()}-
+                    {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                   </button>
                 ))}
               </div>
@@ -207,10 +259,11 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
         </div>
       )}
 
+      {/* Seção COMPARISON */}
       {viewMode === 'comparison' && (
         <div className="product-comparison mt-3">
           <div className="product-selection d-flex">
-            {/* Seleção do Produto Esquerdo */}
+            {/* Esquerda */}
             <div className="product-left me-3">
               <h4>Produto Esquerdo</h4>
               <div className="form-group mt-3">
@@ -229,23 +282,27 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
               </div>
               {productsLeft.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Produtos (filtrados pela data):</label>
                   <div className="product-timeline">
                     {productsLeft.map(product => (
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : ''}`}
+                        className={
+                          "btn btn-outline-primary me-2 mt-2 " +
+                          (selectedProductLeft && selectedProductLeft.name === product.name ? 'active' : '')
+                        }
                         onClick={() => handleProductSelectionLeft(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}
+                        {new Date(product.datetime).getFullYear()}-
+                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-            {/* Seleção do Produto Direito */}
+            {/* Direita */}
             <div className="product-right">
               <h4>Produto Direito</h4>
               <div className="form-group mt-3">
@@ -264,16 +321,20 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
               </div>
               {productsRight.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Produtos (filtrados pela data):</label>
                   <div className="product-timeline">
                     {productsRight.map(product => (
                       <button
                         key={product.name}
                         type="button"
-                        className={`btn btn-outline-primary me-2 mt-2 ${selectedProductRight && selectedProductRight.name === product.name ? 'active' : ''}`}
+                        className={
+                          "btn btn-outline-primary me-2 mt-2 " +
+                          (selectedProductRight && selectedProductRight.name === product.name ? 'active' : '')
+                        }
                         onClick={() => handleProductSelectionRight(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}
+                        {new Date(product.datetime).getFullYear()}-
+                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
                       </button>
                     ))}
                   </div>
@@ -284,7 +345,19 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
         </div>
       )}
 
-      {/* Campos de Coordenadas */}
+      {/* Botão para iniciar o desenho do retângulo */}
+      <div className="form-group mt-3">
+        <button
+          type="button"
+          className="btn btn-outline-success"
+          onClick={() => setSelectingRectangle(true)}
+        >
+          Selecionar Retângulo no Mapa
+        </button>
+
+      </div>
+
+      {/* Campos de Coordenadas (preenchidos após desenhar no mapa) */}
       <div className="form-group mt-3">
         <label>Latitude Inicial:</label>
         <input
@@ -329,8 +402,18 @@ const WMSForm = ({ boundingBox, onSubmit, onSelectPixel }) => {
           readOnly
         />
       </div>
-      <button type="submit" className="btn btn-primary mt-3">Fazer Requisição</button>
-      <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={onSelectPixel}>
+
+      {/* Botão principal para enviar a requisição */}
+      <button type="submit" className="btn btn-primary mt-3">
+        Fazer Requisição
+      </button>
+
+      {/* Botão para selecionar um ponto no mapa */}
+      <button
+        type="button"
+        className="btn btn-secondary mt-3 ms-2"
+        onClick={onSelectPixel}
+      >
         Selecionar Ponto
       </button>
     </form>

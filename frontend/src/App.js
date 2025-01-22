@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from 'react';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
@@ -7,36 +6,54 @@ import PixelChart from './components/PixelChart';
 import './styles/App.css';
 
 function App() {
+  // Bounding box desenhado no mapa
   const [boundingBox, setBoundingBox] = useState(null);
-  const [viewMode, setViewMode] = useState('single'); // 'single' ou 'comparison'
+
+  // Modo de visualização: single ou comparison
+  const [viewMode, setViewMode] = useState('single');
+
+  // Dados de WMS para visualização única
   const [wmsData, setWmsData] = useState(null);
+
+  // Dados de WMS para comparação lado a lado
   const [wmsDataLeft, setWmsDataLeft] = useState(null);
   const [wmsDataRight, setWmsDataRight] = useState(null);
+
+  // Estado para selecionar um pixel no mapa
   const [selectingPixel, setSelectingPixel] = useState(false);
   const [pixelData, setPixelData] = useState(null);
 
+  // Estado para selecionar um retângulo no mapa (Leaflet Draw)
+  const [selectingRectangle, setSelectingRectangle] = useState(false);
+
   useEffect(() => {
-    console.log("Atualização do estado boundingBox:", boundingBox);
+    console.log("BoundingBox atualizado:", boundingBox);
   }, [boundingBox]);
 
   useEffect(() => {
-    console.log("Atualização do estado wmsData:", wmsData);
-    console.log("Atualização do estado wmsDataLeft:", wmsDataLeft);
-    console.log("Atualização do estado wmsDataRight:", wmsDataRight);
+    console.log("wmsData:", wmsData);
+    console.log("wmsDataLeft:", wmsDataLeft);
+    console.log("wmsDataRight:", wmsDataRight);
   }, [wmsData, wmsDataLeft, wmsDataRight]);
 
+  // Chamado quando o retângulo é desenhado no mapa
   const handleBoundingBoxSelected = (bbox) => {
     console.log("Bounding box selecionada:", bbox);
     setBoundingBox(bbox);
+    // Se quiser, pode "desativar" o modo de desenho aqui
+    setSelectingRectangle(false);
   };
 
   const handleMapClick = () => {
+    // Se o usuário tinha um gráfico de pixel aberto, por ex, pode limpar aqui
     if (pixelData) {
       setPixelData(null);
     }
   };
 
-  const handleFormSubmit = async (formData) => {
+  // Chamado ao enviar o formulário
+  const handleFormSubmit = (formData) => {
+    // Checa se desenhamos algo
     if (!boundingBox) {
       alert("Por favor, desenhe um retângulo no mapa antes de submeter o formulário.");
       return;
@@ -53,10 +70,11 @@ function App() {
         latitudeFinal: boundingBox.latitudeFinal,
         longitudeFinal: boundingBox.longitudeFinal,
       };
-      console.log("Configurando dados da camada WMS:", wmsLayerData);
-      setWmsData({ ...wmsLayerData });
+      console.log("Camada WMS (single):", wmsLayerData);
+      setWmsData(wmsLayerData);
       setWmsDataLeft(null);
       setWmsDataRight(null);
+
     } else if (formData.viewMode === 'comparison') {
       const wmsLayerDataLeft = {
         product: formData.layerLeft,
@@ -74,25 +92,23 @@ function App() {
         longitudeFinal: boundingBox.longitudeFinal,
       };
 
-      console.log("Configurando dados das camadas WMS:", wmsLayerDataLeft, wmsLayerDataRight);
+      console.log("Camadas WMS (comparison):", wmsLayerDataLeft, wmsLayerDataRight);
       setWmsData(null);
-      setWmsDataLeft({ ...wmsLayerDataLeft });
-      setWmsDataRight({ ...wmsLayerDataRight });
+      setWmsDataLeft(wmsLayerDataLeft);
+      setWmsDataRight(wmsLayerDataRight);
     }
 
-    resetBoundingBox();
+    // Se quiser limpar o boundingBox depois da submissão:
+    // setBoundingBox(null);
   };
 
-  const resetBoundingBox = () => {
-    console.log("Resetando boundingBox");
-    setBoundingBox(null);
-  };
-
+  // Chamado ao clicar em "Selecionar Ponto" no formulário
   const handleSelectPixel = () => {
     setSelectingPixel(true);
-    setPixelData(null); // Resetar dados anteriores
+    setPixelData(null);
   };
 
+  // Chamado quando um pixel é clicado no mapa
   const handlePixelSelected = (data) => {
     setPixelData(data);
     setSelectingPixel(false);
@@ -101,22 +117,36 @@ function App() {
   return (
     <div>
       <Header />
+
+      {/* Formulário que controla as requisições WMS */}
       <WMSForm
         boundingBox={boundingBox}
+        selectingRectangle={selectingRectangle}
+        setSelectingRectangle={setSelectingRectangle}
         onSubmit={handleFormSubmit}
         onSelectPixel={handleSelectPixel}
       />
+
       <div className="map-container">
         <MapComponent
-          onBoundingBoxSelected={handleBoundingBoxSelected}
           viewMode={viewMode}
           wmsData={wmsData}
           wmsDataLeft={wmsDataLeft}
           wmsDataRight={wmsDataRight}
+
+          // Passamos o estado de seleção de retângulo
+          selectingRectangle={selectingRectangle}
+          onBoundingBoxSelected={handleBoundingBoxSelected}
+
+          // Passamos o estado de seleção de pixel
           selectingPixel={selectingPixel}
           onPixelSelected={handlePixelSelected}
+
+          // Clique geral no mapa
           onMapClick={handleMapClick}
         />
+
+        {/* Se houver dados de pixel, mostra um chart ou algo do tipo */}
         {pixelData && (
           <div className="chart-overlay">
             <PixelChart data={pixelData} />
