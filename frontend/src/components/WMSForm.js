@@ -1,3 +1,4 @@
+// WMSForm.js
 import React, { useEffect, useState } from 'react';
 import '../styles/WMSForm.css'; 
 import 'leaflet-draw/dist/leaflet.draw.css';
@@ -52,15 +53,6 @@ const WMSForm = ({
     }
   }, [boundingBox]);
 
-  const handleCarregarProdutos = () => {
-    if(productType) {
-      loadProducts(productType, setProducts);
-      setShowProducts(true); 
-    } else {
-      alert('Selecione um tipo de produto primeiro');
-    }
-  };
-
   // Filtrar lista de produtos pela data
   const filterByDate = (productsData) => {
     const { dataInicio, dataFim } = formData;
@@ -98,14 +90,15 @@ const WMSForm = ({
   };
 
   // Handlers para mudança no "tipo de produto"
-  const handleProductTypeChange = async (e) => {
+  const handleProductTypeChange = (e) => {
     const type = e.target.value;
     setProductType(type);
     setSelectedProduct(null);
     setProducts([]);
+    setShowProducts(false); // Esconde produtos ao mudar o tipo
   };
 
-  const handleProductTypeChangeLeft = async (e) => {
+  const handleProductTypeChangeLeft = (e) => {
     const type = e.target.value;
     setProductTypeLeft(type);
     setSelectedProductLeft(null);
@@ -113,7 +106,7 @@ const WMSForm = ({
     loadProducts(type, setProductsLeft);
   };
 
-  const handleProductTypeChangeRight = async (e) => {
+  const handleProductTypeChangeRight = (e) => {
     const type = e.target.value;
     setProductTypeRight(type);
     setSelectedProductRight(null);
@@ -133,40 +126,37 @@ const WMSForm = ({
   };
   const handleProductSelectionLeft = (product) => {
     setSelectedProductLeft(product);
+    // Se quiser, pode adicionar lógica similar para comparação
   };
   const handleProductSelectionRight = (product) => {
     setSelectedProductRight(product);
+    // Se quiser, pode adicionar lógica similar para comparação
   };
 
   // Submissão do formulário
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     if (viewMode === 'single') {
-      if (!selectedProduct) {
-        // Se nenhum produto estiver selecionado, carregar e mostrar produtos
-        handleCarregarProdutos();
-        return; // Interrompe o envio para aguardar a seleção do produto
-      }
-      // Se um produto já foi selecionado, prosseguir com o envio normal
-      onSubmit({
-        ...formData,
-        viewMode,
-        layer: selectedProduct.name,
-      });
-    } else if (viewMode === 'comparison') {
-      if (!selectedProductLeft || !selectedProductRight) {
-        alert('Por favor, selecione os dois produtos.');
+      if (!productType) {
+        alert('Por favor, selecione um tipo de produto.');
         return;
       }
-      onSubmit({
-        ...formData,
-        viewMode,
-        layerLeft: selectedProductLeft.name,
-        layerRight: selectedProductRight.name,
-      });
+      // Carrega os produtos ao clicar em "Fazer Requisição"
+      loadProducts(productType, setProducts);
+      setShowProducts(true); // Exibe os botões de produtos
+    } else if (viewMode === 'comparison') {
+      if (!productTypeLeft || !productTypeRight) {
+        alert('Por favor, selecione os tipos de produtos para comparação.');
+        return;
+      }
+      // Carrega os produtos para comparação
+      loadProducts(productTypeLeft, setProductsLeft);
+      loadProducts(productTypeRight, setProductsRight);
+      // Opcional: pode exibir uma indicação de que as camadas serão adicionadas ao selecionar
     }
   };
+
   // Handler genérico para inputs (datas e coords)
   const handleChange = (e) => {
     setFormData({
@@ -182,6 +172,7 @@ const WMSForm = ({
     setProductType('');
     setProducts([]);
     setSelectedProduct(null);
+    setShowProducts(false);
     setProductTypeLeft('');
     setProductsLeft([]);
     setSelectedProductLeft(null);
@@ -253,7 +244,7 @@ const WMSForm = ({
               <option value="Classificados">Classificados</option>
             </select>
           </div>
-          {products.length > 0 && (
+          {showProducts && products.length > 0 && (
             <div className="form-group mt-3">
               <label>Produtos (filtrados pela data):</label>
               <div className="product-timeline">
@@ -372,7 +363,6 @@ const WMSForm = ({
         >
           Selecionar Retângulo no Mapa
         </button>
-
       </div>
 
       {/* Campos de Coordenadas (preenchidos após desenhar no mapa) */}

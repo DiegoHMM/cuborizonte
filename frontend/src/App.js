@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
@@ -12,7 +13,7 @@ function App() {
   // Modo de visualização: single ou comparison
   const [viewMode, setViewMode] = useState('single');
 
-  // Dados de WMS para visualização única
+  // Dados de WMS para visualização única (array para permitir futuras extensões)
   const [wmsData, setWmsData] = useState([]);
 
   // Dados de WMS para comparação lado a lado
@@ -40,19 +41,19 @@ function App() {
   const handleBoundingBoxSelected = (bbox) => {
     console.log("Bounding box selecionada:", bbox);
     setBoundingBox(bbox);
-    // Se quiser, pode "desativar" o modo de desenho aqui
+    // Desativa o modo de desenho após seleção
     setSelectingRectangle(false);
   };
 
   const handleMapClick = () => {
-    // Se o usuário tinha um gráfico de pixel aberto, por ex, pode limpar aqui
+    // Limpa dados de pixel se existirem
     if (pixelData) {
       setPixelData(null);
     }
   };
 
   // Chamado ao enviar o formulário
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = (formData) => {
     if (!boundingBox) {
       alert("Por favor, desenhe um retângulo no mapa antes de submeter o formulário.");
       return;
@@ -63,18 +64,18 @@ function App() {
 
     if (formData.viewMode === 'single') {
       const wmsLayerData = {
-          product: formData.layer,
-          latitudeInicial: boundingBox.latitudeInicial,
-          longitudeInicial: boundingBox.longitudeInicial,
-          latitudeFinal: boundingBox.latitudeFinal,
-          longitudeFinal: boundingBox.longitudeFinal,
-        };
-        console.log("Adicionando nova camada WMS:", wmsLayerData);
-        // Adiciona a nova camada ao array existente
-        setWmsData(prevLayers => [...prevLayers, wmsLayerData]);
-        setWmsDataLeft(null);
-        setWmsDataRight(null);
-
+        product: formData.layer,
+        latitudeInicial: boundingBox.latitudeInicial,
+        longitudeInicial: boundingBox.longitudeInicial,
+        latitudeFinal: boundingBox.latitudeFinal,
+        longitudeFinal: boundingBox.longitudeFinal,
+      };
+      console.log("Configurando dados da camada WMS:", wmsLayerData);
+      
+      // Substitui camadas anteriores com a nova camada
+      setWmsData([wmsLayerData]);
+      setWmsDataLeft(null);
+      setWmsDataRight(null);
     } else if (formData.viewMode === 'comparison') {
       const wmsLayerDataLeft = {
         product: formData.layerLeft,
@@ -92,13 +93,15 @@ function App() {
         longitudeFinal: boundingBox.longitudeFinal,
       };
 
-      console.log("Camadas WMS (comparison):", wmsLayerDataLeft, wmsLayerDataRight);
-      setWmsData(null);
+      console.log("Configurando dados das camadas WMS:", wmsLayerDataLeft, wmsLayerDataRight);
+      
+      // Substitui camadas anteriores com as novas camadas de comparação
+      setWmsData([]); // Limpa as camadas single
       setWmsDataLeft(wmsLayerDataLeft);
       setWmsDataRight(wmsLayerDataRight);
     }
 
-    // Se quiser limpar o boundingBox depois da submissão:
+    // Opcional: Resetar boundingBox após submissão
     // setBoundingBox(null);
   };
 

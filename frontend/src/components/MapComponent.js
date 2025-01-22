@@ -1,3 +1,4 @@
+// MapComponent.js
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -44,7 +45,7 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
       rectangleDrawer.enable();
 
       // Escuta evento de desenho finalizado
-      map.on(L.Draw.Event.CREATED, (e) => {
+      const onCreated = (e) => {
         const layer = e.layer;
         // Limpa retângulos anteriores e adiciona o novo ao FeatureGroup
         if (featureGroupRef.current) {
@@ -59,7 +60,12 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
           latitudeFinal: _northEast.lat,
           longitudeFinal: _northEast.lng,
         });
-      });
+      };
+
+      map.on(L.Draw.Event.CREATED, onCreated);
+
+      // Opcional: desativar o modo de desenho após a criação
+      // Isso já está sendo feito no App.js via handleBoundingBoxSelected
     }
 
     // Cleanup: desativa o modo de desenho e remove listener
