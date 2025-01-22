@@ -1,21 +1,21 @@
 #!/bin/bash
 
 #Ortophoto
-./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto_1989 1989
-./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto_1994 1994
-./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
-./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto_2007 2007
-./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto_2015 2015
+#./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto_1989 1989
+#./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto_1994 1994
+#./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
+#./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto_2007 2007
+#./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto_2015 2015
 
 # Plan
-./process_raw_data.sh PLANTA_1942 bh_planta_1942 1942
-./process_raw_data.sh PLANTA_1972 bh_planta_1972 1972
-./process_raw_data.sh PLANTA_1989 bh_planta_1989 1989
+#./process_raw_data.sh PLANTA_1942 bh_planta_1942 1942
+#./process_raw_data.sh PLANTA_1972 bh_planta_1972 1972
+#./process_raw_data.sh PLANTA_1989 bh_planta_1989 1989
 
 # Masks
-./process_raw_data.sh CLASSES_2015 bh_class_layer_2015 2015 vegetation building background
-./process_raw_data.sh CLASSES_2007 bh_class_layer_2007 2007 vegetation building background
-./process_raw_data.sh CLASSES_1999 bh_class_layer_1999 1999 vegetation building background
+#./process_raw_data.sh CLASSES_2015 bh_class_layer_2015 2015 vegetation building background
+#./process_raw_data.sh CLASSES_2007 bh_class_layer_2007 2007 vegetation building background
+#./process_raw_data.sh CLASSES_1999 bh_class_layer_1999 1999 vegetation building background
 
 #Ortophoto
 ./setup_datacube.sh Orthophoto bh_ortophoto_1989 ORTOFOTO_1989

@@ -14,8 +14,11 @@
         context: ./backend
       volumes:
         - ./backend:/app
+        - ./datacube.conf:/etc/datacube.conf
+        - ./data:/data
       environment:
         OWS_URL: http://ows:8000
+        DATACUBE_CONFIG: /etc/datacube.conf
       restart: always
       depends_on:
         - postgres
@@ -25,6 +28,7 @@
         - shared_network
 
     ows:
+      image: opendatacube/ows:1.8.0-rc1
       build:
         context: ./ows
         dockerfile: Dockerfile
@@ -37,6 +41,7 @@
         DB_PORT: 5432
         PYTHONPATH: /env/config
         DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
+        ODC_CONFIG_PATH: /etc/datacube.conf
       expose:
         - "8000"
       ports:
@@ -50,6 +55,7 @@
         - ./ows/services/inventory:/env/config/inventory/
         - ./ows/output:/env/config/output/
         - ./ows/handle_data_functions:/handle_data_functions
+        - ./datacube.conf:/etc/datacube.conf
       networks:
         - shared_network
 
@@ -62,8 +68,8 @@
         POSTGRES_USER: postgres
       volumes:
         - ./data:/data
-      #ports:
-      #  - "5432:5432"
+      ports:
+        - "5432:5432"
       expose:
         - "5432"
       restart: always
