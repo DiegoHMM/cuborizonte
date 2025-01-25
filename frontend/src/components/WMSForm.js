@@ -104,7 +104,7 @@ const WMSForm = ({
     setSelectedProductLeft(null);
     setProductsLeft([]);
     loadProducts(type, setProductsLeft);
-  };
+  };  
 
   const handleProductTypeChangeRight = (e) => {
     const type = e.target.value;
@@ -126,11 +126,27 @@ const WMSForm = ({
   };
   const handleProductSelectionLeft = (product) => {
     setSelectedProductLeft(product);
-    // Se quiser, pode adicionar lógica similar para comparação
+    // Verifica se já há um produto selecionado à direita
+    if (selectedProductRight) {
+      onSubmit({
+        ...formData,
+        viewMode,
+        layerLeft: product.name,
+        layerRight: selectedProductRight.name,
+      });
+    }
   };
   const handleProductSelectionRight = (product) => {
     setSelectedProductRight(product);
-    // Se quiser, pode adicionar lógica similar para comparação
+    // Verifica se já há um produto selecionado à esquerda
+    if (selectedProductLeft) {
+      onSubmit({
+        ...formData,
+        viewMode,
+        layerLeft: selectedProductLeft.name,
+        layerRight: product.name,
+      });
+    }
   };
 
   // Submissão do formulário
@@ -206,26 +222,52 @@ const WMSForm = ({
         </li>
       </ul>
 
-      <div className="form-group mt-3">
-        <label>Data Início:</label>
-        <input
-          type="date"
-          name="dataInicio"
-          className="form-control"
-          value={formData.dataInicio}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="form-group mt-3">
-        <label>Data Fim:</label>
-        <input
-          type="date"
-          name="dataFim"
-          className="form-control"
-          value={formData.dataFim}
-          onChange={handleChange}
-        />
-      </div>
+      {showProducts && products.length > 0 && viewMode === 'single' && (
+        <div className="form-group mt-3">
+          <label>Produtos:</label>
+          <div className="product-timeline">
+            {products.map(product => (
+              <button
+                key={product.name}
+                type="button"
+                className={
+                  "btn btn-outline-primary me-2 mt-2 " +
+                  (selectedProduct && selectedProduct.name === product.name ? 'active' : '')
+                }
+                onClick={() => handleProductSelection(product)}
+              >
+                {new Date(product.datetime).getFullYear()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Renderizar campos de Data apenas no modo 'single' */}
+      {viewMode === 'single' && (
+        <>
+          <div className="form-group mt-3">
+            <label>Data Início:</label>
+            <input
+              type="date"
+              name="dataInicio"
+              className="form-control"
+              value={formData.dataInicio}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group mt-3">
+            <label>Data Fim:</label>
+            <input
+              type="date"
+              name="dataFim"
+              className="form-control"
+              value={formData.dataFim}
+              onChange={handleChange}
+            />
+          </div>
+        </>
+      )}
 
       {/* Seção SINGLE */}
       {viewMode === 'single' && (
@@ -244,27 +286,6 @@ const WMSForm = ({
               <option value="Classificados">Classificados</option>
             </select>
           </div>
-          {showProducts && products.length > 0 && (
-            <div className="form-group mt-3">
-              <label>Produtos (filtrados pela data):</label>
-              <div className="product-timeline">
-                {products.map(product => (
-                  <button
-                    key={product.name}
-                    type="button"
-                    className={
-                      "btn btn-outline-primary me-2 mt-2 " +
-                      (selectedProduct && selectedProduct.name === product.name ? 'active' : '')
-                    }
-                    onClick={() => handleProductSelection(product)}
-                  >
-                    {new Date(product.datetime).getFullYear()}-
-                    {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -291,7 +312,7 @@ const WMSForm = ({
               </div>
               {productsLeft.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos (filtrados pela data):</label>
+                  <label>Produtos:</label>
                   <div className="product-timeline">
                     {productsLeft.map(product => (
                       <button
@@ -303,8 +324,7 @@ const WMSForm = ({
                         }
                         onClick={() => handleProductSelectionLeft(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}-
-                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
+                        {new Date(product.datetime).getFullYear()}
                       </button>
                     ))}
                   </div>
@@ -330,7 +350,7 @@ const WMSForm = ({
               </div>
               {productsRight.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos (filtrados pela data):</label>
+                  <label>Produtos:</label>
                   <div className="product-timeline">
                     {productsRight.map(product => (
                       <button
@@ -342,8 +362,7 @@ const WMSForm = ({
                         }
                         onClick={() => handleProductSelectionRight(product)}
                       >
-                        {new Date(product.datetime).getFullYear()}-
-                        {(new Date(product.datetime).getMonth() + 1).toString().padStart(2, '0')}
+                        {new Date(product.datetime).getFullYear()}
                       </button>
                     ))}
                   </div>
@@ -367,48 +386,59 @@ const WMSForm = ({
 
       {/* Campos de Coordenadas (preenchidos após desenhar no mapa) */}
       <div className="form-group mt-3">
-        <label>Latitude Inicial:</label>
-        <input
-          type="text"
-          name="latitudeInicial"
-          className="form-control"
-          value={formData.latitudeInicial}
-          onChange={handleChange}
-          readOnly
-        />
-      </div>
-      <div className="form-group mt-3">
-        <label>Longitude Inicial:</label>
-        <input
-          type="text"
-          name="longitudeInicial"
-          className="form-control"
-          value={formData.longitudeInicial}
-          onChange={handleChange}
-          readOnly
-        />
-      </div>
-      <div className="form-group mt-3">
-        <label>Latitude Final:</label>
-        <input
-          type="text"
-          name="latitudeFinal"
-          className="form-control"
-          value={formData.latitudeFinal}
-          onChange={handleChange}
-          readOnly
-        />
-      </div>
-      <div className="form-group mt-3">
-        <label>Longitude Final:</label>
-        <input
-          type="text"
-          name="longitudeFinal"
-          className="form-control"
-          value={formData.longitudeFinal}
-          onChange={handleChange}
-          readOnly
-        />
+        <label>Coordenadas:</label>
+        <div className="row">
+          {/* Latitude Inicial */}
+          <div className="col-6">
+            <label>Latitude Inicial:</label>
+            <input
+              type="text"
+              name="latitudeInicial"
+              className="form-control"
+              value={formData.latitudeInicial}
+              onChange={handleChange}
+              readOnly
+            />
+          </div>
+          {/* Latitude Final */}
+          <div className="col-6">
+            <label>Latitude Final:</label>
+            <input
+              type="text"
+              name="latitudeFinal"
+              className="form-control"
+              value={formData.latitudeFinal}
+              onChange={handleChange}
+              readOnly
+            />
+          </div>
+        </div>
+        <div className="row mt-3">
+          {/* Longitude Inicial */}
+          <div className="col-6">
+            <label>Longitude Inicial:</label>
+            <input
+              type="text"
+              name="longitudeInicial"
+              className="form-control"
+              value={formData.longitudeInicial}
+              onChange={handleChange}
+              readOnly
+            />
+          </div>
+          {/* Longitude Final */}
+          <div className="col-6">
+            <label>Longitude Final:</label>
+            <input
+              type="text"
+              name="longitudeFinal"
+              className="form-control"
+              value={formData.longitudeFinal}
+              onChange={handleChange}
+              readOnly
+            />
+          </div>
+        </div>
       </div>
 
       {/* Botão principal para enviar a requisição */}
