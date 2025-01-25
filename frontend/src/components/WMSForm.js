@@ -55,12 +55,14 @@ const WMSForm = ({
 
   // Filtrar lista de produtos pela data
   const filterByDate = (productsData) => {
+    if (viewMode !== 'single') return productsData;
+    
     const { dataInicio, dataFim } = formData;
     if (!dataInicio || !dataFim) return productsData;
-
+  
     const start = new Date(dataInicio);
     const end = new Date(dataFim);
-
+  
     return productsData.filter((product) => {
       const productDate = new Date(product.datetime);
       return productDate >= start && productDate <= end;
@@ -195,6 +197,13 @@ const WMSForm = ({
     setProductTypeRight('');
     setProductsRight([]);
     setSelectedProductRight(null);
+    if (mode === 'comparison') {
+      setFormData(prevData => ({
+        ...prevData,
+        dataInicio: '',
+        dataFim: '',
+      }));
+  }
   };
 
   return (
@@ -243,6 +252,26 @@ const WMSForm = ({
         </div>
       )}
 
+      {/* Seção SINGLE */}
+      {viewMode === 'single' && (
+        <div className="product-single mt-3">
+          <div className="form-group">
+            <label>Tipo de Produto:</label>
+            <select
+              name="productType"
+              className="form-control"
+              value={productType}
+              onChange={handleProductTypeChange}
+            >
+              <option value="">Selecione um tipo de produto</option>
+              <option value="Ortofoto">Ortofoto</option>
+              <option value="Planta">Planta</option>
+              <option value="Classificados">Classificados</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* Renderizar campos de Data apenas no modo 'single' */}
       {viewMode === 'single' && (
         <>
@@ -269,25 +298,7 @@ const WMSForm = ({
         </>
       )}
 
-      {/* Seção SINGLE */}
-      {viewMode === 'single' && (
-        <div className="product-single mt-3">
-          <div className="form-group">
-            <label>Tipo de Produto:</label>
-            <select
-              name="productType"
-              className="form-control"
-              value={productType}
-              onChange={handleProductTypeChange}
-            >
-              <option value="">Selecione um tipo de produto</option>
-              <option value="Ortofoto">Ortofoto</option>
-              <option value="Planta">Planta</option>
-              <option value="Classificados">Classificados</option>
-            </select>
-          </div>
-        </div>
-      )}
+      
 
       {/* Seção COMPARISON */}
       {viewMode === 'comparison' && (
@@ -441,19 +452,24 @@ const WMSForm = ({
         </div>
       </div>
 
-      {/* Botão principal para enviar a requisição */}
-      <button type="submit" className="btn btn-primary mt-3">
-        Fazer Requisição
-      </button>
+      {/* Renderizar botões apenas no modo 'single' */}
+      {viewMode === 'single' && (
+        <>
+          {/* Botão principal para enviar a requisição */}
+          <button type="submit" className="btn btn-primary mt-3">
+            Fazer Requisição
+          </button>
 
-      {/* Botão para selecionar um ponto no mapa */}
-      <button
-        type="button"
-        className="btn btn-secondary mt-3 ms-2"
-        onClick={onSelectPixel}
-      >
-        Selecionar Ponto
-      </button>
+          {/* Botão para selecionar um ponto no mapa */}
+          <button
+            type="button"
+            className="btn btn-secondary mt-3 ms-2"
+            onClick={onSelectPixel}
+          >
+            Selecionar Ponto
+          </button>
+        </>
+      )}
     </form>
   );
 };
