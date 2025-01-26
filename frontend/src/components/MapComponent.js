@@ -29,14 +29,14 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
 });
 
 // ----------- HOOK DE DESENHO DE RETÂNGULO -----------
-function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef) {
+function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle) {
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
     let rectangleDrawer;
 
-    if (selectingRectangle) {
+    if (selectingRectangle && selectionMode === 'rectangle') {
       // Criar e ativar o modo de desenho de retângulo
       rectangleDrawer = new L.Draw.Rectangle(map, {
         // Opções para o retângulo, se necessário
@@ -54,18 +54,19 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
         }
         // Captura bounding box
         const { _southWest, _northEast } = layer.getBounds();
-        onBoundingBoxSelected({
+        const newBoundingBox = {
           latitudeInicial: _southWest.lat,
           longitudeInicial: _southWest.lng,
           latitudeFinal: _northEast.lat,
           longitudeFinal: _northEast.lng,
-        });
+        };
+        onBoundingBoxSelected(newBoundingBox);
+        // Desativa o modo de desenho após a criação
+        setSelectingRectangle(false);
+        map.off(L.Draw.Event.CREATED, onCreated);
       };
 
       map.on(L.Draw.Event.CREATED, onCreated);
-
-      // Opcional: desativar o modo de desenho após a criação
-      // Isso já está sendo feito no App.js via handleBoundingBoxSelected
     }
 
     // Cleanup: desativa o modo de desenho e remove listener
@@ -75,13 +76,12 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
       }
       map.off(L.Draw.Event.CREATED);
     };
-  }, [map, selectingRectangle, onBoundingBoxSelected, featureGroupRef]);
+  }, [map, selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle]);
 }
 
-
 // ----------- COMPONENTE-FILHO QUE CHAMA useDrawRectangle -----------
-function DrawRectangleHandler({ selectingRectangle, onBoundingBoxSelected, featureGroupRef }) {
-  useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef);
+function DrawRectangleHandler({ selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle }) {
+  useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle);
   return null; // não renderiza nada
 }
 
@@ -134,7 +134,7 @@ const SingleLayer = ({ wmsData }) => {
 
       // Cria a camada WMS
       const layer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsData.product,
+        layers: wmsData.layer, // 'layer' em vez de 'product'
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
@@ -144,6 +144,9 @@ const SingleLayer = ({ wmsData }) => {
 
       layerRef.current = layer;
       layer.addTo(map);
+
+      // Ajusta a visualização do mapa para os bounds da camada
+      map.fitBounds(bounds);
 
       // Cleanup ao remover o componente
       return () => {
@@ -183,7 +186,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
       // Cria camadas WMS
       const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerLeft.product,
+        layers: wmsLayerLeft.layer, // 'layer' em vez de 'product'
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
@@ -191,7 +194,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         bounds: boundsLeft,
       });
       const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerRight.product,
+        layers: wmsLayerRight.layer, // 'layer' em vez de 'product'
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
@@ -209,6 +212,10 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       // Cria controle side-by-side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
+
+      // Ajusta a visualização do mapa para os bounds combinados
+      const combinedBounds = boundsLeft.extend(boundsRight);
+      map.fitBounds(combinedBounds);
 
       // Cleanup
       return () => {
@@ -230,6 +237,8 @@ const MapComponent = ({
   wmsDataRight,
   onBoundingBoxSelected,
   selectingRectangle,
+  setSelectingRectangle,
+  selectionMode,
   selectingPixel,
   onPixelSelected,
   onMapClick,
@@ -272,14 +281,14 @@ const MapComponent = ({
         selectingRectangle={selectingRectangle}
         onBoundingBoxSelected={onBoundingBoxSelected}
         featureGroupRef={featureGroupRef}
+        selectionMode={selectionMode}
+        setSelectingRectangle={setSelectingRectangle}
       />
 
       {/* Renderização das camadas WMS (single ou comparison) */}
-      {viewMode === 'single' && wmsData.length > 0 && 
-        wmsData.map((layerData, index) => (
-          <SingleLayer key={index} wmsData={layerData} />
-        ))
-      }
+      {viewMode === 'single' && wmsData && (
+        <SingleLayer wmsData={wmsData} />
+      )}
       {viewMode === 'comparison' && wmsDataLeft && wmsDataRight && (
         <SideBySideLayers
           wmsLayerLeft={wmsDataLeft}
