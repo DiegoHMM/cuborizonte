@@ -2,7 +2,7 @@ import os
 import json
 import psycopg2
 from psycopg2.extras import execute_values
-from psycopg2 import sql
+from shapely.geometry import shape, mapping
 
 # Configurações do banco de dados
 db_config = {
@@ -28,22 +28,20 @@ def create_table_if_not_exists(conn, table_name):
     """
     with conn.cursor() as cursor:
         cursor.execute(
-            sql.SQL(
-                """
-                CREATE TABLE IF NOT EXISTS {} (
-                    id SERIAL PRIMARY KEY,
-                    geometry GEOMETRY,
-                    properties JSONB,
-                    bbox FLOAT8[]
-                )
-                """
-            ).format(sql.Identifier(table_name))
+            f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id SERIAL PRIMARY KEY,
+                geometry GEOMETRY,
+                properties JSONB,
+                bbox FLOAT8[]
+            )
+            """
         )
         conn.commit()
 
 def insert_data_to_postgis(json_path, table_name):
     """
-    Lê o arquivo JSON e insere os dados na tabela do banco PostGIS.
+    Lê o arquivo JSON, gera bounding boxes e insere os dados na tabela do banco PostGIS.
     """
     # Valida entradas
     validate_inputs(json_path, table_name)
@@ -73,29 +71,35 @@ def insert_data_to_postgis(json_path, table_name):
         print(f"Processando {len(features)} features do arquivo JSON...")
         rows = []
         for feature in features:
-            geometry = json.dumps(feature.get("geometry"))  # Converte para GeoJSON
-            properties = json.dumps(feature.get("properties", {}))  # Converte propriedades para JSONB
-            bbox = feature.get("bbox", [])  # Obtem o bbox
-            rows.append((geometry, properties, bbox))
+            geometry = feature.get("geometry")
+            if not geometry:
+                raise ValueError("Feature sem geometria encontrada no arquivo JSON.")
+
+            # Converte para objeto Shapely para calcular o bounding box
+            shapely_geom = shape(geometry)
+            bounds = shapely_geom.bounds  # (min_longitude, min_latitude, max_longitude, max_latitude)
+            bbox = [bounds[0], bounds[1], bounds[2], bounds[3]]
+
+            # Converte a geometria e propriedades para strings JSON
+            geometry_geojson = json.dumps(mapping(shapely_geom))
+            properties = json.dumps(feature.get("properties", {}))
+
+            # Adiciona à lista de linhas para inserir
+            rows.append((geometry_geojson, properties, bbox))
 
         # Inserindo os dados na tabela
         with conn.cursor() as cursor:
-            # Query com múltiplos placeholders
-            query = sql.SQL(
-                """
-                INSERT INTO {} (geometry, properties, bbox)
-                VALUES (
-                    ST_GeomFromGeoJSON(%s), %s, %s
-                )
-                """
-            ).format(sql.Identifier(table_name))
-            
-            # Executar os inserts usando executemany
-            cursor.executemany(query, rows)
-
+            query = f"""
+                INSERT INTO {table_name} (geometry, properties, bbox)
+                VALUES %s
+            """
+            execute_values(
+                cursor,
+                query,
+                rows,
+                template="(ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), %s, %s)"
+            )
         conn.commit()
-
-
 
         print(f"Dados inseridos com sucesso na tabela '{table_name}'!")
 
