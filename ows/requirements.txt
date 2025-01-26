@@ -4,3 +4,7 @@ rasterio
 pyyaml
 tqdm
 pyproj
+psycopg2-binary
+shapely
+geoalchemy2
+sqlalchemy
