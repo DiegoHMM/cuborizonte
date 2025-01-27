@@ -601,7 +601,7 @@ const WMSForm = ({
               value={formData.latitudeInicial}
               onChange={handleChange}
               readOnly={selectedArea !== null} // Bloqueia edição se uma área foi selecionada
-              placeholder="Preencha ou selecione uma área"
+              placeholder="Preencha ou selecione"
             />
           </div>
           {/* Latitude Final */}
@@ -614,7 +614,7 @@ const WMSForm = ({
               value={formData.latitudeFinal}
               onChange={handleChange}
               readOnly={selectedArea !== null}
-              placeholder="Preencha ou selecione uma área"
+              placeholder="Preencha ou selecione"
             />
           </div>
         </div>
@@ -629,7 +629,7 @@ const WMSForm = ({
               value={formData.longitudeInicial}
               onChange={handleChange}
               readOnly={selectedArea !== null}
-              placeholder="Preencha ou selecione uma área"
+              placeholder="Preencha ou selecione"
             />
           </div>
           {/* Longitude Final */}
@@ -642,7 +642,7 @@ const WMSForm = ({
               value={formData.longitudeFinal}
               onChange={handleChange}
               readOnly={selectedArea !== null}
-              placeholder="Preencha ou selecione uma área"
+              placeholder="Preencha ou selecione"
             />
           </div>
         </div>
@@ -650,22 +650,24 @@ const WMSForm = ({
 
       {/* Renderizar botões apenas no modo 'single' */}
       {viewMode === 'single' && (
-        <>
-          {/* Botão principal para enviar a requisição */}
-          <button type="submit" className="btn btn-primary mt-3 w-100">
-            Fazer Requisição
-          </button>
-
-          {/* Botão para selecionar um ponto no mapa */}
-          <button
-            type="button"
-            className="btn btn-secondary mt-3 w-100"
-            onClick={onSelectPixel}
-          >
-            Selecionar Ponto
-          </button>
-        </>
+        <div className="row mt-3">
+          <div className="col-md-6 mb-2">
+            <button type="submit" className="btn btn-primary w-100">
+              Fazer Requisição
+            </button>
+          </div>
+          <div className="col-md-6 mb-2">
+            <button
+              type="button"
+              className="btn btn-secondary w-100"
+              onClick={onSelectPixel}
+            >
+              Selecionar Ponto
+            </button>
+          </div>
+        </div>
       )}
+
     </form>
   );
 };
