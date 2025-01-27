@@ -10,7 +10,7 @@ import {
 } from '../services/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Select from 'react-select';
-import { FaSearch } from 'react-icons/fa';
+import { BsBoundingBoxCircles } from "react-icons/bs";
 
 const WMSForm = ({
   boundingBox,
@@ -261,7 +261,7 @@ const WMSForm = ({
     // Validação específica para modos
     if (viewMode === 'single') {
       if (!productType) {
-        alert('Por favor, selecione um tipo de produto.');
+        alert('Por favor, Selecione o produto.');
         return;
       }
       // Carrega os produtos ao clicar em "Fazer Requisição"
@@ -410,7 +410,7 @@ const WMSForm = ({
           <div className="col-md-3">
             <button
               type="button"
-              className="btn btn-outline-success w-100"
+              className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center"
               onClick={() => {
                 setSelectingRectangle(true);
                 setSelectionMode('rectangle'); // Define o modo para 'rectangle'
@@ -426,9 +426,8 @@ const WMSForm = ({
                 });
                 onBoundingBoxSelected(null); // Limpa o boundingBox no App.js
               }}
-              //disabled={selectionMode === 'rectangle'}
             >
-              Selecionar Retângulo no Mapa
+              <BsBoundingBoxCircles size={24} /> {/* Ajuste o tamanho conforme necessário */}
             </button>
           </div>
         </div>
@@ -490,7 +489,7 @@ const WMSForm = ({
               value={productType}
               onChange={handleProductTypeChange}
             >
-              <option value="">Selecione um tipo de produto</option>
+              <option value="">Selecione o produto</option>
               <option value="Ortofoto">Ortofoto</option>
               <option value="Planta">Planta</option>
               <option value="Classificados">Classificados</option>
@@ -517,7 +516,7 @@ const WMSForm = ({
                   value={productTypeLeft}
                   onChange={handleProductTypeChangeLeft}
                 >
-                  <option value="">Selecione um tipo de produto</option>
+                  <option value="">Selecione o produto</option>
                   <option value="Ortofoto">Ortofoto</option>
                   <option value="Planta">Planta</option>
                   <option value="Classificados">Classificados</option>
@@ -555,7 +554,7 @@ const WMSForm = ({
                   value={productTypeRight}
                   onChange={handleProductTypeChangeRight}
                 >
-                  <option value="">Selecione um tipo de produto</option>
+                  <option value="">Selecione o produto</option>
                   <option value="Ortofoto">Ortofoto</option>
                   <option value="Planta">Planta</option>
                   <option value="Classificados">Classificados</option>
