@@ -21,6 +21,7 @@ const WMSForm = ({
   selectionMode,
   setSelectionMode,
   onBoundingBoxSelected, // Função para atualizar boundingBox no App.js
+  onClearRectangle, // Nova prop para limpar o retângulo desenhado
 }) => {
   const [viewMode, setViewMode] = useState('single'); // "single" ou "comparison"
 
@@ -58,6 +59,9 @@ const WMSForm = ({
   // Estados para validação de coordenadas
   const [coordinateError, setCoordinateError] = useState('');
 
+  // Novo estado para mensagens de erro
+  const [formError, setFormError] = useState('');
+
   // Carregar todas as áreas ao montar o componente
   useEffect(() => {
     const fetchAreas = async () => {
@@ -86,6 +90,7 @@ const WMSForm = ({
     setSelectedArea(selectedOption);
     setSelectionMode('area'); // Define o modo para 'area'
     setSelectingRectangle(false); // Desativa o modo de desenho de retângulo
+    onClearRectangle(); // Limpa o retângulo desenhado no mapa
 
     if (selectedOption) {
       const bbox = selectedOption.value.bounding_box;
@@ -250,6 +255,9 @@ const WMSForm = ({
       setCoordinateError('');
     }
 
+    // Resetar mensagem de erro
+    setFormError('');
+
     // Validação específica para modos
     if (viewMode === 'single') {
       if (!productType) {
@@ -259,6 +267,9 @@ const WMSForm = ({
       // Carrega os produtos ao clicar em "Fazer Requisição"
       loadProducts(productType, setProducts);
       setShowProducts(true); // Exibe os botões de produtos
+
+      // Não chamar onSubmit aqui, aguardar seleção do produto
+      return;
     } else if (viewMode === 'comparison') {
       if (!productTypeLeft || !productTypeRight) {
         alert('Por favor, selecione os tipos de produtos para comparação.');
@@ -267,17 +278,33 @@ const WMSForm = ({
       // Carrega os produtos para comparação
       loadProducts(productTypeLeft, setProductsLeft);
       loadProducts(productTypeRight, setProductsRight);
-      // Opcional: pode exibir uma indicação de que as camadas serão adicionadas ao selecionar
+      // Não chamar onSubmit aqui, aguardar seleção dos produtos
+      return;
     }
 
-    // Chamar onSubmit com os dados do formulário
-    onSubmit({
+    // Preparar dados para submissão, priorizando selectedArea
+    const submissionData = {
       ...formData,
       viewMode,
-      layer: selectedProduct ? selectedProduct.name : undefined,
+      layer: selectedArea ? selectedArea.value.name : selectedProduct ? selectedProduct.name : undefined,
       layerLeft: selectedProductLeft ? selectedProductLeft.name : undefined,
       layerRight: selectedProductRight ? selectedProductRight.name : undefined,
-    });
+    };
+
+    // Verificar se um produto foi selecionado no modo 'single'
+    if (viewMode === 'single' && !selectedProduct && !selectedArea) {
+      setFormError('Selecione o ano.');
+      return;
+    }
+
+    // Verificar se ambos os produtos foram selecionados no modo 'comparison'
+    if (viewMode === 'comparison' && (!selectedProductLeft || !selectedProductRight)) {
+      setFormError('Selecione ambos os anos para comparação.');
+      return;
+    }
+
+    // Chamar onSubmit com os dados preparados
+    onSubmit(submissionData);
   };
 
   // Handler genérico para inputs (datas e coords)
@@ -302,6 +329,7 @@ const WMSForm = ({
     setProductTypeRight('');
     setProductsRight([]);
     setSelectedProductRight(null);
+    setFormError(''); // Resetar mensagem de erro
     if (mode === 'comparison') {
       setFormData(prevData => ({
         ...prevData,
@@ -337,8 +365,9 @@ const WMSForm = ({
         </li>
       </ul>
 
-      {/* Feedback de Erro */}
+      {/* Feedback de Erro Geral */}
       {error && <div className="alert alert-danger mt-3">{error}</div>}
+      {formError && <div className="alert alert-warning mt-3">{formError}</div>} {/* Nova mensagem de erro */}
 
       {/* Campo de Busca de Área ou Seleção de Retângulo */}
       <div className="form-group mt-3">
@@ -352,7 +381,7 @@ const WMSForm = ({
             placeholder="Digite o nome da área..."
             isClearable
             isLoading={loadingAreas}
-            isDisabled={selectionMode === 'rectangle'}
+            // Removido isDisabled para permitir seleção de área mesmo no modo 'rectangle'
           />
           <button
             type="button"
@@ -361,6 +390,7 @@ const WMSForm = ({
               setSelectingRectangle(true);
               setSelectionMode('rectangle'); // Define o modo para 'rectangle'
               setSelectedArea(null); // Limpa a seleção de área
+              onClearRectangle(); // Limpa o retângulo desenhado no mapa
               // Limpar os campos de coordenadas se necessário
               setFormData({
                 ...formData,
@@ -380,12 +410,12 @@ const WMSForm = ({
       </div>
 
       {/* Mensagem de Área Selecionada ou Modo de Desenho */}
-      {selectionMode === 'area' && selectedArea && (
+      {selectedArea && (
         <div className="alert alert-info mt-2">
           Área Selecionada: {selectedArea.label}
         </div>
       )}
-      {selectionMode === 'rectangle' && (
+      {selectionMode === 'rectangle' && !selectedArea && (
         <div className="alert alert-info mt-2">
           Modo de seleção: Desenhar retângulo no mapa
         </div>
@@ -560,6 +590,7 @@ const WMSForm = ({
               setSelectingRectangle(true);
               setSelectionMode('rectangle'); // Define o modo para 'rectangle'
               setSelectedArea(null); // Limpa a seleção de área
+              onClearRectangle(); // Limpa o retângulo desenhado no mapa
               // Limpar os campos de coordenadas se necessário
               setFormData({
                 ...formData,
@@ -590,7 +621,7 @@ const WMSForm = ({
               className="form-control"
               value={formData.latitudeInicial}
               onChange={handleChange}
-              readOnly={selectionMode === 'area'} // Bloqueia edição se uma área foi selecionada
+              readOnly={selectedArea !== null} // Bloqueia edição se uma área foi selecionada
               placeholder="Preencha ou selecione uma área"
             />
           </div>
@@ -603,7 +634,7 @@ const WMSForm = ({
               className="form-control"
               value={formData.latitudeFinal}
               onChange={handleChange}
-              readOnly={selectionMode === 'area'}
+              readOnly={selectedArea !== null}
               placeholder="Preencha ou selecione uma área"
             />
           </div>
@@ -618,7 +649,7 @@ const WMSForm = ({
               className="form-control"
               value={formData.longitudeInicial}
               onChange={handleChange}
-              readOnly={selectionMode === 'area'}
+              readOnly={selectedArea !== null}
               placeholder="Preencha ou selecione uma área"
             />
           </div>
@@ -631,7 +662,7 @@ const WMSForm = ({
               className="form-control"
               value={formData.longitudeFinal}
               onChange={handleChange}
-              readOnly={selectionMode === 'area'}
+              readOnly={selectedArea !== null}
               placeholder="Preencha ou selecione uma área"
             />
           </div>

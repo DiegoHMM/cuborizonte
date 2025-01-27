@@ -1,5 +1,5 @@
 // MapComponent.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { MapContainer, TileLayer, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -230,7 +230,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 };
 
 // ----------- COMPONENTE PRINCIPAL -----------
-const MapComponent = ({
+const MapComponent = forwardRef(({
   viewMode,
   wmsData,
   wmsDataLeft,
@@ -242,9 +242,18 @@ const MapComponent = ({
   selectingPixel,
   onPixelSelected,
   onMapClick,
-}) => {
+}, ref) => {
   const mapRef = useRef(null);
   const featureGroupRef = useRef(null);
+
+  // Expor a função clearDrawnLayers para o componente pai
+  useImperativeHandle(ref, () => ({
+    clearDrawnLayers() {
+      if (featureGroupRef.current) {
+        featureGroupRef.current.clearLayers();
+      }
+    },
+  }));
 
   return (
     <MapContainer
@@ -297,6 +306,6 @@ const MapComponent = ({
       )}
     </MapContainer>
   );
-};
+});
 
 export default MapComponent;

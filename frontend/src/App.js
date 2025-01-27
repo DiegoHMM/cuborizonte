@@ -1,5 +1,5 @@
 // App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
 import Header from './components/Header';
@@ -30,6 +30,9 @@ function App() {
   // Estado para controlar o modo de seleção: 'area' ou 'rectangle'
   const [selectionMode, setSelectionMode] = useState('area'); // 'area' ou 'rectangle'
 
+  // Referência para o MapComponent
+  const mapComponentRef = useRef();
+
   useEffect(() => {
     console.log("BoundingBox atualizado:", boundingBox);
   }, [boundingBox]);
@@ -39,6 +42,14 @@ function App() {
     console.log("wmsDataLeft:", wmsDataLeft);
     console.log("wmsDataRight:", wmsDataRight);
   }, [wmsData, wmsDataLeft, wmsDataRight]);
+
+  // Função para limpar o retângulo desenhado no mapa
+  const handleClearRectangle = () => {
+    if (mapComponentRef.current) {
+      mapComponentRef.current.clearDrawnLayers();
+      setBoundingBox(null); // Opcional: limpar o boundingBox do estado
+    }
+  };
 
   // Chamado quando o retângulo é desenhado no mapa ou área é selecionada
   const handleBoundingBoxSelected = (bbox) => {
@@ -132,10 +143,12 @@ function App() {
         selectionMode={selectionMode}
         setSelectionMode={setSelectionMode}
         onBoundingBoxSelected={handleBoundingBoxSelected}
+        onClearRectangle={handleClearRectangle} // Passa a função para limpar o retângulo
       />
 
       <div className="map-container">
         <MapComponent
+          ref={mapComponentRef} // Adiciona a referência ao MapComponent
           viewMode={viewMode}
           wmsData={wmsData}
           wmsDataLeft={wmsDataLeft}
