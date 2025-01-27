@@ -410,7 +410,7 @@ const WMSForm = ({
           <div className="col-md-3">
             <button
               type="button"
-              className="btn btn-outline-secondary w-100"
+              className="btn btn-outline-success w-100"
               onClick={() => {
                 setSelectingRectangle(true);
                 setSelectionMode('rectangle'); // Define o modo para 'rectangle'
@@ -426,10 +426,9 @@ const WMSForm = ({
                 });
                 onBoundingBoxSelected(null); // Limpa o boundingBox no App.js
               }}
-              disabled={selectionMode === 'rectangle'}
-              title="Desenhar Retângulo Manualmente"
+              //disabled={selectionMode === 'rectangle'}
             >
-              <FaSearch /> Selecionar Retângulo
+              Selecionar Retângulo no Mapa
             </button>
           </div>
         </div>
@@ -587,33 +586,7 @@ const WMSForm = ({
         </div>
       )}
 
-      {/* Botão para iniciar o desenho do retângulo */}
-      {selectionMode !== 'rectangle' && (
-        <div className="form-group mt-3">
-          <button
-            type="button"
-            className="btn btn-outline-success w-100"
-            onClick={() => {
-              setSelectingRectangle(true);
-              setSelectionMode('rectangle'); // Define o modo para 'rectangle'
-              setSelectedArea(null); // Limpa a seleção de área
-              onClearRectangle(); // Limpa o retângulo desenhado no mapa
-              // Limpar os campos de coordenadas se necessário
-              setFormData({
-                ...formData,
-                latitudeInicial: '',
-                longitudeInicial: '',
-                latitudeFinal: '',
-                longitudeFinal: '',
-              });
-              onBoundingBoxSelected(null); // Limpa o boundingBox no App.js
-            }}
-            disabled={selectionMode === 'rectangle'}
-          >
-            Selecionar Retângulo no Mapa
-          </button>
-        </div>
-      )}
+      
 
       {/* Campos de Coordenadas (preenchidos após desenhar no mapa ou selecionar área) */}
       <div className="form-group mt-3">
