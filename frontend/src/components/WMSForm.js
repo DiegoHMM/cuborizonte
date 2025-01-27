@@ -340,7 +340,7 @@ const WMSForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="floating-form form-group">
+    <form onSubmit={handleSubmit} className="floating-form form-group p-4">
       <h3>Seleção de Produtos</h3>
 
       {/* Modo de Visualização */}
@@ -369,43 +369,69 @@ const WMSForm = ({
       {error && <div className="alert alert-danger mt-3">{error}</div>}
       {formError && <div className="alert alert-warning mt-3">{formError}</div>} {/* Nova mensagem de erro */}
 
+      {/* Botões de Ano dos Produtos (Top do Formulário) */}
+      {/* Condicional para mostrar apenas quando os produtos são carregados */}
+      {viewMode === 'single' && showProducts && products.length > 0 && (
+        <div className="form-group mt-3">
+          <label>Anos Disponíveis:</label>
+          <div className="product-timeline">
+            {products.map(product => (
+              <button
+                key={product.name}
+                type="button"
+                className={
+                  "btn btn-outline-primary me-2 mt-2 " +
+                  (selectedProduct && selectedProduct.name === product.name ? 'active' : '')
+                }
+                onClick={() => handleProductSelection(product)}
+              >
+                {new Date(product.datetime).getFullYear()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Campo de Busca de Área ou Seleção de Retângulo */}
       <div className="form-group mt-3">
         <label>Buscar Área:</label>
-        <div className="d-flex align-items-center">
-          <Select
-            styles={{ container: (base) => ({ ...base, flex: 1 }) }}
-            options={allAreas}
-            value={selectedArea}
-            onChange={handleAreaSelect}
-            placeholder="Digite o nome da área..."
-            isClearable
-            isLoading={loadingAreas}
-            // Removido isDisabled para permitir seleção de área mesmo no modo 'rectangle'
-          />
-          <button
-            type="button"
-            className="btn btn-outline-secondary ms-2"
-            onClick={() => {
-              setSelectingRectangle(true);
-              setSelectionMode('rectangle'); // Define o modo para 'rectangle'
-              setSelectedArea(null); // Limpa a seleção de área
-              onClearRectangle(); // Limpa o retângulo desenhado no mapa
-              // Limpar os campos de coordenadas se necessário
-              setFormData({
-                ...formData,
-                latitudeInicial: '',
-                longitudeInicial: '',
-                latitudeFinal: '',
-                longitudeFinal: '',
-              });
-              onBoundingBoxSelected(null); // Limpa o boundingBox no App.js
-            }}
-            disabled={selectionMode === 'rectangle'}
-            title="Desenhar Retângulo Manualmente"
-          >
-            <FaSearch />
-          </button>
+        <div className="row align-items-center">
+          <div className="col-md-9 mb-2 mb-md-0">
+            <Select
+              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+              options={allAreas}
+              value={selectedArea}
+              onChange={handleAreaSelect}
+              placeholder="Digite o nome da área..."
+              isClearable
+              isLoading={loadingAreas}
+            />
+          </div>
+          <div className="col-md-3">
+            <button
+              type="button"
+              className="btn btn-outline-secondary w-100"
+              onClick={() => {
+                setSelectingRectangle(true);
+                setSelectionMode('rectangle'); // Define o modo para 'rectangle'
+                setSelectedArea(null); // Limpa a seleção de área
+                onClearRectangle(); // Limpa o retângulo desenhado no mapa
+                // Limpar os campos de coordenadas se necessário
+                setFormData({
+                  ...formData,
+                  latitudeInicial: '',
+                  longitudeInicial: '',
+                  latitudeFinal: '',
+                  longitudeFinal: '',
+                });
+                onBoundingBoxSelected(null); // Limpa o boundingBox no App.js
+              }}
+              disabled={selectionMode === 'rectangle'}
+              title="Desenhar Retângulo Manualmente"
+            >
+              <FaSearch /> Selecionar Retângulo
+            </button>
+          </div>
         </div>
       </div>
 
@@ -430,8 +456,8 @@ const WMSForm = ({
 
       {/* Renderizar campos de Data apenas no modo 'single' */}
       {viewMode === 'single' && (
-        <>
-          <div className="form-group mt-3">
+        <div className="row mt-3">
+          <div className="col-md-6">
             <label>Data Início:</label>
             <input
               type="date"
@@ -441,7 +467,7 @@ const WMSForm = ({
               onChange={handleChange}
             />
           </div>
-          <div className="form-group mt-3">
+          <div className="col-md-6">
             <label>Data Fim:</label>
             <input
               type="date"
@@ -451,7 +477,7 @@ const WMSForm = ({
               onChange={handleChange}
             />
           </div>
-        </>
+        </div>
       )}
 
       {/* Seção SINGLE */}
@@ -475,27 +501,8 @@ const WMSForm = ({
       )}
 
       {/* Exibir produtos após seleção do tipo no modo 'single' */}
-      {showProducts && products.length > 0 && viewMode === 'single' && (
-        <div className="form-group mt-3">
-          <label>Produtos:</label>
-          <div className="product-timeline">
-            {products.map(product => (
-              <button
-                key={product.name}
-                type="button"
-                className={
-                  "btn btn-outline-primary me-2 mt-2 " +
-                  (selectedProduct && selectedProduct.name === product.name ? 'active' : '')
-                }
-                onClick={() => handleProductSelection(product)}
-              >
-                {new Date(product.datetime).getFullYear()}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* Os botões de produtos já estão movidos para o topo do formulário */}
+      
       {/* Seção COMPARISON */}
       {viewMode === 'comparison' && (
         <div className="product-comparison mt-3">
@@ -519,7 +526,7 @@ const WMSForm = ({
               </div>
               {productsLeft.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Anos Disponíveis:</label>
                   <div className="product-timeline">
                     {productsLeft.map(product => (
                       <button
@@ -557,7 +564,7 @@ const WMSForm = ({
               </div>
               {productsRight.length > 0 && (
                 <div className="form-group mt-3">
-                  <label>Produtos:</label>
+                  <label>Anos Disponíveis:</label>
                   <div className="product-timeline">
                     {productsRight.map(product => (
                       <button
@@ -585,7 +592,7 @@ const WMSForm = ({
         <div className="form-group mt-3">
           <button
             type="button"
-            className="btn btn-outline-success"
+            className="btn btn-outline-success w-100"
             onClick={() => {
               setSelectingRectangle(true);
               setSelectionMode('rectangle'); // Define o modo para 'rectangle'
@@ -613,7 +620,7 @@ const WMSForm = ({
         <label>Coordenadas:</label>
         <div className="row">
           {/* Latitude Inicial */}
-          <div className="col-6">
+          <div className="col-md-6 mb-3">
             <label>Latitude Inicial:</label>
             <input
               type="text"
@@ -626,7 +633,7 @@ const WMSForm = ({
             />
           </div>
           {/* Latitude Final */}
-          <div className="col-6">
+          <div className="col-md-6 mb-3">
             <label>Latitude Final:</label>
             <input
               type="text"
@@ -639,9 +646,9 @@ const WMSForm = ({
             />
           </div>
         </div>
-        <div className="row mt-3">
+        <div className="row">
           {/* Longitude Inicial */}
-          <div className="col-6">
+          <div className="col-md-6 mb-3">
             <label>Longitude Inicial:</label>
             <input
               type="text"
@@ -654,7 +661,7 @@ const WMSForm = ({
             />
           </div>
           {/* Longitude Final */}
-          <div className="col-6">
+          <div className="col-md-6 mb-3">
             <label>Longitude Final:</label>
             <input
               type="text"
@@ -673,14 +680,14 @@ const WMSForm = ({
       {viewMode === 'single' && (
         <>
           {/* Botão principal para enviar a requisição */}
-          <button type="submit" className="btn btn-primary mt-3">
+          <button type="submit" className="btn btn-primary mt-3 w-100">
             Fazer Requisição
           </button>
 
           {/* Botão para selecionar um ponto no mapa */}
           <button
             type="button"
-            className="btn btn-secondary mt-3 ms-2"
+            className="btn btn-secondary mt-3 w-100"
             onClick={onSelectPixel}
           >
             Selecionar Ponto
