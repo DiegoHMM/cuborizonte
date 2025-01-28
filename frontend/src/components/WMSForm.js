@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../styles/WMSForm.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import {
-  get_ortho_products,
-  get_plan_products,
-  get_classified_products,
+  get_products,
   get_all_areas
 } from '../services/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -363,11 +361,11 @@ const WMSForm = ({
     try {
       let productsData = [];
       if (type === 'Ortofoto') {
-        productsData = await get_ortho_products();
+        productsData = await get_products('bh_ortophoto');
       } else if (type === 'Planta') {
-        productsData = await get_plan_products();
+        productsData = await get_products('bh_planta_');
       } else if (type === 'Classificados') {
-        productsData = await get_classified_products();
+        productsData = await get_products('bh_class');
       }
       productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
       const filtered = filterByDate(productsData);

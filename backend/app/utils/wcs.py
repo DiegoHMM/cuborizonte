@@ -70,29 +70,13 @@ def get_available_products_with_metadata(wcs_url):
         # Trata erros na requisição
         raise Exception(f"Falha ao obter as capacidades do serviço WCS. Código HTTP: {response.status_code}")
 
-def get_plans_products(wcs_url):
+def get_products(wcs_url, product_prefix):
     all_products = get_available_products_with_metadata(wcs_url)
-    plans_products = []
+    products = []
     for product in all_products:
-        if product['name'].startswith('bh_planta_'):
-            plans_products.append(product)
-    return plans_products
-
-def get_ortho_products(wcs_url):
-    all_products = get_available_products_with_metadata(wcs_url)
-    ortho_products = []
-    for product in all_products:
-        if product['name'].startswith('bh_ortophoto'):
-            ortho_products.append(product)
-    return ortho_products
-
-def get_classified_products(wcs_url):
-    all_products = get_available_products_with_metadata(wcs_url)
-    classified_products = []
-    for product in all_products:
-        if product['name'].startswith('bh_class'):
-            classified_products.append(product)
-    return classified_products
+        if product['name'].startswith(product_prefix):
+            products.append(product)
+    return products
 
 def get_coverage_datetime(wcs_url, coverage_name):
     params = {
