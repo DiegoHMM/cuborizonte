@@ -31,8 +31,7 @@ const WMSForm = ({
     latitudeFinal: '',
     longitudeFinal: '',
     dataInicio: '',
-    dataFim: '',
-    // Para single usamos "year"; para comparison, "yearLeft" e "yearRight"
+    dataFim: ''
   });
   const [error, setError] = useState(null);
   const [formError, setFormError] = useState('');
@@ -185,8 +184,6 @@ const WMSForm = ({
   };
 
   // Função de submissão do formulário
-  // Para o modo single, aguardamos a seleção do ano.
-  // Para comparison, ao extrair as opções de ano os botões serão exibidos e cada clique atualizará imediatamente, mas o onSubmit só será disparado se ambos os lados tiverem um ano selecionado.
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormError('');
@@ -205,6 +202,7 @@ const WMSForm = ({
       }
       let years = selectedProduct.datetime.map(dateStr => new Date(dateStr).getFullYear());
       years = Array.from(new Set(years)).sort((a, b) => a - b);
+
       if (formData.dataInicio && formData.dataFim) {
         const startYear = new Date(formData.dataInicio).getFullYear();
         const endYear = new Date(formData.dataFim).getFullYear();
@@ -227,14 +225,17 @@ const WMSForm = ({
       // Extrair as opções de ano para cada lado
       let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
       leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
+
       let rightYears = selectedProductRight.datetime.map(d => new Date(d).getFullYear());
       rightYears = Array.from(new Set(rightYears)).sort((a, b) => a - b);
+
       if (formData.dataInicio && formData.dataFim) {
         const startYear = new Date(formData.dataInicio).getFullYear();
         const endYear = new Date(formData.dataFim).getFullYear();
         leftYears = leftYears.filter(year => year >= startYear && year <= endYear);
         rightYears = rightYears.filter(year => year >= startYear && year <= endYear);
       }
+
       if (leftYears.length === 0 || rightYears.length === 0) {
         setFormError('Nenhum ano disponível para um dos produtos no intervalo de datas fornecido.');
         return;
@@ -357,6 +358,75 @@ const WMSForm = ({
     }
   };
 
+  // Handlers de seleção de área (COMPARISON)
+  const handleSelectBairroCompar = (option) => {
+    setSelectedBairroCompar(option);
+    setSelectedRegiaoCompar(null);
+    if (option) {
+      const bbox = option.value.bounding_box;
+      if (bbox) {
+        const newBoundingBox = {
+          latitudeInicial: bbox[1],
+          longitudeInicial: bbox[0],
+          latitudeFinal: bbox[3],
+          longitudeFinal: bbox[2],
+        };
+        setFormData((prev) => ({
+          ...prev,
+          latitudeInicial: newBoundingBox.latitudeInicial.toFixed(6),
+          longitudeInicial: newBoundingBox.longitudeInicial.toFixed(6),
+          latitudeFinal: newBoundingBox.latitudeFinal.toFixed(6),
+          longitudeFinal: newBoundingBox.longitudeFinal.toFixed(6),
+        }));
+        onBoundingBoxSelected(newBoundingBox);
+      }
+    } else {
+      onClearRectangle();
+      onBoundingBoxSelected(null);
+      setFormData((prev) => ({
+        ...prev,
+        latitudeInicial: '',
+        longitudeInicial: '',
+        latitudeFinal: '',
+        longitudeFinal: '',
+      }));
+    }
+  };
+
+  const handleSelectRegiaoCompar = (option) => {
+    setSelectedRegiaoCompar(option);
+    setSelectedBairroCompar(null);
+    if (option) {
+      const bbox = option.value.bounding_box;
+      if (bbox) {
+        const newBoundingBox = {
+          latitudeInicial: bbox[1],
+          longitudeInicial: bbox[0],
+          latitudeFinal: bbox[3],
+          longitudeFinal: bbox[2],
+        };
+        setFormData((prev) => ({
+          ...prev,
+          latitudeInicial: newBoundingBox.latitudeInicial.toFixed(6),
+          longitudeInicial: newBoundingBox.longitudeInicial.toFixed(6),
+          latitudeFinal: newBoundingBox.latitudeFinal.toFixed(6),
+          longitudeFinal: newBoundingBox.longitudeFinal.toFixed(6),
+        }));
+        onBoundingBoxSelected(newBoundingBox);
+      }
+    } else {
+      onClearRectangle();
+      onBoundingBoxSelected(null);
+      setFormData((prev) => ({
+        ...prev,
+        latitudeInicial: '',
+        longitudeInicial: '',
+        latitudeFinal: '',
+        longitudeFinal: '',
+      }));
+    }
+  };
+
   // Renderização das sub-tabs para SINGLE
   const renderAreaSubTabSingle = () => {
     return (
@@ -409,59 +479,80 @@ const WMSForm = ({
         </ul>
 
         {areaTabSingle === 'bairros' && (
-          <div className="mt-3">
-            <label>Buscar Bairro:</label>
-            <Select
-              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-              options={bairrosSingle}
-              value={selectedBairroSingle}
-              onChange={handleSelectBairroSingle}
-              isLoading={loadingBairroSingle}
-              isClearable
-              placeholder="Selecione o Bairro"
-            />
+          <div className="d-flex align-items-end mt-3">
+            <div className="flex-grow-1 me-2">
+              <label>Buscar Bairro:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={bairrosSingle}
+                value={selectedBairroSingle}
+                onChange={handleSelectBairroSingle}
+                isLoading={loadingBairroSingle}
+                isClearable
+                placeholder="Selecione o Bairro"
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-outline-success"
+              onClick={() => {
+                setSelectingRectangle(true);
+                setSelectionMode('rectangle');
+                setSelectedBairroSingle(null);
+                setSelectedRegiaoSingle(null);
+                onClearRectangle();
+                setFormData((prev) => ({
+                  ...prev,
+                  latitudeInicial: '',
+                  longitudeInicial: '',
+                  latitudeFinal: '',
+                  longitudeFinal: '',
+                }));
+                onBoundingBoxSelected(null);
+              }}
+            >
+              <BsBoundingBoxCircles size={24} />
+            </button>
           </div>
         )}
 
         {areaTabSingle === 'regiao' && (
-          <div className="mt-3">
-            <label>Buscar Região:</label>
-            <Select
-              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-              options={regioesSingle}
-              value={selectedRegiaoSingle}
-              onChange={handleSelectRegiaoSingle}
-              isLoading={loadingRegiaoSingle}
-              isClearable
-              placeholder="Selecione a Região"
-            />
+          <div className="d-flex align-items-end mt-3">
+            <div className="flex-grow-1 me-2">
+              <label>Buscar Região:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={regioesSingle}
+                value={selectedRegiaoSingle}
+                onChange={handleSelectRegiaoSingle}
+                isLoading={loadingRegiaoSingle}
+                isClearable
+                placeholder="Selecione a Região"
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-outline-success"
+              onClick={() => {
+                setSelectingRectangle(true);
+                setSelectionMode('rectangle');
+                setSelectedBairroSingle(null);
+                setSelectedRegiaoSingle(null);
+                onClearRectangle();
+                setFormData((prev) => ({
+                  ...prev,
+                  latitudeInicial: '',
+                  longitudeInicial: '',
+                  latitudeFinal: '',
+                  longitudeFinal: '',
+                }));
+                onBoundingBoxSelected(null);
+              }}
+            >
+              <BsBoundingBoxCircles size={24} />
+            </button>
           </div>
         )}
-
-        <div className="mt-3 d-flex align-items-center">
-          <button
-            type="button"
-            className="btn btn-outline-success d-flex align-items-center"
-            onClick={() => {
-              setSelectingRectangle(true);
-              setSelectionMode('rectangle');
-              setSelectedBairroSingle(null);
-              setSelectedRegiaoSingle(null);
-              onClearRectangle();
-              setFormData((prev) => ({
-                ...prev,
-                latitudeInicial: '',
-                longitudeInicial: '',
-                latitudeFinal: '',
-                longitudeFinal: '',
-              }));
-              onBoundingBoxSelected(null);
-            }}
-          >
-            <BsBoundingBoxCircles size={24} className="me-2" />
-            Desenhar Retângulo
-          </button>
-        </div>
       </div>
     );
   };
@@ -518,59 +609,80 @@ const WMSForm = ({
         </ul>
 
         {areaTabCompar === 'bairros' && (
-          <div className="mt-3">
-            <label>Buscar Bairro:</label>
-            <Select
-              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-              options={bairrosCompar}
-              value={selectedBairroCompar}
-              onChange={(option) => setSelectedBairroCompar(option)}
-              isLoading={loadingBairroCompar}
-              isClearable
-              placeholder="Selecione o Bairro"
-            />
+          <div className="d-flex align-items-end mt-3">
+            <div className="flex-grow-1 me-2">
+              <label>Buscar Bairro:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={bairrosCompar}
+                value={selectedBairroCompar}
+                onChange={handleSelectBairroCompar}
+                isLoading={loadingBairroCompar}
+                isClearable
+                placeholder="Selecione o Bairro"
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-outline-success"
+              onClick={() => {
+                setSelectingRectangle(true);
+                setSelectionMode('rectangle');
+                setSelectedBairroCompar(null);
+                setSelectedRegiaoCompar(null);
+                onClearRectangle();
+                setFormData((prev) => ({
+                  ...prev,
+                  latitudeInicial: '',
+                  longitudeInicial: '',
+                  latitudeFinal: '',
+                  longitudeFinal: '',
+                }));
+                onBoundingBoxSelected(null);
+              }}
+            >
+              <BsBoundingBoxCircles size={24} />
+            </button>
           </div>
         )}
 
         {areaTabCompar === 'regiao' && (
-          <div className="mt-3">
-            <label>Buscar Região:</label>
-            <Select
-              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-              options={regioesCompar}
-              value={selectedRegiaoCompar}
-              onChange={(option) => setSelectedRegiaoCompar(option)}
-              isLoading={loadingRegiaoCompar}
-              isClearable
-              placeholder="Selecione a Região"
-            />
+          <div className="d-flex align-items-end mt-3">
+            <div className="flex-grow-1 me-2">
+              <label>Buscar Região:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={regioesCompar}
+                value={selectedRegiaoCompar}
+                onChange={handleSelectRegiaoCompar}
+                isLoading={loadingRegiaoCompar}
+                isClearable
+                placeholder="Selecione a Região"
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-outline-success"
+              onClick={() => {
+                setSelectingRectangle(true);
+                setSelectionMode('rectangle');
+                setSelectedBairroCompar(null);
+                setSelectedRegiaoCompar(null);
+                onClearRectangle();
+                setFormData((prev) => ({
+                  ...prev,
+                  latitudeInicial: '',
+                  longitudeInicial: '',
+                  latitudeFinal: '',
+                  longitudeFinal: '',
+                }));
+                onBoundingBoxSelected(null);
+              }}
+            >
+              <BsBoundingBoxCircles size={24} />
+            </button>
           </div>
         )}
-
-        <div className="mt-3 d-flex align-items-center">
-          <button
-            type="button"
-            className="btn btn-outline-success d-flex align-items-center"
-            onClick={() => {
-              setSelectingRectangle(true);
-              setSelectionMode('rectangle');
-              setSelectedBairroCompar(null);
-              setSelectedRegiaoCompar(null);
-              onClearRectangle();
-              setFormData((prev) => ({
-                ...prev,
-                latitudeInicial: '',
-                longitudeInicial: '',
-                latitudeFinal: '',
-                longitudeFinal: '',
-              }));
-              onBoundingBoxSelected(null);
-            }}
-          >
-            <BsBoundingBoxCircles size={24} className="me-2" />
-            Desenhar Retângulo
-          </button>
-        </div>
       </div>
     );
   };
@@ -673,7 +785,11 @@ const WMSForm = ({
                   <button
                     key={year}
                     type="button"
-                    className={formData.year === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                    className={
+                      formData.year === year
+                        ? 'btn btn-primary me-2 mt-2'
+                        : 'btn btn-outline-primary me-2 mt-2'
+                    }
                     onClick={() => handleYearSelection(year)}
                   >
                     {year}
@@ -758,6 +874,30 @@ const WMSForm = ({
         <>
           {renderAreaSubTabComparison()}
 
+          {/* Campos Data Início/Fim (se desejar filtrar anos disponíveis) */}
+          <div className="row mt-3">
+            <div className="col-md-6">
+              <label>Data Início:</label>
+              <input
+                type="date"
+                name="dataInicio"
+                className="form-control"
+                value={formData.dataInicio}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-md-6">
+              <label>Data Fim:</label>
+              <input
+                type="date"
+                name="dataFim"
+                className="form-control"
+                value={formData.dataFim}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
           {/* Dropdowns para seleção de produtos na comparação */}
           <div className="row mt-3">
             <div className="col-md-6">
@@ -770,7 +910,10 @@ const WMSForm = ({
                 }))}
                 value={
                   selectedProductLeft
-                    ? { value: selectedProductLeft, label: selectedProductLeft.label || selectedProductLeft.name }
+                    ? {
+                        value: selectedProductLeft,
+                        label: selectedProductLeft.label || selectedProductLeft.name
+                      }
                     : null
                 }
                 onChange={(option) => setSelectedProductLeft(option.value)}
@@ -787,7 +930,10 @@ const WMSForm = ({
                 }))}
                 value={
                   selectedProductRight
-                    ? { value: selectedProductRight, label: selectedProductRight.label || selectedProductRight.name }
+                    ? {
+                        value: selectedProductRight,
+                        label: selectedProductRight.label || selectedProductRight.name
+                      }
                     : null
                 }
                 onChange={(option) => setSelectedProductRight(option.value)}
@@ -801,13 +947,17 @@ const WMSForm = ({
             <div className="col-md-6">
               {leftShowYearButtons && leftYearOptions.length > 0 && (
                 <div className="form-group">
-                  <label>Anos Disponíveis:</label>
+                  <label>Anos Disponíveis (Esquerdo):</label>
                   <div className="product-timeline">
                     {leftYearOptions.sort((a, b) => a - b).map((year) => (
                       <button
                         key={year}
                         type="button"
-                        className={leftSelectedYear === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                        className={
+                          leftSelectedYear === year
+                            ? 'btn btn-primary me-2 mt-2'
+                            : 'btn btn-outline-primary me-2 mt-2'
+                        }
                         onClick={() => handleComparisonYearChange('left', year)}
                       >
                         {year}
@@ -820,13 +970,17 @@ const WMSForm = ({
             <div className="col-md-6">
               {rightShowYearButtons && rightYearOptions.length > 0 && (
                 <div className="form-group">
-                  <label>Anos Disponíveis:</label>
+                  <label>Anos Disponíveis (Direito):</label>
                   <div className="product-timeline">
                     {rightYearOptions.sort((a, b) => a - b).map((year) => (
                       <button
                         key={year}
                         type="button"
-                        className={rightSelectedYear === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                        className={
+                          rightSelectedYear === year
+                            ? 'btn btn-primary me-2 mt-2'
+                            : 'btn btn-outline-primary me-2 mt-2'
+                        }
                         onClick={() => handleComparisonYearChange('right', year)}
                       >
                         {year}
