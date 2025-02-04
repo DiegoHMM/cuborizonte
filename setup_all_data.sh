@@ -13,9 +13,9 @@
 #./process_raw_data.sh PLANTA_1989 bh_planta 1989
 
 # Masks
-./process_raw_data.sh CLASSES_2015 bh_class_layer 2015 vegetation building background
-./process_raw_data.sh CLASSES_2007 bh_class_layer 2007 vegetation building background
-./process_raw_data.sh CLASSES_1999 bh_class_layer 1999 vegetation building background
+#./process_raw_data.sh CLASSES_2015 bh_class_layer 2015 vegetation building background
+#./process_raw_data.sh CLASSES_2007 bh_class_layer 2007 vegetation building background
+#./process_raw_data.sh CLASSES_1999 bh_class_layer 1999 vegetation building background
 
 #Ortophoto
 
@@ -31,11 +31,11 @@
 #./setup_datacube.sh Planta bh_planta PLANTA_1989
 
 #Masks
-./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2015
-./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2007
-./setup_datacube.sh Segmentacao bh_class_layer CLASSES_1999
+#./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2015
+#./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2007
+#./setup_datacube.sh Segmentacao bh_class_layer CLASSES_1999
 
-#./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
+./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
 #./setup_areas.sh REGIOES.geojson REGIAO
 
 

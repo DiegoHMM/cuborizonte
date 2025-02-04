@@ -723,7 +723,7 @@ const WMSForm = ({
               setRightShowYearButtons(false);
             }}
           >
-            Comparison
+            Comparativo
           </button>
         </li>
       </ul>
@@ -917,7 +917,7 @@ const WMSForm = ({
                     : null
                 }
                 onChange={(option) => setSelectedProductLeft(option.value)}
-                placeholder="Selecione o produto"
+                placeholder="Produto 1"
               />
             </div>
             <div className="col-md-6">
@@ -937,7 +937,7 @@ const WMSForm = ({
                     : null
                 }
                 onChange={(option) => setSelectedProductRight(option.value)}
-                placeholder="Selecione o produto"
+                placeholder="Produto 2"
               />
             </div>
           </div>
@@ -947,7 +947,7 @@ const WMSForm = ({
             <div className="col-md-6">
               {leftShowYearButtons && leftYearOptions.length > 0 && (
                 <div className="form-group">
-                  <label>Anos Disponíveis (Esquerdo):</label>
+                  <label>Anos Disponíveis:</label>
                   <div className="product-timeline">
                     {leftYearOptions.sort((a, b) => a - b).map((year) => (
                       <button
@@ -970,7 +970,7 @@ const WMSForm = ({
             <div className="col-md-6">
               {rightShowYearButtons && rightYearOptions.length > 0 && (
                 <div className="form-group">
-                  <label>Anos Disponíveis (Direito):</label>
+                  <label>Anos Disponíveis:</label>
                   <div className="product-timeline">
                     {rightYearOptions.sort((a, b) => a - b).map((year) => (
                       <button
