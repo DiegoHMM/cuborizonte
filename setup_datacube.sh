@@ -21,7 +21,7 @@ docker-compose exec ows datacube -v system init
 
 # Adicionar produtos ao Data Cube
 docker-compose exec ows datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${SUB_PASTA_GIT}/${NOME_DO_PRODUTO}.yaml"
-docker-compose exec ows datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${SUB_PASTA_GIT}/${NOME_DO_PRODUTO}_lowres.yaml"
+#docker-compose exec ows datacube product add "https://raw.githubusercontent.com/DiegoHMM/cuborizonte_products/main/${SUB_PASTA_GIT}/${NOME_DO_PRODUTO}_lowres.yaml"
 
 # Indexar os datasets
 docker-compose exec ows python /handle_data_functions/indexer.py "/data/processed/${PASTA_DE_ORIGEM}"

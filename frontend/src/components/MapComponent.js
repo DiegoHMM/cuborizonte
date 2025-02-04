@@ -126,21 +126,29 @@ const SingleLayer = ({ wmsData }) => {
         map.removeLayer(layerRef.current);
       }
 
-      // Define bounds do layer
+      // Define os bounds da camada
       const bounds = L.latLngBounds([
         [wmsData.latitudeInicial, wmsData.longitudeInicial],
         [wmsData.latitudeFinal, wmsData.longitudeFinal],
       ]);
 
-      // Cria a camada WMS
-      const layer = new L.BoundedTileLayerWMS(baseWmsURL, {
+      // Monta as opções para a camada WMS
+      const wmsOptions = {
         layers: wmsData.layer, // 'layer' em vez de 'product'
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: bounds,
-      });
+      };
+
+      // Se houver ano selecionado, adiciona o parâmetro time no formato "YYYY-01-01/YYYY-12-31"
+      if (wmsData.year) {
+        wmsOptions.time = `${wmsData.year}-01-01/${wmsData.year}-12-31`;
+      }
+
+      // Cria a camada WMS com as opções atualizadas
+      const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
 
       layerRef.current = layer;
       layer.addTo(map);
@@ -160,6 +168,8 @@ const SingleLayer = ({ wmsData }) => {
   return null;
 };
 
+
+
 // ----------- CAMADAS COMPARADAS LADO A LADO -----------
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   const map = useMap();
@@ -174,7 +184,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
       if (sideBySideRef.current) sideBySideRef.current.remove();
 
-      // Bounds de cada camada
+      // Define os bounds para cada camada
       const boundsLeft = L.latLngBounds([
         [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
         [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
@@ -184,23 +194,35 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
       ]);
 
-      // Cria camadas WMS
-      const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerLeft.layer, // 'layer' em vez de 'product'
+      // Prepara as opções para a camada esquerda
+      const leftOptions = {
+        layers: wmsLayerLeft.layer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsLeft,
-      });
-      const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerRight.layer, // 'layer' em vez de 'product'
+      };
+      if (wmsLayerLeft.year) {
+        leftOptions.time = `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`;
+      }
+
+      // Prepara as opções para a camada direita
+      const rightOptions = {
+        layers: wmsLayerRight.layer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsRight,
-      });
+      };
+      if (wmsLayerRight.year) {
+        rightOptions.time = `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`;
+      }
+
+      // Cria as camadas WMS com as opções definidas
+      const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, leftOptions);
+      const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, rightOptions);
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
@@ -209,7 +231,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       leftLayer.addTo(map);
       rightLayer.addTo(map);
 
-      // Cria controle side-by-side
+      // Cria o controle side-by-side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
 
@@ -228,6 +250,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
   return null;
 };
+
 
 // ----------- COMPONENTE PRINCIPAL -----------
 const MapComponent = forwardRef(({

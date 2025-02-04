@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/WMSForm.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
-import {
-  get_products,
-  get_all_areas
-} from '../services/api';
+import { get_products, get_all_areas } from '../services/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Select from 'react-select';
 import { BsBoundingBoxCircles } from 'react-icons/bs';
@@ -20,17 +17,14 @@ const WMSForm = ({
   onBoundingBoxSelected,
   onClearRectangle
 }) => {
-  // ----------------------------------
-  // Tabs principais: single ou comparison
-  // ----------------------------------
-  const [viewMode, setViewMode] = useState('single'); 
-  // Sub-tabs internos para a seleção de área: "bairros" ou "regiao"
-  const [areaTabSingle, setAreaTabSingle] = useState('bairros');   // controla sub-tab dentro de SINGLE
-  const [areaTabCompar, setAreaTabCompar] = useState('bairros');   // controla sub-tab dentro de COMPARISON
+  // Aba principal: single ou comparison
+  const [viewMode, setViewMode] = useState('single');
 
-  // ----------------------------------
+  // Estados para áreas (SINGLE e COMPARISON)
+  const [areaTabSingle, setAreaTabSingle] = useState('bairros');
+  const [areaTabCompar, setAreaTabCompar] = useState('bairros');
+
   // Estados gerais do formulário
-  // ----------------------------------
   const [formData, setFormData] = useState({
     latitudeInicial: '',
     longitudeInicial: '',
@@ -38,64 +32,50 @@ const WMSForm = ({
     longitudeFinal: '',
     dataInicio: '',
     dataFim: '',
+    // Para single usamos "year"; para comparison, "yearLeft" e "yearRight"
   });
-
-  // Mensagens de erro
   const [error, setError] = useState(null);
   const [formError, setFormError] = useState('');
   const [coordinateError, setCoordinateError] = useState('');
 
-  // ----------------------------------------------------
-  // Estados e Funções para modo SINGLE
-  // ----------------------------------------------------
-  const [productType, setProductType] = useState('');
-  const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showProducts, setShowProducts] = useState(false);
-
-  // ----------------------------------------------------
-  // Estados e Funções para modo COMPARISON
-  // ----------------------------------------------------
-  const [productTypeLeft, setProductTypeLeft] = useState('');
-  const [productsLeft, setProductsLeft] = useState([]);
-  const [selectedProductLeft, setSelectedProductLeft] = useState(null);
-
-  const [productTypeRight, setProductTypeRight] = useState('');
-  const [productsRight, setProductsRight] = useState([]);
-  const [selectedProductRight, setSelectedProductRight] = useState(null);
-
-  // ----------------------------------------------------
-  // Estados para carregamento das áreas (single e compar.)
-  // Precisamos separar, pois cada sub-tab pode ter uma tabela
-  // ----------------------------------------------------
-  // SINGLE - Bairros
+  // Estados para áreas (SINGLE)
   const [bairrosSingle, setBairrosSingle] = useState([]);
   const [selectedBairroSingle, setSelectedBairroSingle] = useState(null);
   const [loadingBairroSingle, setLoadingBairroSingle] = useState(false);
-
-  // SINGLE - Regiao
   const [regioesSingle, setRegioesSingle] = useState([]);
   const [selectedRegiaoSingle, setSelectedRegiaoSingle] = useState(null);
   const [loadingRegiaoSingle, setLoadingRegiaoSingle] = useState(false);
 
-  // COMPARISON - Bairros
+  // Estados para áreas (COMPARISON)
   const [bairrosCompar, setBairrosCompar] = useState([]);
   const [selectedBairroCompar, setSelectedBairroCompar] = useState(null);
   const [loadingBairroCompar, setLoadingBairroCompar] = useState(false);
-
-  // COMPARISON - Regiao
   const [regioesCompar, setRegioesCompar] = useState([]);
   const [selectedRegiaoCompar, setSelectedRegiaoCompar] = useState(null);
   const [loadingRegiaoCompar, setLoadingRegiaoCompar] = useState(false);
 
-  // ----------------------------------------------------
-  // useEffect para carregar Bairros e Regiao (SINGLE)
-  // ----------------------------------------------------
+  // Estados para seleção de produto (SINGLE)
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [yearOptions, setYearOptions] = useState([]);
+  const [showYearButtons, setShowYearButtons] = useState(false);
+
+  // Estados para seleção de produto (COMPARISON)
+  const [selectedProductLeft, setSelectedProductLeft] = useState(null);
+  const [selectedProductRight, setSelectedProductRight] = useState(null);
+  // Estados para ano em comparação
+  const [leftYearOptions, setLeftYearOptions] = useState([]);
+  const [rightYearOptions, setRightYearOptions] = useState([]);
+  const [leftShowYearButtons, setLeftShowYearButtons] = useState(false);
+  const [rightShowYearButtons, setRightShowYearButtons] = useState(false);
+  const [leftSelectedYear, setLeftSelectedYear] = useState(null);
+  const [rightSelectedYear, setRightSelectedYear] = useState(null);
+
+  // Carregar áreas para SINGLE
   useEffect(() => {
     const fetchBairrosSingle = async () => {
       setLoadingBairroSingle(true);
       try {
-        // busca da tabela "bairro_popular"
         const areas = await get_all_areas('bairro_popular');
         const options = areas
           .map((area) => ({ label: area.nome, value: area }))
@@ -111,7 +91,6 @@ const WMSForm = ({
     const fetchRegioesSingle = async () => {
       setLoadingRegiaoSingle(true);
       try {
-        // busca da tabela "regiao"
         const areas = await get_all_areas('regiao');
         const options = areas
           .map((area) => ({ label: area.nome, value: area }))
@@ -128,9 +107,7 @@ const WMSForm = ({
     fetchRegioesSingle();
   }, []);
 
-  // ----------------------------------------------------
-  // useEffect para carregar Bairros e Regiao (COMPARISON)
-  // ----------------------------------------------------
+  // Carregar áreas para COMPARISON
   useEffect(() => {
     const fetchBairrosCompar = async () => {
       setLoadingBairroCompar(true);
@@ -166,10 +143,7 @@ const WMSForm = ({
     fetchRegioesCompar();
   }, []);
 
-  // ----------------------------------------------------
   // Atualizar coordenadas ao desenhar retângulo
-  // (válido para single ou comparison)
-  // ----------------------------------------------------
   useEffect(() => {
     if (boundingBox && selectionMode === 'rectangle') {
       setFormData((prevData) => ({
@@ -180,7 +154,6 @@ const WMSForm = ({
         longitudeFinal: boundingBox.longitudeFinal.toFixed(6),
       }));
       setCoordinateError('');
-      // Limpamos a seleção de bairros ou regiões (tanto single quanto compar)
       setSelectedBairroSingle(null);
       setSelectedRegiaoSingle(null);
       setSelectedBairroCompar(null);
@@ -188,12 +161,137 @@ const WMSForm = ({
     }
   }, [boundingBox, selectionMode]);
 
-  // ----------------------------------------------------
-  // Seleção de Bairros/Região (SINGLE)
-  // ----------------------------------------------------
+  // Carregar produtos (para ambos os modos)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await get_products();
+        productsData.sort((a, b) =>
+          (a.label || a.name).localeCompare(b.label || b.name)
+        );
+        setAvailableProducts(productsData);
+      } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Função de submissão do formulário
+  // Para o modo single, aguardamos a seleção do ano.
+  // Para comparison, ao extrair as opções de ano os botões serão exibidos e cada clique atualizará imediatamente, mas o onSubmit só será disparado se ambos os lados tiverem um ano selecionado.
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setFormError('');
+    setCoordinateError('');
+
+    const { latitudeInicial, longitudeInicial, latitudeFinal, longitudeFinal } = formData;
+    if (!latitudeInicial || !longitudeInicial || !latitudeFinal || !longitudeFinal) {
+      setCoordinateError('Por favor, preencha todas as coordenadas ou selecione uma área.');
+      return;
+    }
+
+    if (viewMode === 'single') {
+      if (!selectedProduct) {
+        alert('Por favor, selecione um produto.');
+        return;
+      }
+      let years = selectedProduct.datetime.map(dateStr => new Date(dateStr).getFullYear());
+      years = Array.from(new Set(years)).sort((a, b) => a - b);
+      if (formData.dataInicio && formData.dataFim) {
+        const startYear = new Date(formData.dataInicio).getFullYear();
+        const endYear = new Date(formData.dataFim).getFullYear();
+        years = years.filter(year => year >= startYear && year <= endYear);
+      }
+      if (years.length === 0) {
+        setFormError('Nenhum ano disponível para o produto selecionado no intervalo de datas fornecido.');
+        return;
+      }
+      setYearOptions(years);
+      setShowYearButtons(true);
+      return; // Aguarda a seleção do ano no modo single
+    }
+
+    if (viewMode === 'comparison') {
+      if (!selectedProductLeft || !selectedProductRight) {
+        alert('Por favor, selecione os produtos para ambos os lados.');
+        return;
+      }
+      // Extrair as opções de ano para cada lado
+      let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
+      leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
+      let rightYears = selectedProductRight.datetime.map(d => new Date(d).getFullYear());
+      rightYears = Array.from(new Set(rightYears)).sort((a, b) => a - b);
+      if (formData.dataInicio && formData.dataFim) {
+        const startYear = new Date(formData.dataInicio).getFullYear();
+        const endYear = new Date(formData.dataFim).getFullYear();
+        leftYears = leftYears.filter(year => year >= startYear && year <= endYear);
+        rightYears = rightYears.filter(year => year >= startYear && year <= endYear);
+      }
+      if (leftYears.length === 0 || rightYears.length === 0) {
+        setFormError('Nenhum ano disponível para um dos produtos no intervalo de datas fornecido.');
+        return;
+      }
+      setLeftYearOptions(leftYears);
+      setRightYearOptions(rightYears);
+      setLeftShowYearButtons(true);
+      setRightShowYearButtons(true);
+      // Neste caso, não há um botão de submissão final; a camada só será atualizada quando ambos os lados tiverem um ano selecionado.
+      return;
+    }
+  };
+
+  // Handler para seleção de ano no modo single
+  const handleYearSelection = (year) => {
+    onSubmit({
+      ...formData,
+      viewMode,
+      layer: selectedProduct.name,
+      year: year,
+    });
+  };
+
+  // Handler para seleção de ano em comparison para cada lado
+  const handleComparisonYearChange = (side, year) => {
+    if (side === 'left') {
+      setLeftSelectedYear(year);
+      // Se ambos os lados já estiverem selecionados, atualiza imediatamente
+      if (year && rightSelectedYear) {
+        onSubmit({
+          ...formData,
+          viewMode,
+          layerLeft: selectedProductLeft.name,
+          layerRight: selectedProductRight.name,
+          yearLeft: year,
+          yearRight: rightSelectedYear,
+        });
+      }
+    } else if (side === 'right') {
+      setRightSelectedYear(year);
+      if (leftSelectedYear && year) {
+        onSubmit({
+          ...formData,
+          viewMode,
+          layerLeft: selectedProductLeft.name,
+          layerRight: selectedProductRight.name,
+          yearLeft: leftSelectedYear,
+          yearRight: year,
+        });
+      }
+    }
+  };
+
+  // Handlers de seleção de área (SINGLE)
   const handleSelectBairroSingle = (selectedOption) => {
     setSelectedBairroSingle(selectedOption);
-    setSelectedRegiaoSingle(null); // limpa a outra sub-tab
+    setSelectedRegiaoSingle(null);
     if (selectedOption) {
       const bbox = selectedOption.value.bounding_box;
       if (bbox) {
@@ -213,7 +311,6 @@ const WMSForm = ({
         onBoundingBoxSelected(newBoundingBox);
       }
     } else {
-      // se desmarcar
       onClearRectangle();
       onBoundingBoxSelected(null);
       setFormData((prev) => ({
@@ -228,7 +325,7 @@ const WMSForm = ({
 
   const handleSelectRegiaoSingle = (selectedOption) => {
     setSelectedRegiaoSingle(selectedOption);
-    setSelectedBairroSingle(null); // limpa a outra sub-tab
+    setSelectedBairroSingle(null);
     if (selectedOption) {
       const bbox = selectedOption.value.bounding_box;
       if (bbox) {
@@ -260,258 +357,7 @@ const WMSForm = ({
     }
   };
 
-  // ----------------------------------------------------
-  // Seleção de Bairros/Região (COMPARISON)
-  // ----------------------------------------------------
-  const handleSelectBairroCompar = (selectedOption) => {
-    setSelectedBairroCompar(selectedOption);
-    setSelectedRegiaoCompar(null);
-    if (selectedOption) {
-      const bbox = selectedOption.value.bounding_box;
-      if (bbox) {
-        const newBoundingBox = {
-          latitudeInicial: bbox[1],
-          longitudeInicial: bbox[0],
-          latitudeFinal: bbox[3],
-          longitudeFinal: bbox[2],
-        };
-        setFormData((prev) => ({
-          ...prev,
-          latitudeInicial: newBoundingBox.latitudeInicial.toFixed(6),
-          longitudeInicial: newBoundingBox.longitudeInicial.toFixed(6),
-          latitudeFinal: newBoundingBox.latitudeFinal.toFixed(6),
-          longitudeFinal: newBoundingBox.longitudeFinal.toFixed(6),
-        }));
-        onBoundingBoxSelected(newBoundingBox);
-      }
-    } else {
-      onClearRectangle();
-      onBoundingBoxSelected(null);
-      setFormData((prev) => ({
-        ...prev,
-        latitudeInicial: '',
-        longitudeInicial: '',
-        latitudeFinal: '',
-        longitudeFinal: '',
-      }));
-    }
-  };
-
-  const handleSelectRegiaoCompar = (selectedOption) => {
-    setSelectedRegiaoCompar(selectedOption);
-    setSelectedBairroCompar(null);
-    if (selectedOption) {
-      const bbox = selectedOption.value.bounding_box;
-      if (bbox) {
-        const newBoundingBox = {
-          latitudeInicial: bbox[1],
-          longitudeInicial: bbox[0],
-          latitudeFinal: bbox[3],
-          longitudeFinal: bbox[2],
-        };
-        setFormData((prev) => ({
-          ...prev,
-          latitudeInicial: newBoundingBox.latitudeInicial.toFixed(6),
-          longitudeInicial: newBoundingBox.longitudeInicial.toFixed(6),
-          latitudeFinal: newBoundingBox.latitudeFinal.toFixed(6),
-          longitudeFinal: newBoundingBox.longitudeFinal.toFixed(6),
-        }));
-        onBoundingBoxSelected(newBoundingBox);
-      }
-    } else {
-      onClearRectangle();
-      onBoundingBoxSelected(null);
-      setFormData((prev) => ({
-        ...prev,
-        latitudeInicial: '',
-        longitudeInicial: '',
-        latitudeFinal: '',
-        longitudeFinal: '',
-      }));
-    }
-  };
-
-  // ----------------------------------------------------
-  // Manipulação de datas e coordenadas
-  // ----------------------------------------------------
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  // ----------------------------------------------------
-  // Funções de carregamento de produtos
-  // ----------------------------------------------------
-  const filterByDate = (productsData) => {
-    if (viewMode !== 'single') return productsData;
-    const { dataInicio, dataFim } = formData;
-    if (!dataInicio || !dataFim) return productsData;
-
-    const start = new Date(dataInicio);
-    const end = new Date(dataFim);
-    return productsData.filter((product) => {
-      const productDate = new Date(product.datetime);
-      return productDate >= start && productDate <= end;
-    });
-  };
-
-  const loadProducts = async (type, setProductsFunc) => {
-    try {
-      let productsData = [];
-      if (type === 'Ortofoto') {
-        productsData = await get_products('bh_ortophoto');
-      } else if (type === 'Planta') {
-        productsData = await get_products('bh_planta_');
-      } else if (type === 'Classificados') {
-        productsData = await get_products('bh_class');
-      }
-      productsData.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-      const filtered = filterByDate(productsData);
-      setProductsFunc(filtered);
-    } catch (error) {
-      console.error('Erro ao obter produtos:', error);
-    }
-  };
-
-  // ----------------------------------------------------
-  // Handlers de tipo de produto (single)
-  // ----------------------------------------------------
-  const handleProductTypeChange = (e) => {
-    const type = e.target.value;
-    setProductType(type);
-    setSelectedProduct(null);
-    setProducts([]);
-    setShowProducts(false);
-  };
-
-  // Handler de seleção de produto (single)
-  const handleProductSelection = (product) => {
-    setSelectedProduct(product);
-    onSubmit({
-      ...formData,
-      viewMode,
-      layer: product.name,
-    });
-  };
-
-  // ----------------------------------------------------
-  // Handlers de tipo de produto (comparison)
-  // ----------------------------------------------------
-  const handleProductTypeChangeLeft = (e) => {
-    const type = e.target.value;
-    setProductTypeLeft(type);
-    setSelectedProductLeft(null);
-    setProductsLeft([]);
-    loadProducts(type, setProductsLeft);
-  };
-
-  const handleProductTypeChangeRight = (e) => {
-    const type = e.target.value;
-    setProductTypeRight(type);
-    setSelectedProductRight(null);
-    setProductsRight([]);
-    loadProducts(type, setProductsRight);
-  };
-
-  // Handler de seleção de produto (comparison)
-  const handleProductSelectionLeft = (product) => {
-    setSelectedProductLeft(product);
-    if (selectedProductRight) {
-      onSubmit({
-        ...formData,
-        viewMode,
-        layerLeft: product.name,
-        layerRight: selectedProductRight.name,
-      });
-    }
-  };
-
-  const handleProductSelectionRight = (product) => {
-    setSelectedProductRight(product);
-    if (selectedProductLeft) {
-      onSubmit({
-        ...formData,
-        viewMode,
-        layerLeft: selectedProductLeft.name,
-        layerRight: product.name,
-      });
-    }
-  };
-
-  // ----------------------------------------------------
-  // Submissão do formulário
-  // ----------------------------------------------------
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFormError('');
-    setCoordinateError('');
-
-    // Checar coordenadas (para ambos os modos)
-    const { latitudeInicial, longitudeInicial, latitudeFinal, longitudeFinal } = formData;
-    if (!latitudeInicial || !longitudeInicial || !latitudeFinal || !longitudeFinal) {
-      setCoordinateError('Por favor, preencha todas as coordenadas ou selecione uma área.');
-      return;
-    }
-
-    if (viewMode === 'single') {
-      // Garantir que tipo de produto foi selecionado
-      if (!productType) {
-        alert('Por favor, Selecione o tipo de produto.');
-        return;
-      }
-      // Carregar produtos (vai mostrar a timeline para clicar no ano)
-      loadProducts(productType, setProducts);
-      setShowProducts(true);
-      return;
-    }
-
-    if (viewMode === 'comparison') {
-      if (!productTypeLeft || !productTypeRight) {
-        alert('Por favor, selecione os tipos de produtos para comparação.');
-        return;
-      }
-      // Carrega os produtos para comparação
-      loadProducts(productTypeLeft, setProductsLeft);
-      loadProducts(productTypeRight, setProductsRight);
-      return;
-    }
-  };
-
-  // ----------------------------------------------------
-  // Alternar abas de exibição
-  // ----------------------------------------------------
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode);
-    // limpar estados específicos
-    setFormError('');
-    setCoordinateError('');
-
-    setProductType('');
-    setProducts([]);
-    setSelectedProduct(null);
-    setShowProducts(false);
-
-    setProductTypeLeft('');
-    setProductsLeft([]);
-    setSelectedProductLeft(null);
-
-    setProductTypeRight('');
-    setProductsRight([]);
-    setSelectedProductRight(null);
-
-    // Se trocar para comparison, limpa as datas
-    if (mode === 'comparison') {
-      setFormData((prev) => ({
-        ...prev,
-        dataInicio: '',
-        dataFim: '',
-      }));
-    }
-  };
-
-  // Sub-tabs "bairros" ou "regiao" (SINGLE)
+  // Renderização das sub-tabs para SINGLE
   const renderAreaSubTabSingle = () => {
     return (
       <div className="mt-3">
@@ -522,10 +368,8 @@ const WMSForm = ({
               className={`nav-link ${areaTabSingle === 'bairros' ? 'active' : ''}`}
               onClick={() => {
                 setAreaTabSingle('bairros');
-                // limpar seleção
                 setSelectedBairroSingle(null);
                 setSelectedRegiaoSingle(null);
-                // limpar coords
                 setFormData((prev) => ({
                   ...prev,
                   latitudeInicial: '',
@@ -546,10 +390,8 @@ const WMSForm = ({
               className={`nav-link ${areaTabSingle === 'regiao' ? 'active' : ''}`}
               onClick={() => {
                 setAreaTabSingle('regiao');
-                // limpar seleção
                 setSelectedBairroSingle(null);
                 setSelectedRegiaoSingle(null);
-                // limpar coords
                 setFormData((prev) => ({
                   ...prev,
                   latitudeInicial: '',
@@ -566,7 +408,6 @@ const WMSForm = ({
           </li>
         </ul>
 
-        {/* Área de Bairros (SINGLE) */}
         {areaTabSingle === 'bairros' && (
           <div className="mt-3">
             <label>Buscar Bairro:</label>
@@ -577,12 +418,11 @@ const WMSForm = ({
               onChange={handleSelectBairroSingle}
               isLoading={loadingBairroSingle}
               isClearable
-              placeholder="Selecione o Bairro..."
+              placeholder="Selecione o Bairro"
             />
           </div>
         )}
 
-        {/* Área de Regiões (SINGLE) */}
         {areaTabSingle === 'regiao' && (
           <div className="mt-3">
             <label>Buscar Região:</label>
@@ -593,12 +433,11 @@ const WMSForm = ({
               onChange={handleSelectRegiaoSingle}
               isLoading={loadingRegiaoSingle}
               isClearable
-              placeholder="Selecione a Região..."
+              placeholder="Selecione a Região"
             />
           </div>
         )}
 
-        {/* Botão de Desenhar Retângulo */}
         <div className="mt-3 d-flex align-items-center">
           <button
             type="button"
@@ -606,7 +445,6 @@ const WMSForm = ({
             onClick={() => {
               setSelectingRectangle(true);
               setSelectionMode('rectangle');
-              // limpar seleções
               setSelectedBairroSingle(null);
               setSelectedRegiaoSingle(null);
               onClearRectangle();
@@ -628,7 +466,7 @@ const WMSForm = ({
     );
   };
 
-  // Sub-tabs "bairros" ou "regiao" (COMPARISON)
+  // Renderização das sub-tabs para COMPARISON
   const renderAreaSubTabComparison = () => {
     return (
       <div className="mt-3">
@@ -639,10 +477,8 @@ const WMSForm = ({
               className={`nav-link ${areaTabCompar === 'bairros' ? 'active' : ''}`}
               onClick={() => {
                 setAreaTabCompar('bairros');
-                // limpar seleção
                 setSelectedBairroCompar(null);
                 setSelectedRegiaoCompar(null);
-                // limpar coords
                 setFormData((prev) => ({
                   ...prev,
                   latitudeInicial: '',
@@ -663,10 +499,8 @@ const WMSForm = ({
               className={`nav-link ${areaTabCompar === 'regiao' ? 'active' : ''}`}
               onClick={() => {
                 setAreaTabCompar('regiao');
-                // limpar seleção
                 setSelectedBairroCompar(null);
                 setSelectedRegiaoCompar(null);
-                // limpar coords
                 setFormData((prev) => ({
                   ...prev,
                   latitudeInicial: '',
@@ -683,7 +517,6 @@ const WMSForm = ({
           </li>
         </ul>
 
-        {/* Área de Bairros (COMPARISON) */}
         {areaTabCompar === 'bairros' && (
           <div className="mt-3">
             <label>Buscar Bairro:</label>
@@ -691,15 +524,14 @@ const WMSForm = ({
               styles={{ container: (base) => ({ ...base, width: '100%' }) }}
               options={bairrosCompar}
               value={selectedBairroCompar}
-              onChange={handleSelectBairroCompar}
+              onChange={(option) => setSelectedBairroCompar(option)}
               isLoading={loadingBairroCompar}
               isClearable
-              placeholder="Selecione o Bairro..."
+              placeholder="Selecione o Bairro"
             />
           </div>
         )}
 
-        {/* Área de Regiões (COMPARISON) */}
         {areaTabCompar === 'regiao' && (
           <div className="mt-3">
             <label>Buscar Região:</label>
@@ -707,15 +539,14 @@ const WMSForm = ({
               styles={{ container: (base) => ({ ...base, width: '100%' }) }}
               options={regioesCompar}
               value={selectedRegiaoCompar}
-              onChange={handleSelectRegiaoCompar}
+              onChange={(option) => setSelectedRegiaoCompar(option)}
               isLoading={loadingRegiaoCompar}
               isClearable
-              placeholder="Selecione a Região..."
+              placeholder="Selecione a Região"
             />
           </div>
         )}
 
-        {/* Botão de Desenhar Retângulo */}
         <div className="mt-3 d-flex align-items-center">
           <button
             type="button"
@@ -723,7 +554,6 @@ const WMSForm = ({
             onClick={() => {
               setSelectingRectangle(true);
               setSelectionMode('rectangle');
-              // limpar seleções
               setSelectedBairroCompar(null);
               setSelectedRegiaoCompar(null);
               onClearRectangle();
@@ -745,20 +575,22 @@ const WMSForm = ({
     );
   };
 
-  // ----------------------------------------------------
-  // Renderização Principal
-  // ----------------------------------------------------
   return (
     <form onSubmit={handleSubmit} className="floating-form form-group p-4">
       <h3>Seleção de Produtos</h3>
-
-      {/* Tabs principais: SINGLE x COMPARISON */}
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <button
             type="button"
             className={`nav-link ${viewMode === 'single' ? 'active' : ''}`}
-            onClick={() => handleViewModeChange('single')}
+            onClick={() => {
+              setViewMode('single');
+              setFormError('');
+              setCoordinateError('');
+              setSelectedProduct(null);
+              setYearOptions([]);
+              setShowYearButtons(false);
+            }}
           >
             Single
           </button>
@@ -767,7 +599,17 @@ const WMSForm = ({
           <button
             type="button"
             className={`nav-link ${viewMode === 'comparison' ? 'active' : ''}`}
-            onClick={() => handleViewModeChange('comparison')}
+            onClick={() => {
+              setViewMode('comparison');
+              setFormError('');
+              setCoordinateError('');
+              setSelectedProductLeft(null);
+              setSelectedProductRight(null);
+              setLeftYearOptions([]);
+              setRightYearOptions([]);
+              setLeftShowYearButtons(false);
+              setRightShowYearButtons(false);
+            }}
           >
             Comparison
           </button>
@@ -778,15 +620,10 @@ const WMSForm = ({
       {formError && <div className="alert alert-warning mt-3">{formError}</div>}
       {coordinateError && <div className="alert alert-warning mt-3">{coordinateError}</div>}
 
-      {/* ----------------------------------------- */}
-      {/* ABA SINGLE */}
-      {/* ----------------------------------------- */}
       {viewMode === 'single' && (
         <>
-          {/* Sub-tabs "bairros" ou "regiao" (SINGLE) */}
           {renderAreaSubTabSingle()}
 
-          {/* Datas (exclusivo do modo single) */}
           <div className="row mt-4">
             <div className="col-md-6">
               <label>Data Início:</label>
@@ -810,45 +647,42 @@ const WMSForm = ({
             </div>
           </div>
 
-          {/* Tipo de Produto (single) */}
           <div className="form-group mt-3">
-            <label>Tipo de Produto:</label>
-            <select
-              name="productType"
-              className="form-control"
-              value={productType}
-              onChange={handleProductTypeChange}
-            >
-              <option value="">Selecione o tipo</option>
-              <option value="Ortofoto">Ortofoto</option>
-              <option value="Planta">Planta</option>
-              <option value="Classificados">Classificados</option>
-            </select>
+            <label>Produto:</label>
+            <Select
+              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+              options={availableProducts.map((prod) => ({
+                value: prod,
+                label: prod.label || prod.name,
+              }))}
+              value={
+                selectedProduct
+                  ? { value: selectedProduct, label: selectedProduct.label || selectedProduct.name }
+                  : null
+              }
+              onChange={(option) => setSelectedProduct(option.value)}
+              placeholder="Selecione o produto"
+            />
           </div>
 
-          {/* Exibir timeline de produtos (anos) */}
-          {showProducts && products.length > 0 && (
+          {showYearButtons && yearOptions.length > 0 && (
             <div className="form-group mt-3">
               <label>Anos Disponíveis:</label>
               <div className="product-timeline">
-                {products.map((prod) => (
+                {yearOptions.sort((a, b) => a - b).map((year) => (
                   <button
-                    key={prod.name}
+                    key={year}
                     type="button"
-                    className={
-                      'btn btn-outline-primary me-2 mt-2 ' +
-                      (selectedProduct && selectedProduct.name === prod.name ? 'active' : '')
-                    }
-                    onClick={() => handleProductSelection(prod)}
+                    className={formData.year === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                    onClick={() => handleYearSelection(year)}
                   >
-                    {new Date(prod.datetime).getFullYear()}
+                    {year}
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Coordenadas */}
           <div className="form-group mt-3">
             <label>Coordenadas Selecionadas:</label>
             <div className="row">
@@ -901,7 +735,6 @@ const WMSForm = ({
             </div>
           </div>
 
-          {/* Botões de ação (Single) */}
           <div className="row mt-3">
             <div className="col-md-6 mb-2">
               <button type="submit" className="btn btn-primary w-100">
@@ -921,90 +754,122 @@ const WMSForm = ({
         </>
       )}
 
-      {/* ----------------------------------------- */}
-      {/* ABA COMPARISON */}
-      {/* ----------------------------------------- */}
       {viewMode === 'comparison' && (
         <>
-          {/* Sub-tabs "bairros" ou "regiao" (COMPARISON) */}
           {renderAreaSubTabComparison()}
 
-          {/* Seleção de Produtos (Esquerda / Direita) */}
-          <div className="mt-4">
-            <div className="d-flex">
-              <div className="me-3" style={{ width: '50%' }}>
-                <h5>Produto Esquerdo</h5>
-                <select
-                  name="productTypeLeft"
-                  className="form-control"
-                  value={productTypeLeft}
-                  onChange={handleProductTypeChangeLeft}
-                >
-                  <option value="">Selecione o tipo</option>
-                  <option value="Ortofoto">Ortofoto</option>
-                  <option value="Planta">Planta</option>
-                  <option value="Classificados">Classificados</option>
-                </select>
-                {productsLeft.length > 0 && (
-                  <div className="form-group mt-3">
-                    <label>Anos Disponíveis:</label>
-                    <div className="product-timeline">
-                      {productsLeft.map((prod) => (
-                        <button
-                          key={prod.name}
-                          type="button"
-                          className={
-                            'btn btn-outline-primary me-2 mt-2 ' +
-                            (selectedProductLeft && selectedProductLeft.name === prod.name ? 'active' : '')
-                          }
-                          onClick={() => handleProductSelectionLeft(prod)}
-                        >
-                          {new Date(prod.datetime).getFullYear()}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ width: '50%' }}>
-                <h5>Produto Direito</h5>
-                <select
-                  name="productTypeRight"
-                  className="form-control"
-                  value={productTypeRight}
-                  onChange={handleProductTypeChangeRight}
-                >
-                  <option value="">Selecione o tipo</option>
-                  <option value="Ortofoto">Ortofoto</option>
-                  <option value="Planta">Planta</option>
-                  <option value="Classificados">Classificados</option>
-                </select>
-                {productsRight.length > 0 && (
-                  <div className="form-group mt-3">
-                    <label>Anos Disponíveis:</label>
-                    <div className="product-timeline">
-                      {productsRight.map((prod) => (
-                        <button
-                          key={prod.name}
-                          type="button"
-                          className={
-                            'btn btn-outline-primary me-2 mt-2 ' +
-                            (selectedProductRight && selectedProductRight.name === prod.name ? 'active' : '')
-                          }
-                          onClick={() => handleProductSelectionRight(prod)}
-                        >
-                          {new Date(prod.datetime).getFullYear()}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+          {/* Dropdowns para seleção de produtos na comparação */}
+          <div className="row mt-3">
+            <div className="col-md-6">
+              <label>Produto Esquerdo:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={availableProducts.map((prod) => ({
+                  value: prod,
+                  label: prod.label || prod.name,
+                }))}
+                value={
+                  selectedProductLeft
+                    ? { value: selectedProductLeft, label: selectedProductLeft.label || selectedProductLeft.name }
+                    : null
+                }
+                onChange={(option) => setSelectedProductLeft(option.value)}
+                placeholder="Selecione o produto"
+              />
+            </div>
+            <div className="col-md-6">
+              <label>Produto Direito:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={availableProducts.map((prod) => ({
+                  value: prod,
+                  label: prod.label || prod.name,
+                }))}
+                value={
+                  selectedProductRight
+                    ? { value: selectedProductRight, label: selectedProductRight.label || selectedProductRight.name }
+                    : null
+                }
+                onChange={(option) => setSelectedProductRight(option.value)}
+                placeholder="Selecione o produto"
+              />
             </div>
           </div>
 
-          {/* Coordenadas */}
+          {/* Botões de ano em duas colunas */}
+          <div className="row mt-3">
+            <div className="col-md-6">
+              {leftShowYearButtons && leftYearOptions.length > 0 && (
+                <div className="form-group">
+                  <label>Anos Disponíveis:</label>
+                  <div className="product-timeline">
+                    {leftYearOptions.sort((a, b) => a - b).map((year) => (
+                      <button
+                        key={year}
+                        type="button"
+                        className={leftSelectedYear === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                        onClick={() => handleComparisonYearChange('left', year)}
+                      >
+                        {year}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6">
+              {rightShowYearButtons && rightYearOptions.length > 0 && (
+                <div className="form-group">
+                  <label>Anos Disponíveis:</label>
+                  <div className="product-timeline">
+                    {rightYearOptions.sort((a, b) => a - b).map((year) => (
+                      <button
+                        key={year}
+                        type="button"
+                        className={rightSelectedYear === year ? "btn btn-primary me-2 mt-2" : "btn btn-outline-primary me-2 mt-2"}
+                        onClick={() => handleComparisonYearChange('right', year)}
+                      >
+                        {year}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Se os produtos já foram selecionados mas os botões ainda não foram inicializados, executa a extração */}
+          {selectedProductLeft && !leftShowYearButtons && (() => {
+            let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
+            leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
+            if (formData.dataInicio && formData.dataFim) {
+              const startYear = new Date(formData.dataInicio).getFullYear();
+              const endYear = new Date(formData.dataFim).getFullYear();
+              leftYears = leftYears.filter(year => year >= startYear && year <= endYear);
+            }
+            if (leftYears.length > 0) {
+              setLeftYearOptions(leftYears);
+              setLeftShowYearButtons(true);
+            }
+            return null;
+          })()}
+
+          {selectedProductRight && !rightShowYearButtons && (() => {
+            let rightYears = selectedProductRight.datetime.map(d => new Date(d).getFullYear());
+            rightYears = Array.from(new Set(rightYears)).sort((a, b) => a - b);
+            if (formData.dataInicio && formData.dataFim) {
+              const startYear = new Date(formData.dataInicio).getFullYear();
+              const endYear = new Date(formData.dataFim).getFullYear();
+              rightYears = rightYears.filter(year => year >= startYear && year <= endYear);
+            }
+            if (rightYears.length > 0) {
+              setRightYearOptions(rightYears);
+              setRightShowYearButtons(true);
+            }
+            return null;
+          })()}
+
+          {/* Campos de coordenadas para Comparison */}
           <div className="form-group mt-4">
             <label>Coordenadas Selecionadas:</label>
             <div className="row">
@@ -1055,13 +920,6 @@ const WMSForm = ({
                 />
               </div>
             </div>
-          </div>
-
-          {/* Botão de ação (Comparison) */}
-          <div className="mt-3">
-            <button type="submit" className="btn btn-primary">
-              Fazer Requisição
-            </button>
           </div>
         </>
       )}

@@ -3,6 +3,7 @@ import requests
 import xml.etree.ElementTree as ET
 import rasterio
 from io import BytesIO
+import yaml
 
 
 def get_available_products_with_metadata(wcs_url):
@@ -76,18 +77,34 @@ def get_products(wcs_url, product_prefix):
     for product in all_products:
         if product['name'].startswith(product_prefix):
             products.append(product)
-    return products
+    return all_products
 
 def get_coverage_datetime(wcs_url, coverage_name):
+    """
+    Obtém todos os períodos (datetimes) disponíveis para uma cobertura no serviço WCS.
+    
+    Parâmetros:
+    - wcs_url (str): URL base do serviço WCS.
+    - coverage_name (str): Nome da cobertura desejada.
+    
+    Retorna:
+    - Uma lista de strings com as datas disponíveis. Caso não encontre, retorna uma lista vazia.
+    """
+    
     params = {
         'SERVICE': 'WCS',
-        'VERSION': '1.0.0',
+        'VERSION': '1.0.0',  # Pode precisar ajustar para 1.1.0 ou 2.0.1 dependendo do servidor
         'REQUEST': 'DescribeCoverage',
         'COVERAGE': coverage_name
     }
-    response = requests.get(wcs_url, params=params)
-    if response.status_code == 200:
+    
+    try:
+        response = requests.get(wcs_url, params=params, timeout=10)
+        response.raise_for_status()  # Lança erro para códigos HTTP 4xx ou 5xx
+        
         root = ET.fromstring(response.content)
+
+        # Namespaces comuns em WCS (pode ser necessário ajustar conforme o serviço)
         ns = {
             'wcs': 'http://www.opengis.net/wcs',
             'gml': 'http://www.opengis.net/gml',
@@ -95,37 +112,42 @@ def get_coverage_datetime(wcs_url, coverage_name):
             'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
         }
 
-        # Tenta encontrar o elemento que contém o datetime
-        datetime_value = None
-
-        # Tenta extrair de um elemento 'timePosition'
+        # Busca todas as ocorrências de timePosition
         time_positions = root.findall('.//gml:timePosition', ns)
-        if time_positions:
-            datetime_value = time_positions[0].text.strip()
-            return datetime_value
+        datetimes = set()  # Usando um conjunto para evitar duplicatas
+        for tp in time_positions:
+            if tp.text and tp.text.strip():
+                datetimes.add(tp.text.strip())
 
-        # Se não encontrar, tente acessar metadados personalizados
-        metadata_links = root.findall('.//wcs:metadataLink', ns)
-        for metadata_link in metadata_links:
-            href = metadata_link.get('{http://www.w3.org/1999/xlink}href')
-            if href:
-                metadata_response = requests.get(href)
-                if metadata_response.status_code == 200:
-                    try:
-                        metadata_content = metadata_response.content.decode('utf-8')
-                        # Assume que o metadado está em formato YAML
-                        import yaml
-                        metadata_dict = yaml.safe_load(metadata_content)
-                        datetime_value = metadata_dict.get('properties', {}).get('datetime')
-                        if datetime_value:
-                            return datetime_value
-                    except Exception as e:
-                        print(f"Erro ao analisar metadados: {e}")
-                        continue
+        # Se não encontrar `timePosition`, tenta buscar em metadados personalizados
+        if not datetimes:
+            metadata_links = root.findall('.//wcs:metadataLink', ns)
+            for metadata_link in metadata_links:
+                href = metadata_link.get('{http://www.w3.org/1999/xlink}href')
+                if href:
+                    metadata_response = requests.get(href, timeout=10)
+                    if metadata_response.status_code == 200:
+                        try:
+                            metadata_content = metadata_response.content.decode('utf-8')
+                            metadata_dict = yaml.safe_load(metadata_content)
+                            datetime_value = metadata_dict.get('properties', {}).get('datetime')
 
-        return None
-    else:
-        raise Exception(f"Falha ao obter DescribeCoverage para {coverage_name}. Código HTTP: {response.status_code}")
+                            if datetime_value:
+                                if isinstance(datetime_value, list):
+                                    datetimes.update(datetime_value)
+                                else:
+                                    datetimes.add(datetime_value)
+                        except Exception as e:
+                            print(f"Erro ao analisar metadados: {e}")
+
+        return list(datetimes)  # Converte o conjunto de volta para uma lista
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o WCS: {e}")
+        return []
+    except ET.ParseError as e:
+        print(f"Erro ao parsear XML da resposta WCS: {e}")
+        return []
 
 def get_layer_resolution(wcs_url, layer):
     params = {

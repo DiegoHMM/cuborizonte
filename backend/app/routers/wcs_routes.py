@@ -27,7 +27,7 @@ def api_get_pixel_class(coords: Coordinates):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/get_products")
-def api_get_products(product_prefix: str = Query(..., description="Prefixo do produto")):
+def api_get_products(product_prefix: str = Query("", description="Prefixo do produto")):
     try:
         wcs_url = f"{ows_url}"
         return get_products(wcs_url, product_prefix)

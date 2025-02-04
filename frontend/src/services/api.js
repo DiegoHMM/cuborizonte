@@ -36,7 +36,7 @@ export const getPixelValues = async (latitude, longitude) => {
 
 
 
-export const get_products = async (product_prefix) => {
+export const get_products = async (product_prefix = '') => {
     const response = await fetch(`${baseApiURL}/get_products?product_prefix=${product_prefix}`, {
         method: 'POST',
         headers: {

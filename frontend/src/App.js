@@ -7,30 +7,24 @@ import PixelChart from './components/PixelChart';
 import './styles/App.css';
 
 function App() {
-  // Bounding box desenhado no mapa ou selecionado via área
+  // Bounding box desenhado ou selecionado
   const [boundingBox, setBoundingBox] = useState(null);
 
   // Modo de visualização: single ou comparison
   const [viewMode, setViewMode] = useState('single');
 
-  // Dados de WMS para visualização única (objeto único)
+  // Dados para camada single
   const [wmsData, setWmsData] = useState(null);
-
-  // Dados de WMS para comparação lado a lado
+  // Dados para camada comparison
   const [wmsDataLeft, setWmsDataLeft] = useState(null);
   const [wmsDataRight, setWmsDataRight] = useState(null);
 
-  // Estado para selecionar um pixel no mapa
+  // Estados de seleção de pixel e retângulo (não alterados)
   const [selectingPixel, setSelectingPixel] = useState(false);
   const [pixelData, setPixelData] = useState(null);
-
-  // Estado para selecionar um retângulo no mapa (Leaflet Draw)
   const [selectingRectangle, setSelectingRectangle] = useState(false);
+  const [selectionMode, setSelectionMode] = useState('area');
 
-  // Estado para controlar o modo de seleção: 'area' ou 'rectangle'
-  const [selectionMode, setSelectionMode] = useState('area'); // 'area' ou 'rectangle'
-
-  // Referência para o MapComponent
   const mapComponentRef = useRef();
 
   useEffect(() => {
@@ -43,15 +37,13 @@ function App() {
     console.log("wmsDataRight:", wmsDataRight);
   }, [wmsData, wmsDataLeft, wmsDataRight]);
 
-  // Função para limpar o retângulo desenhado no mapa
   const handleClearRectangle = () => {
     if (mapComponentRef.current) {
       mapComponentRef.current.clearDrawnLayers();
-      setBoundingBox(null); // Opcional: limpar o boundingBox do estado
+      setBoundingBox(null);
     }
   };
 
-  // Chamado quando o retângulo é desenhado no mapa ou área é selecionada
   const handleBoundingBoxSelected = (bbox) => {
     if (bbox) {
       console.log("Bounding box selecionada:", bbox);
@@ -63,13 +55,10 @@ function App() {
   };
 
   const handleMapClick = () => {
-    // Limpa dados de pixel se existirem
-    if (pixelData) {
-      setPixelData(null);
-    }
+    if (pixelData) setPixelData(null);
   };
 
-  // Chamado ao enviar o formulário
+  // Essa função é chamada tanto na submissão inicial quanto via atualização imediata
   const handleFormSubmit = (formData) => {
     console.log("Dados do formulário recebidos:", formData);
     setViewMode(formData.viewMode);
@@ -81,20 +70,21 @@ function App() {
         longitudeInicial: parseFloat(formData.longitudeInicial),
         latitudeFinal: parseFloat(formData.latitudeFinal),
         longitudeFinal: parseFloat(formData.longitudeFinal),
+        year: formData.year, // valor único para single
       };
-      console.log("Configurando dados da camada WMS:", wmsLayerData);
-      
-      // Substitui camadas anteriores com a nova camada
+      console.log("Configurando camada WMS (single):", wmsLayerData);
       setWmsData(wmsLayerData);
       setWmsDataLeft(null);
       setWmsDataRight(null);
     } else if (formData.viewMode === 'comparison') {
+      // Para comparação, usamos yearLeft e yearRight (cada lado pode ser atualizado separadamente)
       const wmsLayerDataLeft = {
         layer: formData.layerLeft,
         latitudeInicial: parseFloat(formData.latitudeInicial),
         longitudeInicial: parseFloat(formData.longitudeInicial),
         latitudeFinal: parseFloat(formData.latitudeFinal),
         longitudeFinal: parseFloat(formData.longitudeFinal),
+        year: formData.yearLeft, // valor para o lado esquerdo
       };
 
       const wmsLayerDataRight = {
@@ -103,27 +93,21 @@ function App() {
         longitudeInicial: parseFloat(formData.longitudeInicial),
         latitudeFinal: parseFloat(formData.latitudeFinal),
         longitudeFinal: parseFloat(formData.longitudeFinal),
+        year: formData.yearRight, // valor para o lado direito
       };
 
-      console.log("Configurando dados das camadas WMS:", wmsLayerDataLeft, wmsLayerDataRight);
-      
-      // Substitui camadas anteriores com as novas camadas de comparação
-      setWmsData(null); // Limpa a camada single
+      console.log("Configurando camadas WMS (comparison):", wmsLayerDataLeft, wmsLayerDataRight);
+      setWmsData(null);
       setWmsDataLeft(wmsLayerDataLeft);
       setWmsDataRight(wmsLayerDataRight);
     }
-
-    // Opcional: Resetar boundingBox após submissão
-    // setBoundingBox(null);
   };
 
-  // Chamado ao clicar em "Selecionar Ponto" no formulário
   const handleSelectPixel = () => {
     setSelectingPixel(true);
     setPixelData(null);
   };
 
-  // Chamado quando um pixel é clicado no mapa
   const handlePixelSelected = (data) => {
     setPixelData(data);
     setSelectingPixel(false);
@@ -133,7 +117,7 @@ function App() {
     <div>
       <Header />
 
-      {/* Formulário que controla as requisições WMS */}
+      {/* O formulário recebe handleFormSubmit como onSubmit */}
       <WMSForm
         boundingBox={boundingBox}
         selectingRectangle={selectingRectangle}
@@ -143,32 +127,25 @@ function App() {
         selectionMode={selectionMode}
         setSelectionMode={setSelectionMode}
         onBoundingBoxSelected={handleBoundingBoxSelected}
-        onClearRectangle={handleClearRectangle} // Passa a função para limpar o retângulo
+        onClearRectangle={handleClearRectangle}
       />
 
       <div className="map-container">
         <MapComponent
-          ref={mapComponentRef} // Adiciona a referência ao MapComponent
+          ref={mapComponentRef}
           viewMode={viewMode}
           wmsData={wmsData}
           wmsDataLeft={wmsDataLeft}
           wmsDataRight={wmsDataRight}
-
-          // Passamos o estado de seleção de retângulo e o modo de seleção
           selectingRectangle={selectingRectangle}
           setSelectingRectangle={setSelectingRectangle}
           selectionMode={selectionMode}
           onBoundingBoxSelected={handleBoundingBoxSelected}
-
-          // Passamos o estado de seleção de pixel
           selectingPixel={selectingPixel}
           onPixelSelected={handlePixelSelected}
-
-          // Clique geral no mapa
           onMapClick={handleMapClick}
         />
 
-        {/* Se houver dados de pixel, mostra um chart ou algo do tipo */}
         {pixelData && (
           <div className="chart-overlay">
             <PixelChart data={pixelData} />
