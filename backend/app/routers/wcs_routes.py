@@ -1,8 +1,8 @@
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from app.models import Coordinates
 from app.utils.transform import transform_coordinates
-from app.utils.wcs import get_layer_resolution, get_pixel_class, get_classified_products, get_ortho_products, get_plans_products
+from app.utils.wcs import get_layer_resolution, get_pixel_class,  get_products
 
 ows_url = os.getenv('OWS_URL', 'http://localhost:8000')
 
@@ -14,41 +14,51 @@ def api_get_pixel_class(coords: Coordinates):
     try:
         pixel_classes = []
         x, y = transform_coordinates(coords.latitude, coords.longitude)
-        wcs_url = f"{ows_url}"
-        #get products
-        products = get_classified_products(wcs_url)
 
+        wcs_url = f"{ows_url}"
+
+        # Obtém os produtos
+        products = get_products(wcs_url, 'bh_class')
+
+        # Para cada produto retornado
         for product in products:
-            resolution = get_layer_resolution(wcs_url, product.get('name'))
-            pixel_class = get_pixel_class(coords.latitude, coords.longitude, product.get('name'), x, y, resolution, wcs_url)
-            pixel_classes.append({'product': product.get('name'), 'class': pixel_class, 'date_time': product.get('datetime')})
+            # Ajuste aqui:
+            product_name = product.get('name')       # era 'product'
+            date_times   = product.get('datetime', [])  # era 'date_time'
+
+            # Obtenha a resolução
+            resolution = get_layer_resolution(wcs_url, product_name)
+
+            # Iterar sobre cada data
+            for dt in date_times:
+                pixel_class = get_pixel_class(
+                    coords.latitude,
+                    coords.longitude,
+                    product_name, 
+                    x, y, 
+                    resolution, 
+                    wcs_url,
+                    dt  # passamos a data para a função
+                )
+
+                # Adiciona ao resultado
+                pixel_classes.append({
+                    'product': product_name,
+                    'class': pixel_class,
+                    'date_time': dt
+                })
         return pixel_classes
+
     except Exception as e:
+        print(f"[ERROR] Ocorreu um erro em api_get_pixel_class: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/get_classified_products")
-def api_get_classified_products():
-    try:
-        wcs_url = f"{ows_url}"
-        return get_classified_products(wcs_url)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    
 
-@router.post("/get_ortho_products")
-def api_get_ortho_products():
+@router.post("/get_products")
+def api_get_products(product_prefix: str = Query("", description="Prefixo do produto")):
     try:
         wcs_url = f"{ows_url}"
-        return get_ortho_products(wcs_url)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    
-
-@router.post("/get_plan_products")
-def api_get_plan_products():
-    try:
-        wcs_url = f"{ows_url}"
-        return get_plans_products(wcs_url)
+        return get_products(wcs_url, product_prefix)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

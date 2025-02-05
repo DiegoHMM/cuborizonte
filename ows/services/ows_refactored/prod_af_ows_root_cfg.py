@@ -115,111 +115,31 @@ ows_cfg = {
             "abstract": "Cuborizonte OGC Web Services",
             "layers": [
                  {
-                    "title": "Planta da cidade de Belo Horizonte - MG - 1942",
+                    "title": "Planta da cidade de Belo Horizonte.",
                     "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.planta.bh_planta_1942_cfg.layer",
+                                    "include": "ows_refactored.planta.bh_planta_cfg.layer",
                                     "type": "python",
                                 },
                     ],
                 },
                 {
-                    "title": "Planta da cidade de Belo Horizonte - MG - 1972",
-                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.planta.bh_planta_1972_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Planta da cidade de Belo Horizonte - MG - 1989",
-                    "abstract": "Coleção das plantas de alta resolução da cidade Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.planta.bh_planta_1989_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 1989",
+                    "title": "Imagens Aéreas de Belo Horizonte - MG.",
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_1989_cfg.layer",
+                                    "include": "ows_refactored.ortophoto.bh_ortophoto_cfg.layer",
                                     "type": "python",
                                 },
                     ],
                 },
                 {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 1994",
-                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_1994_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 1999",
-                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_1999_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2007",
-                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2007_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Imagens Aéreas de Belo Horizonte - MG - 2015",
-                    "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.ortophoto.bh_ortophoto_2015_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 1999",
+                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG.",
                     "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.class_layers.bh_classes_1999_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 2007",
-                    "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.class_layers.bh_classes_2007_cfg.layer",
-                                    "type": "python",
-                                },
-                    ],
-                },
-                {
-                    "title": "Máscaras de segmentação semantica de Belo Horizonte - MG - 2015",
-                    "abstract": "Coleção de máscaras com as classes de vegetação, edificações e background de Belo Horizonte, Minas Gerais",
-                    "layers": [
-                                {
-                                    "include": "ows_refactored.class_layers.bh_classes_2015_cfg.layer",
+                                    "include": "ows_refactored.class_layers.bh_classes_cfg.layer",
                                     "type": "python",
                                 },
                     ],

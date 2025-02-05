@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from datacube import Datacube
 import logging
+from typing import List, Tuple
 
 router = APIRouter()
 
@@ -11,14 +12,13 @@ def get_datacube():
 
 # Modelo da requisição
 class MultiCubeRequest(BaseModel):
-    products: list[str]  # Lista de produtos
-    x_min: float         # Coordenada mínima X
-    x_max: float         # Coordenada máxima X
-    y_min: float         # Coordenada mínima Y
-    y_max: float         # Coordenada máxima Y
-    time: tuple[str, str]  # Intervalo de tempo (início, fim)
-    resolution: float    # Resolução espacial
-    measurements: list[str]
+    products: List[str]                  # Lista de produtos
+    x: Tuple[float, float]               # Coordenadas X (min, max)
+    y: Tuple[float, float]               # Coordenadas Y (min, max)
+    time: Tuple[str, str]                # Intervalo de tempo (início, fim)
+    resolution: float                    # Resolução espacial
+    measurements: List[str]
+    output_crs: str  
 
 @router.post("/generate_cube_multiple")
 def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depends(get_datacube)):
@@ -30,13 +30,14 @@ def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depend
 
         # Parâmetros comuns da consulta
         query = {
-            "x": (request.x_min, request.x_max),
-            "y": (request.y_min, request.y_max),
+            "x": (request.x[0], request.x[1]),
+            "y": (request.y[0], request.y[1]),
             "time": (request.time[0], request.time[1]),
             "measurements": request.measurements,
             "resolution": (-request.resolution, request.resolution),
+            "output_crs": request.output_crs,  # Adicionado para especificar o CRS de saída
             "like": None,  # optional reference
-            "dask_chunks": {"x": 512, "y": 512}  # added for chunking
+            "dask_chunks": {"x": 512, "y": 512}  # adicionado para chunking
         }
 
         # Iterar sobre os produtos e carregar dados
@@ -55,3 +56,4 @@ def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depend
         return {"status": "success", "data": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar cubo de dados: {str(e)}")
+

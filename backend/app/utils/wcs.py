@@ -3,6 +3,7 @@ import requests
 import xml.etree.ElementTree as ET
 import rasterio
 from io import BytesIO
+import yaml
 
 
 def get_available_products_with_metadata(wcs_url):
@@ -70,40 +71,40 @@ def get_available_products_with_metadata(wcs_url):
         # Trata erros na requisição
         raise Exception(f"Falha ao obter as capacidades do serviço WCS. Código HTTP: {response.status_code}")
 
-def get_plans_products(wcs_url):
+def get_products(wcs_url, product_prefix):
     all_products = get_available_products_with_metadata(wcs_url)
-    plans_products = []
+    products = []
     for product in all_products:
-        if product['name'].startswith('bh_planta_'):
-            plans_products.append(product)
-    return plans_products
-
-def get_ortho_products(wcs_url):
-    all_products = get_available_products_with_metadata(wcs_url)
-    ortho_products = []
-    for product in all_products:
-        if product['name'].startswith('bh_ortophoto'):
-            ortho_products.append(product)
-    return ortho_products
-
-def get_classified_products(wcs_url):
-    all_products = get_available_products_with_metadata(wcs_url)
-    classified_products = []
-    for product in all_products:
-        if product['name'].startswith('bh_class'):
-            classified_products.append(product)
-    return classified_products
+        if product['name'].startswith(product_prefix):
+            products.append(product)
+    return products
 
 def get_coverage_datetime(wcs_url, coverage_name):
+    """
+    Obtém todos os períodos (datetimes) disponíveis para uma cobertura no serviço WCS.
+    
+    Parâmetros:
+    - wcs_url (str): URL base do serviço WCS.
+    - coverage_name (str): Nome da cobertura desejada.
+    
+    Retorna:
+    - Uma lista de strings com as datas disponíveis. Caso não encontre, retorna uma lista vazia.
+    """
+    
     params = {
         'SERVICE': 'WCS',
-        'VERSION': '1.0.0',
+        'VERSION': '1.0.0',  # Pode precisar ajustar para 1.1.0 ou 2.0.1 dependendo do servidor
         'REQUEST': 'DescribeCoverage',
         'COVERAGE': coverage_name
     }
-    response = requests.get(wcs_url, params=params)
-    if response.status_code == 200:
+    
+    try:
+        response = requests.get(wcs_url, params=params, timeout=10)
+        response.raise_for_status()  # Lança erro para códigos HTTP 4xx ou 5xx
+        
         root = ET.fromstring(response.content)
+
+        # Namespaces comuns em WCS (pode ser necessário ajustar conforme o serviço)
         ns = {
             'wcs': 'http://www.opengis.net/wcs',
             'gml': 'http://www.opengis.net/gml',
@@ -111,37 +112,42 @@ def get_coverage_datetime(wcs_url, coverage_name):
             'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
         }
 
-        # Tenta encontrar o elemento que contém o datetime
-        datetime_value = None
-
-        # Tenta extrair de um elemento 'timePosition'
+        # Busca todas as ocorrências de timePosition
         time_positions = root.findall('.//gml:timePosition', ns)
-        if time_positions:
-            datetime_value = time_positions[0].text.strip()
-            return datetime_value
+        datetimes = set()  # Usando um conjunto para evitar duplicatas
+        for tp in time_positions:
+            if tp.text and tp.text.strip():
+                datetimes.add(tp.text.strip())
 
-        # Se não encontrar, tente acessar metadados personalizados
-        metadata_links = root.findall('.//wcs:metadataLink', ns)
-        for metadata_link in metadata_links:
-            href = metadata_link.get('{http://www.w3.org/1999/xlink}href')
-            if href:
-                metadata_response = requests.get(href)
-                if metadata_response.status_code == 200:
-                    try:
-                        metadata_content = metadata_response.content.decode('utf-8')
-                        # Assume que o metadado está em formato YAML
-                        import yaml
-                        metadata_dict = yaml.safe_load(metadata_content)
-                        datetime_value = metadata_dict.get('properties', {}).get('datetime')
-                        if datetime_value:
-                            return datetime_value
-                    except Exception as e:
-                        print(f"Erro ao analisar metadados: {e}")
-                        continue
+        # Se não encontrar `timePosition`, tenta buscar em metadados personalizados
+        if not datetimes:
+            metadata_links = root.findall('.//wcs:metadataLink', ns)
+            for metadata_link in metadata_links:
+                href = metadata_link.get('{http://www.w3.org/1999/xlink}href')
+                if href:
+                    metadata_response = requests.get(href, timeout=10)
+                    if metadata_response.status_code == 200:
+                        try:
+                            metadata_content = metadata_response.content.decode('utf-8')
+                            metadata_dict = yaml.safe_load(metadata_content)
+                            datetime_value = metadata_dict.get('properties', {}).get('datetime')
 
-        return None
-    else:
-        raise Exception(f"Falha ao obter DescribeCoverage para {coverage_name}. Código HTTP: {response.status_code}")
+                            if datetime_value:
+                                if isinstance(datetime_value, list):
+                                    datetimes.update(datetime_value)
+                                else:
+                                    datetimes.add(datetime_value)
+                        except Exception as e:
+                            print(f"Erro ao analisar metadados: {e}")
+
+        return list(datetimes)  # Converte o conjunto de volta para uma lista
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o WCS: {e}")
+        return []
+    except ET.ParseError as e:
+        print(f"Erro ao parsear XML da resposta WCS: {e}")
+        return []
 
 def get_layer_resolution(wcs_url, layer):
     params = {
@@ -171,18 +177,19 @@ def get_layer_resolution(wcs_url, layer):
         print(response.content)
         raise Exception(f"Falha ao obter a resolução da camada {layer}. Código HTTP: {response.status_code}")
 
-def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url):
+def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
     half_pixel = resolution / 2
     minx = x - half_pixel
     maxx = x + half_pixel
     miny = y - half_pixel
     maxy = y + half_pixel
 
+    # Monta parâmetros de GetCoverage.
     params = {
         'SERVICE': 'WCS',
         'VERSION': '1.0.0',
         'REQUEST': 'GetCoverage',
-        'COVERAGE': product,
+        'COVERAGE': product,  # "bh_class_layer"
         'CRS': 'EPSG:31983',
         'BBOX': f'{minx},{miny},{maxx},{maxy}',
         'WIDTH': '1',
@@ -190,20 +197,26 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url):
         'FORMAT': 'GeoTIFF'
     }
 
+    if dt:
+        # Caso seu servidor use TIME=, time= ou outro nome de parâmetro:
+        params['TIME'] = dt
+
+
     response = requests.get(wcs_url, params=params)
 
     if response.status_code == 200:
+        # Converte o conteúdo em um objeto de arquivo para abrir com rasterio
         with rasterio.open(BytesIO(response.content)) as dataset:
-            #print metadata
             print(dataset.profile)
 
             for idx in range(1, dataset.count + 1):
                 band = dataset.read(idx)
                 value = band[0, 0]
-                
-                # Convertendo para tipos nativos de Python
+
+                # Converte para tipo nativo de Python
                 value = int(value) if isinstance(value, np.integer) else float(value)
 
+                # Exemplo de classificação simples
                 if idx == 1 and value == 255:
                     return 'Vegetation'
                 elif idx == 2 and value == 255:
@@ -213,4 +226,6 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url):
 
         return 'no_data'
     else:
-        raise Exception(f"Falha ao obter o valor do pixel. Código HTTP: {response.status_code}")
+        error_msg = f"Falha ao obter o valor do pixel. Código HTTP: {response.status_code}"
+        print(f"[ERROR] {error_msg}")
+        raise Exception(error_msg)

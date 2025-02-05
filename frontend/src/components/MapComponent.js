@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+// MapComponent.js
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { MapContainer, TileLayer, FeatureGroup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -28,14 +29,14 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
 });
 
 // ----------- HOOK DE DESENHO DE RETÂNGULO -----------
-function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef) {
+function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle) {
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
     let rectangleDrawer;
 
-    if (selectingRectangle) {
+    if (selectingRectangle && selectionMode === 'rectangle') {
       // Criar e ativar o modo de desenho de retângulo
       rectangleDrawer = new L.Draw.Rectangle(map, {
         // Opções para o retângulo, se necessário
@@ -44,7 +45,7 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
       rectangleDrawer.enable();
 
       // Escuta evento de desenho finalizado
-      map.on(L.Draw.Event.CREATED, (e) => {
+      const onCreated = (e) => {
         const layer = e.layer;
         // Limpa retângulos anteriores e adiciona o novo ao FeatureGroup
         if (featureGroupRef.current) {
@@ -53,13 +54,19 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
         }
         // Captura bounding box
         const { _southWest, _northEast } = layer.getBounds();
-        onBoundingBoxSelected({
+        const newBoundingBox = {
           latitudeInicial: _southWest.lat,
           longitudeInicial: _southWest.lng,
           latitudeFinal: _northEast.lat,
           longitudeFinal: _northEast.lng,
-        });
-      });
+        };
+        onBoundingBoxSelected(newBoundingBox);
+        // Desativa o modo de desenho após a criação
+        setSelectingRectangle(false);
+        map.off(L.Draw.Event.CREATED, onCreated);
+      };
+
+      map.on(L.Draw.Event.CREATED, onCreated);
     }
 
     // Cleanup: desativa o modo de desenho e remove listener
@@ -69,13 +76,12 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
       }
       map.off(L.Draw.Event.CREATED);
     };
-  }, [map, selectingRectangle, onBoundingBoxSelected, featureGroupRef]);
+  }, [map, selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle]);
 }
 
-
 // ----------- COMPONENTE-FILHO QUE CHAMA useDrawRectangle -----------
-function DrawRectangleHandler({ selectingRectangle, onBoundingBoxSelected, featureGroupRef }) {
-  useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef);
+function DrawRectangleHandler({ selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle }) {
+  useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle);
   return null; // não renderiza nada
 }
 
@@ -120,24 +126,35 @@ const SingleLayer = ({ wmsData }) => {
         map.removeLayer(layerRef.current);
       }
 
-      // Define bounds do layer
+      // Define os bounds da camada
       const bounds = L.latLngBounds([
         [wmsData.latitudeInicial, wmsData.longitudeInicial],
         [wmsData.latitudeFinal, wmsData.longitudeFinal],
       ]);
 
-      // Cria a camada WMS
-      const layer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsData.product,
+      // Monta as opções para a camada WMS
+      const wmsOptions = {
+        layers: wmsData.layer, // 'layer' em vez de 'product'
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: bounds,
-      });
+      };
+
+      // Se houver ano selecionado, adiciona o parâmetro time no formato "YYYY-01-01/YYYY-12-31"
+      if (wmsData.year) {
+        wmsOptions.time = `${wmsData.year}-01-01/${wmsData.year}-12-31`;
+      }
+
+      // Cria a camada WMS com as opções atualizadas
+      const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
 
       layerRef.current = layer;
       layer.addTo(map);
+
+      // Ajusta a visualização do mapa para os bounds da camada
+      map.fitBounds(bounds);
 
       // Cleanup ao remover o componente
       return () => {
@@ -150,6 +167,8 @@ const SingleLayer = ({ wmsData }) => {
 
   return null;
 };
+
+
 
 // ----------- CAMADAS COMPARADAS LADO A LADO -----------
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
@@ -165,7 +184,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
       if (sideBySideRef.current) sideBySideRef.current.remove();
 
-      // Bounds de cada camada
+      // Define os bounds para cada camada
       const boundsLeft = L.latLngBounds([
         [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
         [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
@@ -175,23 +194,35 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
       ]);
 
-      // Cria camadas WMS
-      const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerLeft.product,
+      // Prepara as opções para a camada esquerda
+      const leftOptions = {
+        layers: wmsLayerLeft.layer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsLeft,
-      });
-      const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, {
-        layers: wmsLayerRight.product,
+      };
+      if (wmsLayerLeft.year) {
+        leftOptions.time = `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`;
+      }
+
+      // Prepara as opções para a camada direita
+      const rightOptions = {
+        layers: wmsLayerRight.layer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsRight,
-      });
+      };
+      if (wmsLayerRight.year) {
+        rightOptions.time = `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`;
+      }
+
+      // Cria as camadas WMS com as opções definidas
+      const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, leftOptions);
+      const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, rightOptions);
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
@@ -200,9 +231,13 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       leftLayer.addTo(map);
       rightLayer.addTo(map);
 
-      // Cria controle side-by-side
+      // Cria o controle side-by-side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
+
+      // Ajusta a visualização do mapa para os bounds combinados
+      const combinedBounds = boundsLeft.extend(boundsRight);
+      map.fitBounds(combinedBounds);
 
       // Cleanup
       return () => {
@@ -216,20 +251,32 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   return null;
 };
 
+
 // ----------- COMPONENTE PRINCIPAL -----------
-const MapComponent = ({
+const MapComponent = forwardRef(({
   viewMode,
   wmsData,
   wmsDataLeft,
   wmsDataRight,
   onBoundingBoxSelected,
   selectingRectangle,
+  setSelectingRectangle,
+  selectionMode,
   selectingPixel,
   onPixelSelected,
   onMapClick,
-}) => {
+}, ref) => {
   const mapRef = useRef(null);
   const featureGroupRef = useRef(null);
+
+  // Expor a função clearDrawnLayers para o componente pai
+  useImperativeHandle(ref, () => ({
+    clearDrawnLayers() {
+      if (featureGroupRef.current) {
+        featureGroupRef.current.clearLayers();
+      }
+    },
+  }));
 
   return (
     <MapContainer
@@ -266,14 +313,14 @@ const MapComponent = ({
         selectingRectangle={selectingRectangle}
         onBoundingBoxSelected={onBoundingBoxSelected}
         featureGroupRef={featureGroupRef}
+        selectionMode={selectionMode}
+        setSelectingRectangle={setSelectingRectangle}
       />
 
       {/* Renderização das camadas WMS (single ou comparison) */}
-      {viewMode === 'single' && wmsData.length > 0 && 
-        wmsData.map((layerData, index) => (
-          <SingleLayer key={index} wmsData={layerData} />
-        ))
-      }
+      {viewMode === 'single' && wmsData && (
+        <SingleLayer wmsData={wmsData} />
+      )}
       {viewMode === 'comparison' && wmsDataLeft && wmsDataRight && (
         <SideBySideLayers
           wmsLayerLeft={wmsDataLeft}
@@ -282,6 +329,6 @@ const MapComponent = ({
       )}
     </MapContainer>
   );
-};
+});
 
 export default MapComponent;
