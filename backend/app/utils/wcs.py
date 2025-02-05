@@ -73,6 +73,7 @@ def get_available_products_with_metadata(wcs_url):
 
 def get_products(wcs_url, product_prefix):
     all_products = get_available_products_with_metadata(wcs_url)
+    print("Produtos disponíveis:", all_products) 
     products = []
     for product in all_products:
         if product['name'].startswith(product_prefix):
