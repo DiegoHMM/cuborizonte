@@ -178,15 +178,11 @@ def get_layer_resolution(wcs_url, layer):
         raise Exception(f"Falha ao obter a resolução da camada {layer}. Código HTTP: {response.status_code}")
 
 def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
-    print("[DEBUG] Iniciando get_pixel_class...")
-    print(f"[DEBUG] Parâmetros recebidos: lat={lat}, lon={lon}, product={product}, dt={dt}")
     half_pixel = resolution / 2
     minx = x - half_pixel
     maxx = x + half_pixel
     miny = y - half_pixel
     maxy = y + half_pixel
-
-    print(f"[DEBUG] BBOX calculado: minx={minx}, miny={miny}, maxx={maxx}, maxy={maxy}")
 
     # Monta parâmetros de GetCoverage.
     params = {
@@ -205,15 +201,12 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
         # Caso seu servidor use TIME=, time= ou outro nome de parâmetro:
         params['TIME'] = dt
 
-    print(f"[DEBUG] Parâmetros da requisição WCS: {params}")
 
     response = requests.get(wcs_url, params=params)
-    print(f"[DEBUG] Código de status da resposta: {response.status_code}")
 
     if response.status_code == 200:
         # Converte o conteúdo em um objeto de arquivo para abrir com rasterio
         with rasterio.open(BytesIO(response.content)) as dataset:
-            print("[DEBUG] Metadados do dataset Rasterio:")
             print(dataset.profile)
 
             for idx in range(1, dataset.count + 1):
@@ -222,20 +215,15 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
 
                 # Converte para tipo nativo de Python
                 value = int(value) if isinstance(value, np.integer) else float(value)
-                print(f"[DEBUG] Band index: {idx}, Valor lido: {value}")
 
                 # Exemplo de classificação simples
                 if idx == 1 and value == 255:
-                    print("[DEBUG] Retornando 'Vegetation'")
                     return 'Vegetation'
                 elif idx == 2 and value == 255:
-                    print("[DEBUG] Retornando 'Building'")
                     return 'Building'
                 elif idx == 3 and value == 255:
-                    print("[DEBUG] Retornando 'Background'")
                     return 'Background'
 
-        print("[DEBUG] Nenhum valor correspondente encontrado, retornando 'no_data'")
         return 'no_data'
     else:
         error_msg = f"Falha ao obter o valor do pixel. Código HTTP: {response.status_code}"
