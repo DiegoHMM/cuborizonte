@@ -141,7 +141,9 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
         # If there's only one file, assume it's a 'gray' band
         gray_band_file = next(iter(band_files.values()))
         measurements = {
-            'gray': {'path': os.path.join(band_dir, gray_band_file)},
+            'red': {'path': os.path.join(band_dir, gray_band_file)},
+            'green': {'path': os.path.join(band_dir, gray_band_file)},
+            'blue': {'path': os.path.join(band_dir, gray_band_file)},
         }
     else:
         if band_names:

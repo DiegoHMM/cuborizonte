@@ -1,0 +1,36 @@
+$schema: https://schemas.opendatacube.org/dataset
+crs: EPSG:4326
+file_format: GeoTIFF
+grids:
+  default:
+    shape:
+    - 1376
+    - 1296
+    transform:
+    - 1.8191091805977412e-08
+    - -9.309988587992938e-06
+    - -43.93203910231996
+    - -9.309988587992938e-06
+    - -1.8191091805977412e-08
+    - -19.95850589402147
+    - 0.0
+    - 0.0
+    - 1.0
+id: 53c5317c-0e96-484e-af3d-2c947e43c082
+lineage: {}
+measurements:
+  gray:
+    path: /data/processed/ORTOFOTO_1989/466/grayscale.tif
+product:
+  name: bh_ortophoto_1989
+properties:
+  bounds:
+    latitude:
+      end: -19.95850589402147
+      start: -19.970596670173833
+    longitude:
+      end: -43.93201552666498
+      start: -43.94484964661704
+  datetime: '1989-07-02T00:00:00.000Z'
+  dtr:end_datetime: '1989-12-31T00:00:00.000Z'
+  dtr:start_datetime: '1989-01-01T00:00:00.000Z'

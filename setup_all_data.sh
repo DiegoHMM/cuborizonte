@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Ortophoto
-#./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto 1989
+./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto 1989
 #./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto 1994
 #./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto 1999
 #./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto 2007
@@ -19,7 +19,7 @@
 
 #Ortophoto
 
-#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1989
+./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1989
 #./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1994
 #./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1999
 #./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2007
@@ -35,7 +35,7 @@
 #./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2007
 #./setup_datacube.sh Segmentacao bh_class_layer CLASSES_1999
 
-./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
+#./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
 #./setup_areas.sh REGIOES.geojson REGIAO
 
 

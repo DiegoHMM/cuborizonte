@@ -70,6 +70,8 @@
         - ./data:/data
       expose:
         - "5432"
+      ports:
+        - "5432:5432"
       restart: always
       networks:
         - shared_network
