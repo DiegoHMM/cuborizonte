@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgres
     command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload --root-path /api"
     ports:
       - "8004:8004"
     expose:
