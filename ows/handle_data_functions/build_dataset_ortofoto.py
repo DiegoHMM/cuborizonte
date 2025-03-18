@@ -124,7 +124,7 @@ def save_yaml(dataset, output_file):
     except Exception as e:
         print(f"Erro ao salvar o arquivo YAML: {e}")
 
-def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band_names=None):
+def build_dataset(tif_path, product_name, bands_path, start_date, end_date, base_url, band_names=None):
     crs = str(get_crs(tif_path))
     grid = get_grids(tif_path)
     bounding_box = calculate_bounding_box(tif_path)
@@ -141,9 +141,9 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
         # If there's only one file, assume it's a 'gray' band
         gray_band_file = next(iter(band_files.values()))
         measurements = {
-            'red': {'path': os.path.join(band_dir, gray_band_file)},
-            'green': {'path': os.path.join(band_dir, gray_band_file)},
-            'blue': {'path': os.path.join(band_dir, gray_band_file)},
+            'red': {'path': f"{base_url}{os.path.join(band_dir, gray_band_file)}"},
+            'green': {'path': f"{base_url}{os.path.join(band_dir, gray_band_file)}"},
+            'blue': {'path': f"{base_url}{os.path.join(band_dir, gray_band_file)}"},
         }
     else:
         if band_names:
@@ -153,7 +153,7 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
             # Map band names to files based on filenames
             for band_name in band_names:
                 if band_name in band_files:
-                    measurements[band_name] = {'path': os.path.join(band_dir, band_files[band_name])}
+                    measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_files[band_name])}"}
                 else:
                     raise ValueError(f"Band name '{band_name}' does not correspond to any file in {band_dir}")
         elif band_count == 3:
@@ -161,13 +161,13 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
             expected_bands = ['red', 'green', 'blue']
             for band_name in expected_bands:
                 if band_name in band_files:
-                    measurements[band_name] = {'path': os.path.join(band_dir, band_files[band_name])}
+                    measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_files[band_name])}"}
                 else:
                     raise ValueError(f"Expected band '{band_name}' not found in {band_dir}")
         else:
             # Map available bands (assuming file names correspond to band names)
             for band_name, band_file in band_files.items():
-                measurements[band_name] = {'path': os.path.join(band_dir, band_file)}
+                measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_file)}"}
 
     # Calcular a data média entre start_date e end_date
     start_datetime = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -194,7 +194,6 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, band
         'lineage': {},
     }, file_name
 
-
 if __name__ == '__main__':
     random.seed(42)
 
@@ -205,6 +204,7 @@ if __name__ == '__main__':
     parser.add_argument('product_name', help='Name of the product.')
     parser.add_argument('year', type=int, help='Year of the dataset.')
     parser.add_argument('--band-names', nargs='+', help='List of band names.', default=None)
+    parser.add_argument('--base-url', help='Base URL for the band paths.', required=True)
     args = parser.parse_args()
 
     bands_path = args.bands_path
@@ -212,6 +212,7 @@ if __name__ == '__main__':
     product_name = args.product_name
     year = args.year
     band_names = args.band_names
+    base_url = args.base_url
 
     all_files = os.listdir(photo_folder)
 
@@ -222,7 +223,7 @@ if __name__ == '__main__':
             start_date = format_date(year, 1, 1)
             end_date = format_date(year, 12, 31)
 
-            dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date, band_names)
+            dataset, file_name = build_dataset(tif_path, product_name, bands_path, start_date, end_date, base_url, band_names)
 
             save_yaml(dataset, os.path.join(bands_path, file_name, file_name + '.yaml'))
         except Exception as e:

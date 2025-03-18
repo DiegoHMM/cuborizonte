@@ -1,6 +1,6 @@
 anyio
 click
-datacube
+datacube<1.9
 fastapi
 h11
 httptools
