@@ -153,7 +153,7 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, base
             # Map band names to files based on filenames
             for band_name in band_names:
                 if band_name in band_files:
-                    measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_files[band_name])}"}
+                    measurements[band_name] = {'path': f"{base_url}{os.path.join(band_dir, band_files[band_name])}"}
                 else:
                     raise ValueError(f"Band name '{band_name}' does not correspond to any file in {band_dir}")
         elif band_count == 3:
@@ -161,13 +161,13 @@ def build_dataset(tif_path, product_name, bands_path, start_date, end_date, base
             expected_bands = ['red', 'green', 'blue']
             for band_name in expected_bands:
                 if band_name in band_files:
-                    measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_files[band_name])}"}
+                    measurements[band_name] = {'path': f"{base_url}{os.path.join(band_dir, band_files[band_name])}"}
                 else:
                     raise ValueError(f"Expected band '{band_name}' not found in {band_dir}")
         else:
             # Map available bands (assuming file names correspond to band names)
             for band_name, band_file in band_files.items():
-                measurements[band_name] = {'path': f"{base_url}/{os.path.join(band_dir, band_file)}"}
+                measurements[band_name] = {'path': f"{base_url}{os.path.join(band_dir, band_file)}"}
 
     # Calcular a data média entre start_date e end_date
     start_datetime = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S.%fZ')

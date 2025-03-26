@@ -22,8 +22,8 @@ services:
       - postgres
     command: >
       sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload --root-path /api"
-    ports:
-      - "8004:8004"
+    #ports:
+    #  - "8004:8004"
     expose:
       - "8004"
     networks:
@@ -37,9 +37,9 @@ services:
     mem_limit: 1g
     environment:
       ODC_DEFAULT_DB_HOSTNAME: postgres
-      ODC_DEFAULT_DB_USERNAME: postgres
+      ODC_DEFAULT_DB_USERNAME: cuborizonte_user
       ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
-      ODC_DEFAULT_DB_DATABASE: postgres
+      ODC_DEFAULT_DB_DATABASE: cuborizonte_db
       ODC_DEFAULT_DB_PORT: 5432
       PYTHONPATH: /env/config:/env/lib/python3.12/site-packages
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
@@ -53,7 +53,7 @@ services:
       - ./ows/handle_data_functions:/handle_data_functions
       - ./datacube.conf:/etc/datacube.conf
     ports:
-      - "8080:8080"  # Datacube Explorer
+      - "8001:8080"  # Datacube Explorer
       - "8000:8000"  # OWS
     depends_on:
       - postgres
@@ -72,9 +72,9 @@ services:
     image: postgis/postgis:12-2.5-alpine
     mem_limit: 1g
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: cuborizonte_db
       POSTGRES_PASSWORD: opendatacubepassword
-      POSTGRES_USER: postgres
+      POSTGRES_USER: cuborizonte_user
     volumes:
       - ./data:/data
     ports:

@@ -29,8 +29,12 @@ echo "Iniciando configurações do sistema..."
 docker-compose exec ows datacube -v system init
 
 # Dividir bandas e construir dataset
-#docker-compose exec ows python /handle_data_functions/divide_bands.py "/data/raw/${PASTA_DE_ORIGEM}" "/data/processed/${PASTA_DE_ORIGEM}" ${BAND_NAMES_FLAG}
-docker-compose exec ows python /handle_data_functions/build_dataset_ortofoto.py "/data/processed/${PASTA_DE_ORIGEM}" "/data/raw/${PASTA_DE_ORIGEM}" $NOME_DO_PRODUTO $ANO ${BAND_NAMES_FLAG} --base-url "http://localhost"
+docker-compose exec ows python /handle_data_functions/divide_bands.py "/data/raw/${PASTA_DE_ORIGEM}" "/data/processed/${PASTA_DE_ORIGEM}" ${BAND_NAMES_FLAG}
+docker-compose exec ows python /handle_data_functions/build_dataset_ortofoto.py \
+    "/data/processed/${PASTA_DE_ORIGEM}" \
+    "/data/raw/${PASTA_DE_ORIGEM}" \
+    $NOME_DO_PRODUTO $ANO ${BAND_NAMES_FLAG} \
+    --base-url "http://150.164.2.42"
 
 
 

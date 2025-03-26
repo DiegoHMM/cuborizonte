@@ -3,14 +3,14 @@
 #Ortophoto
 #./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto 1989
 #./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto 1994
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/ORTOFOTO_1999 bh_ortophoto 1999
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/ORTOFOTO_2007 bh_ortophoto 2007
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/ORTOFOTO_2015 bh_ortophoto 2015
+#./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto 1999
+#./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto 2007
+#./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto 2015
 
 # Plan
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/PLANTA_1942 bh_planta 1942
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/PLANTA_1972 bh_planta 1972
-#./process_raw_data.sh /mnt/d/Dissertacao/Dados/PLANTA_1989 bh_planta 1989
+#./process_raw_data.sh PLANTA_1942 bh_planta 1942
+#./process_raw_data.sh PLANTA_1972 bh_planta 1972
+#./process_raw_data.sh PLANTA_1989 bh_planta 1989
 
 # Masks
 #./process_raw_data.sh CLASSES_2015 bh_class_layer 2015 vegetation building background
