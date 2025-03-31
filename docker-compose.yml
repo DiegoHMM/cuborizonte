@@ -1,11 +1,11 @@
-version: '3.8'
-
 services:
+
   frontend:
     build:
-      context: frontend/.
-      dockerfile: Dockerfile-dev
-    command: sh -c "npm run start -- --port=3000 --host"
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
     networks:
       - shared_network
 
@@ -14,23 +14,21 @@ services:
       context: ./backend
     volumes:
       - ./backend:/app
+      - ./datacube.conf:/etc/datacube.conf
       - ./data:/data
     environment:
       OWS_URL: http://ows:8000
+      DATACUBE_CONFIG: /etc/datacube.conf
     restart: always
     depends_on:
       - postgres
     command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload --root-path /api"
-    #ports:
-    #  - "8004:8004"
-    expose:
-      - "8004"
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
     networks:
       - shared_network
 
   ows:
-    image: opendatacube/opendatacube:latest
+    image: opendatacube/ows:1.8.0-rc1
     build:
       context: ./ows
       dockerfile: Dockerfile
@@ -41,9 +39,15 @@ services:
       ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
       ODC_DEFAULT_DB_DATABASE: cuborizonte_db
       ODC_DEFAULT_DB_PORT: 5432
-      PYTHONPATH: /env/config:/env/lib/python3.12/site-packages
+      PYTHONPATH: /env/config
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
       ODC_CONFIG_PATH: /etc/datacube.conf
+      CUBEDASH_URL_PREFIX: /cuborizonte/data-explorer/
+    ports:
+      - "8080:8080"  # Datacube Explorer
+      - "8000:8000" 
+    depends_on:
+      - postgres
     volumes:
       - ./data:/data
       - ./ows/products:/env/products
@@ -52,21 +56,16 @@ services:
       - ./ows/output:/env/config/output/
       - ./ows/handle_data_functions:/handle_data_functions
       - ./datacube.conf:/etc/datacube.conf
-    ports:
-      - "8001:8080"  # Datacube Explorer
-      - "8000:8000"  # OWS
-    depends_on:
-      - postgres
     networks:
       - shared_network
     command: >
       sh -c "
-        sleep 10 &&
+        sleep 30 &&
         datacube system init &&
         cubedash-gen --init --all &&
         gunicorn -b 0.0.0.0:8080 -w 4 'cubedash:create_app()' &
         gunicorn -b 0.0.0.0:8000 --workers=4 --timeout 120 'datacube_ows.wsgi:application'
-      "
+      "  
 
   postgres:
     image: postgis/postgis:12-2.5-alpine
@@ -85,21 +84,25 @@ services:
     networks:
       - shared_network
 
+  checkdb:
+    image: schaffdev/port_check:latest
+    mem_limit: 500m
+    environment:
+      CHECK_HOST: postgres
+      CHECK_PORT: 5432
+    networks:
+      - shared_network
+
   cuborizonte:
     build:
-      context: nginx/.
-      dockerfile: Dockerfile-dev
+      context: .
+      dockerfile: nginx/Dockerfile
     depends_on:
       - frontend
       - backend
       - ows
-    environment:
-      - COPY default.conf.template /etc/nginx/templates/default.conf.template
-      - BACKEND_SERVICE=backend
-      - FRONTEND_SERVICE=frontend
-      - OWS_SERVICE=ows
     volumes:
-      - ./data:/usr/share/nginx/html/data
+      - ./data:/data
     networks:
       - shared_network
       - docker
@@ -110,7 +113,9 @@ networks:
   shared_network:
     external: false
   docker:
+    external: true
     name: docker_default
+
 
 volumes:
   postgres_data:
