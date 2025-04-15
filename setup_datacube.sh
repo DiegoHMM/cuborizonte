@@ -35,3 +35,6 @@ docker-compose exec ows datacube-ows-update $NOME_DO_PRODUTO
 
 # Reiniciar o container ows
 docker-compose restart ows
+
+# Inicializa data explorer
+docker exec cubedash cubedash-gen --all

@@ -1,10 +1,10 @@
 style_lidar_simple_lidar = {
     "name": "simple_lidar",
     "title": "Simple lidar",
-    "abstract": "Simple false-colour image, using the only classification bands",
+    "abstract": "Simple false-colour image, using the only elevation bands",
     "components": {
         "red": {
-            "elevation": 0.0,
+            "elevation": 1.0,
         },
         "green": {
             "intensity": 0.0,
@@ -13,7 +13,7 @@ style_lidar_simple_lidar = {
             "classification": 1.0
         },
     },
-    "scale_range": [0, 15],
+    "scale_range": [700, 1200.0],
 }
 
 styles_lidar_list = [
