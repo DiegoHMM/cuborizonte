@@ -10,10 +10,10 @@ style_lidar_simple_lidar = {
             "intensity": 0.0,
         },
         "blue": {
-            "classification": 1.0
+            "classification": 0.0
         },
     },
-    "scale_range": [700, 1200.0],
+    "scale_range": [700, 1160.45],
 }
 
 styles_lidar_list = [
