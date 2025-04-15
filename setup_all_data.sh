@@ -41,8 +41,8 @@
 #Lidar
 ./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2015
 
-#./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
-#./setup_areas.sh REGIOES.geojson REGIAO
+./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
+./setup_areas.sh REGIOES.geojson REGIAO
 
 
 

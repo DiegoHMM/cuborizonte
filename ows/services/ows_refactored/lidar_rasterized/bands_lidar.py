@@ -1,5 +1,5 @@
 lidar_rgb_bands = {
-    "red": [],
-    "green": [],
-    "blue": [],
+    "elevation": [],
+    "intensity": [],
+    "classification": [],
 }
