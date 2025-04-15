@@ -7,10 +7,10 @@ style_lidar_simple_lidar = {
             "elevation": 1.0,
         },
         "green": {
-            "intensity": 0.0,
+            "elevation": 1.0,
         },
         "blue": {
-            "classification": 0.0
+            "elevation": 1.0
         },
     },
     "scale_range": [700, 1160.45],
