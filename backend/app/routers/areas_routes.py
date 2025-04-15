@@ -8,7 +8,7 @@ import logging
 # Configurações do banco de dados
 DB_CONFIG = {
     "host": "postgres",  # Nome do serviço no Docker Compose
-    "user": "cuborizonte_user",
+    "user": "postgres",
     "password": "opendatacubepassword",
     "dbname": "cuborizonte_db",
     "port": 5432,

@@ -24,7 +24,7 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link href="#home">Início</Nav.Link>
-            <Nav.Link href={`${baseApiURL}/docs`} target="_blank" rel="noopener noreferrer">Doc</Nav.Link>
+            <Nav.Link href="http://150.164.2.42:8080/products" target="_blank" rel="noopener noreferrer">Catálogo</Nav.Link>
             <Nav.Link href="https://github.com/DiegoHMM/cuborizonte" target="_blank" rel="noopener noreferrer">Sobre</Nav.Link>
             <Nav.Link href="https://www.linkedin.com/in/diego-matos-1758561a3/" target="_blank" rel="noopener noreferrer">Contato</Nav.Link>
           </Nav>

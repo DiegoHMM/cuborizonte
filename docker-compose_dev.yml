@@ -37,13 +37,17 @@ services:
     mem_limit: 1g
     environment:
       ODC_DEFAULT_DB_HOSTNAME: postgres
-      ODC_DEFAULT_DB_USERNAME: cuborizonte_user
+      ODC_DEFAULT_DB_USERNAME: postgres
       ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
       ODC_DEFAULT_DB_DATABASE: cuborizonte_db
       ODC_DEFAULT_DB_PORT: 5432
       PYTHONPATH: /env/config:/env/lib/python3.12/site-packages
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
       ODC_CONFIG_PATH: /etc/datacube.conf
+    ports:
+      - "8000:8000"  # OWS
+    depends_on:
+      - postgres
     volumes:
       - ./data:/data
       - ./ows/products:/env/products
@@ -52,20 +56,49 @@ services:
       - ./ows/output:/env/config/output/
       - ./ows/handle_data_functions:/handle_data_functions
       - ./datacube.conf:/etc/datacube.conf
-    ports:
-      - "8001:8080"  # Datacube Explorer
-      - "8000:8000"  # OWS
-    depends_on:
-      - postgres
     networks:
       - shared_network
     command: >
       sh -c "
-        sleep 10 &&
+        sleep 30 &&
         datacube system init &&
-        cubedash-gen --init --all &&
-        gunicorn -b 0.0.0.0:8080 -w 4 'cubedash:create_app()' &
         gunicorn -b 0.0.0.0:8000 --workers=4 --timeout 120 'datacube_ows.wsgi:application'
+      "
+  cubedash:
+    image: opendatacube/ows:1.8.0-rc1
+    mem_limit: 1g
+    build:
+      context: ./ows
+      dockerfile: Dockerfile
+    environment:
+      ODC_DEFAULT_DB_HOSTNAME: postgres
+      ODC_DEFAULT_DB_USERNAME: postgres
+      ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
+      ODC_DEFAULT_DB_DATABASE: cuborizonte_db
+      ODC_DEFAULT_DB_PORT: 5432
+      PYTHONPATH: /env/config
+      DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
+      ODC_CONFIG_PATH: /etc/datacube.conf
+      CUBEDASH_URL_PREFIX: /cuborizonte/data-explorer/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - ows
+    volumes:
+      - ./data:/data
+      - ./ows/products:/env/products
+      - ./ows/services/ows_refactored:/env/config/ows_refactored/
+      - ./ows/services/inventory:/env/config/inventory/
+      - ./ows/output:/env/config/output/
+      - ./datacube.conf:/etc/datacube.conf
+    networks:
+      - shared_network
+    command: >
+      sh -c "
+        sleep 35 &&  # Espera um pouco mais para garantir que o OWS está pronto
+        cubedash-gen --init --all &&
+        gunicorn -b 0.0.0.0:8080 -w 4 'cubedash:create_app()'
       "
 
   postgres:
@@ -74,7 +107,7 @@ services:
     environment:
       POSTGRES_DB: cuborizonte_db
       POSTGRES_PASSWORD: opendatacubepassword
-      POSTGRES_USER: cuborizonte_user
+      POSTGRES_USER: postgres
     volumes:
       - ./data:/data
     ports:

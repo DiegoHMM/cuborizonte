@@ -7,7 +7,7 @@ from shapely.geometry import shape, mapping
 # Configurações do banco de dados
 db_config = {
     "hostname": "postgres",
-    "username": "cuborizonte_user",
+    "username": "postgres",
     "password": "opendatacubepassword",
     "database": "cuborizonte_db",
     "port": 5432,
