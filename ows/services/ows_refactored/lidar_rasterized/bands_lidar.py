@@ -1,4 +1,4 @@
-lidar_rgb_bands = {
+lidar_bands = {
     "elevation": [],
     "intensity": [],
     "classification": [],
