@@ -19,6 +19,7 @@
 
 # Lidars
 ./process_raw_data.sh LIDAR_2015 bh_lidar_rasterized 2015 elevation intensity classification
+./process_raw_data.sh LIDAR_2007 bh_lidar_rasterized 2007 elevation intensity classification
 
 #Ortophoto
 
@@ -40,6 +41,7 @@
 
 #Lidar
 ./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2015
+./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2007
 
 ./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
 ./setup_areas.sh REGIOES.geojson REGIAO
