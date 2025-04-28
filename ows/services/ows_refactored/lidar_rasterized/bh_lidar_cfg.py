@@ -16,7 +16,7 @@ Licença: CC-BY-4.0
     "resource_limits": reslim_bh_images,
     "image_processing": {
         "extent_mask_func": "datacube_ows.ogc_utils.mask_by_val",
-        "always_fetch_bands": ["elevation", "intensity", "classification"],
+        "always_fetch_bands": ["elevation", "intensity", "created_never_classified", "unclassified", "ground", "low_vegetation", "medium_vegetation", "high_vegetation", "building", "low_point_noise", "model_key_point_mass_point", "water", "overlap_points", "wire"],
         "manual_merge": False,
         "apply_solar_corrections": False,
     },

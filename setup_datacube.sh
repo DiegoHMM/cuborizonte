@@ -38,3 +38,6 @@ docker-compose restart ows
 
 # Inicializa data explorer
 docker exec cubedash cubedash-gen --all
+
+# Update produtos
+docker exec cubedash cubedash-gen --force-refresh --all
