@@ -1,16 +1,5 @@
 lidar_bands = {
     "elevation": [],
     "intensity": [],
-    "created_never_classified": [],
-    "unclassified": [],
-    "ground": [],
-    "low_vegetation": [],
-    "medium_vegetation": [],
-    "high_vegetation": [],
-    "building": [],
-    "low_point_noise": [],
-    "model_key_point_mass_point": [],
-    "water": [],
-    "overlap_points": [],
-    "wire": [],
+    "classification": [],
 }
