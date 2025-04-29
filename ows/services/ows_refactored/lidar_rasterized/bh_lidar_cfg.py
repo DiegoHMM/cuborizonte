@@ -21,7 +21,7 @@ Licença: CC-BY-4.0
         "apply_solar_corrections": False,
     },
     "native_crs": "EPSG:31983",
-    "native_resolution": [1.0, -1.0],
+    "native_resolution": [0.8, -0.8],
     "styling": {
         "default_style": "simple_lidar",
         "styles": styles_lidar_list,
