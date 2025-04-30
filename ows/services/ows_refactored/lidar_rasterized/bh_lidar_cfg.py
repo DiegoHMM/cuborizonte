@@ -23,7 +23,7 @@ Licença: CC-BY-4.0
     "native_crs": "EPSG:31983",
     "native_resolution": [0.8, -0.8],
     "styling": {
-        "default_style": "simple_lidar",
+        "default_style": "elevation_heatmap",
         "styles": styles_lidar_list,
     }
 }

@@ -16,6 +16,28 @@ style_lidar_simple_lidar = {
     "scale_range": [700, 1160.45],
 }
 
+style_lidar_heatmap = {
+    "name": "elevation_heatmap",
+    "title": "Elevation Heatmap",
+    "abstract": "Heatmap of elevation data using matplotlib colormap",
+    "index_function": {
+        "function": "datacube_ows.band_utils.single_band",
+        "mapped_bands": True,
+        "kwargs": {
+            "band": "elevation",
+        },
+    },
+    "needed_bands": ["elevation"],
+    "mpl_ramp": "viridis",
+    "range": [690, 1000],
+    "legend": {
+        "show_legend": True,
+        "units": "meters",
+        "decimal_places": 0,
+    }
+}
+
 styles_lidar_list = [
-    style_lidar_simple_lidar
+    style_lidar_simple_lidar,
+    style_lidar_heatmap
 ]
