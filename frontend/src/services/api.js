@@ -44,6 +44,8 @@ export const get_products = async (product_prefix = '') => {
         },
     });
 
+    console.log(`${baseApiURL}/get_products?product_prefix=${product_prefix}`);
+
     if (!response.ok) {
         throw new Error('Erro ao obter os produtos.');
     }

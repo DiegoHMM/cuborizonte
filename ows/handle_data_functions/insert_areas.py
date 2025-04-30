@@ -9,7 +9,7 @@ db_config = {
     "hostname": "postgres",
     "username": "postgres",
     "password": "opendatacubepassword",
-    "database": "postgres",
+    "database": "cuborizonte_db",
     "port": 5432,
 }
 

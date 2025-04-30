@@ -10,7 +10,7 @@ DB_CONFIG = {
     "host": "postgres",  # Nome do serviço no Docker Compose
     "user": "postgres",
     "password": "opendatacubepassword",
-    "dbname": "postgres",
+    "dbname": "cuborizonte_db",
     "port": 5432,
 }
 
@@ -26,7 +26,7 @@ class AreaResponse(BaseModel):
     bounding_box: List[float]
 
 
-# Função para conexão com o banco de dados
+# Função para conexão com o banco de dadosz
 def get_db_connection():
     try:
         conn = psycopg2.connect(

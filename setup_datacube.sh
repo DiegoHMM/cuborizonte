@@ -27,7 +27,7 @@ docker-compose exec ows datacube product add "https://raw.githubusercontent.com/
 docker-compose exec ows python /handle_data_functions/indexer.py "/data/processed/${PASTA_DE_ORIGEM}"
 
 # Atualizações do OWS
-docker-compose exec ows datacube-ows-update --schema --role postgres
+docker-compose exec ows datacube-ows-update --schema
 docker-compose exec ows datacube-ows-update --views
 
 # Atualizar uma camada específica
@@ -35,3 +35,9 @@ docker-compose exec ows datacube-ows-update $NOME_DO_PRODUTO
 
 # Reiniciar o container ows
 docker-compose restart ows
+
+# Inicializa data explorer
+docker exec cubedash cubedash-gen --all
+
+# Update produtos
+docker exec cubedash cubedash-gen --force-refresh --all

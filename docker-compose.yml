@@ -1,114 +1,154 @@
-  services:
+services:
 
-    frontend:
-      build:
-        context: ./frontend
-        dockerfile: Dockerfile
-      ports:
-        - "3000:80"
-      networks:
-        - shared_network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - shared_network
 
-    backend:
-      build:
-        context: ./backend
-      volumes:
-        - ./backend:/app
-        - ./datacube.conf:/etc/datacube.conf
-        - ./data:/data
-      environment:
-        OWS_URL: http://ows:8000
-        DATACUBE_CONFIG: /etc/datacube.conf
-      restart: always
-      depends_on:
-        - postgres
-      command: >
-        sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
-      networks:
-        - shared_network
+  backend:
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/app
+      - ./datacube.conf:/etc/datacube.conf
+      - ./data:/data
+    environment:
+      OWS_URL: http://ows:8000
+      DATACUBE_CONFIG: /etc/datacube.conf
+    restart: always
+    depends_on:
+      - postgres
+    command: >
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8004 --reload"
+    networks:
+      - shared_network
 
-    ows:
-      image: opendatacube/ows:1.8.0-rc1
-      build:
-        context: ./ows
-        dockerfile: Dockerfile
-      mem_limit: 1g
-      environment:
-        DB_HOSTNAME: postgres
-        DB_USERNAME: postgres
-        DB_PASSWORD: opendatacubepassword
-        DB_DATABASE: postgres
-        DB_PORT: 5432
-        PYTHONPATH: /env/config
-        DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
-        ODC_CONFIG_PATH: /etc/datacube.conf
-      expose:
-        - "8000"
-      ports:
-        - "8000:8000"
-      depends_on:
-        - postgres
-      volumes:
-        - ./data:/data
-        - ./ows/products:/env/products
-        - ./ows/services/ows_refactored:/env/config/ows_refactored/
-        - ./ows/services/inventory:/env/config/inventory/
-        - ./ows/output:/env/config/output/
-        - ./ows/handle_data_functions:/handle_data_functions
-        - ./datacube.conf:/etc/datacube.conf
-      networks:
-        - shared_network
+  ows:
+    image: opendatacube/ows:1.8.0-rc1
+    build:
+      context: ./ows
+      dockerfile: Dockerfile
+    mem_limit: 1g
+    environment:
+      ODC_DEFAULT_DB_HOSTNAME: postgres
+      ODC_DEFAULT_DB_USERNAME: postgres
+      ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
+      ODC_DEFAULT_DB_DATABASE: cuborizonte_db
+      ODC_DEFAULT_DB_PORT: 5432
+      PYTHONPATH: /env/config
+      DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
+      ODC_CONFIG_PATH: /etc/datacube.conf
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./data:/data
+      - ./ows/products:/env/products
+      - ./ows/services/ows_refactored:/env/config/ows_refactored/
+      - ./ows/services/inventory:/env/config/inventory/
+      - ./ows/output:/env/config/output/
+      - ./ows/handle_data_functions:/handle_data_functions
+      - ./datacube.conf:/etc/datacube.conf
+    networks:
+      - shared_network
+    command: >
+      sh -c "
+        sleep 30 &&
+        datacube system init &&
+        gunicorn -b 0.0.0.0:8000 --workers=4 --timeout 120 'datacube_ows.wsgi:application'
+      "
 
-    postgres:
-      image: postgis/postgis:12-2.5-alpine
-      mem_limit: 1g
-      environment:
-        POSTGRES_DB: postgres
-        POSTGRES_PASSWORD: opendatacubepassword
-        POSTGRES_USER: postgres
-      volumes:
-        - ./data:/data
-      ports:
-        - "5432:5432"
-      expose:
-        - "5432"
-      restart: always
-      networks:
-        - shared_network
+  cubedash:
+    image: opendatacube/ows:1.8.0-rc1
+    build:
+      context: ./ows
+      dockerfile: Dockerfile
+    mem_limit: 1g
+    environment:
+      ODC_DEFAULT_DB_HOSTNAME: postgres
+      ODC_DEFAULT_DB_USERNAME: postgres
+      ODC_DEFAULT_DB_PASSWORD: opendatacubepassword
+      ODC_DEFAULT_DB_DATABASE: cuborizonte_db
+      ODC_DEFAULT_DB_PORT: 5432
+      PYTHONPATH: /env/config
+      DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
+      ODC_CONFIG_PATH: /etc/datacube.conf
+      CUBEDASH_URL_PREFIX: /cuborizonte/data-explorer/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - ows
+    volumes:
+      - ./data:/data
+      - ./ows/products:/env/products
+      - ./ows/services/ows_refactored:/env/config/ows_refactored/
+      - ./ows/services/inventory:/env/config/inventory/
+      - ./ows/output:/env/config/output/
+      - ./datacube.conf:/etc/datacube.conf
+    networks:
+      - shared_network
+    command: >
+      sh -c "
+        sleep 35 &&  # Espera um pouco mais para garantir que o OWS está pronto
+        cubedash-gen --init --all &&
+        gunicorn -b 0.0.0.0:8080 -w 4 'cubedash:create_app()'
+      "
 
-    checkdb:
-      image: schaffdev/port_check:latest
-      mem_limit: 500m
-      environment:
-        CHECK_HOST: postgres
-        CHECK_PORT: 5432
-      networks:
-        - shared_network
+  postgres:
+    image: postgis/postgis:12-2.5-alpine
+    mem_limit: 1g
+    environment:
+      POSTGRES_DB: cuborizonte_db
+      POSTGRES_PASSWORD: opendatacubepassword
+      POSTGRES_USER: postgres
+    volumes:
+      - ./data:/data
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    restart: always
+    networks:
+      - shared_network
 
-    cuborizonte:
-      build:
-        context: .
-        dockerfile: nginx/Dockerfile
-      depends_on:
-        - frontend
-        - backend
-        - ows
-      environment:
-        - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
-        - BACKEND_SERVICE=backend
-        - FRONTEND_SERVICE=frontend
-        - OWS_SERVICE=ows
-      networks:
-        - shared_network
-        - docker
+  checkdb:
+    image: schaffdev/port_check:latest
+    mem_limit: 500m
+    environment:
+      CHECK_HOST: postgres
+      CHECK_PORT: 5432
+    networks:
+      - shared_network
 
-  networks:
-    shared_network:
-      external: false
-    docker:
-      external: true
-      name: docker_default
+  cuborizonte:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    depends_on:
+      - frontend
+      - backend
+      - ows
+    volumes:
+      - ./data:/data
+    networks:
+      - shared_network
+      - docker
+    ports:
+      - "80:80"
+
+networks:
+  shared_network:
+    external: false
+  docker:
+    external: true
+    name: docker_default
 
 
-  volumes:
-    postgres_data:
+volumes:
+  postgres_data:

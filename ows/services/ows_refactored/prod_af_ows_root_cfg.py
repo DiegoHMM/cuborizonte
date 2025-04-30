@@ -144,6 +144,16 @@ ows_cfg = {
                                 },
                     ],
                 },
+                {
+                    "title": "Rasters obtained from lidar file of the city of Belo Horizonte, Brazil",
+                    "abstract": "Rasters obtidos através de processamento de arquivos lidar da cidade de Belo Horizonte, Minas Gerais, Brasil. Estas imagens oferecem uma visão detalhada da cidade com uma alta resolução espacial.",
+                    "layers": [
+                                {
+                                    "include": "ows_refactored.lidar_rasterized.bh_lidar_cfg.layer",
+                                    "type": "python",
+                                },
+                    ],
+                },
             ],
         },
     ],
