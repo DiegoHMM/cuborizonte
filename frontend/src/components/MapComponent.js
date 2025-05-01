@@ -14,6 +14,8 @@ const baseWmsURL = process.env.REACT_APP_WMS_BASE_URL || '/ows/';
 // ----------- EXTENSÃO PERSONALIZADA DO TILELAYER -----------
 L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
   initialize: function (url, options) {
+    options = options || {};
+    options.tileSize = options.tileSize || 512;
     L.TileLayer.WMS.prototype.initialize.call(this, url, options);
     if (options.bounds) {
       this._bounds = L.latLngBounds(options.bounds);
@@ -39,8 +41,7 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
     if (selectingRectangle && selectionMode === 'rectangle') {
       // Criar e ativar o modo de desenho de retângulo
       rectangleDrawer = new L.Draw.Rectangle(map, {
-        // Opções para o retângulo, se necessário
-        shapeOptions: { color: '#f357a1', weight: 4 },
+        shapeOptions: { color: '#0d6efd', weight: 4, fillColor: 'transparent', fillOpacity: 0},
       });
       rectangleDrawer.enable();
 
@@ -140,6 +141,7 @@ const SingleLayer = ({ wmsData }) => {
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: bounds,
+        tileSize: 512,
       };
 
       // Se houver ano selecionado, adiciona o parâmetro time no formato "YYYY-01-01/YYYY-12-31"
@@ -202,6 +204,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsLeft,
+        tileSize: 512,
       };
       if (wmsLayerLeft.year) {
         leftOptions.time = `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`;
@@ -215,6 +218,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         version: '1.3.0',
         crs: L.CRS.EPSG3857,
         bounds: boundsRight,
+        tileSize: 512,
       };
       if (wmsLayerRight.year) {
         rightOptions.time = `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`;

@@ -3,9 +3,6 @@ import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import logo from '../assets/logo.png';  
 
-
-const baseApiURL = process.env.REACT_APP_API_BASE_URL || '/api/'; 
-
 const Header = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
