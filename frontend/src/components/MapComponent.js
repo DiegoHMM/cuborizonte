@@ -39,8 +39,7 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
     if (selectingRectangle && selectionMode === 'rectangle') {
       // Criar e ativar o modo de desenho de retângulo
       rectangleDrawer = new L.Draw.Rectangle(map, {
-        // Opções para o retângulo, se necessário
-        shapeOptions: { color: '#f357a1', weight: 4 },
+        shapeOptions: { color: '#0d6efd', weight: 4, fillColor: 'transparent', fillOpacity: 0},
       });
       rectangleDrawer.enable();
 
