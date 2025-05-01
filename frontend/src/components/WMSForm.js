@@ -33,7 +33,7 @@ const WMSForm = ({
     dataInicio: '',
     dataFim: ''
   });
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
   const [formError, setFormError] = useState('');
   const [coordinateError, setCoordinateError] = useState('');
 
