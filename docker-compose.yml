@@ -4,11 +4,17 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "3000:80"
+      # Altera a referência dos endereços para as aplicações de metadados e catálogo.
+      # Para funcionarem precisam estar no Dockerfile precedidas de "ARG".
+      # Essas variáveis são usadas apenas na fase de build, ao contrário das que 
+      # ficam na sessão environment.
+      args:
+        REACT_APP_WMS_BASE_URL: /cuborizonte/metadata/wms
+        REACT_APP_CATALOGUE_URL: /cuborizonte/catalogo/products
     networks:
       - shared_network
 
+  # /cuborizonte/api
   backend:
     build:
       context: ./backend
@@ -17,7 +23,7 @@ services:
       - ./datacube.conf:/etc/datacube.conf
       - ./data:/data
     environment:
-      OWS_URL: http://ows:8000
+      OWS_URL: http://ows:8000/cuborizonte/metadata
       DATACUBE_CONFIG: /etc/datacube.conf
     restart: always
     depends_on:
@@ -27,6 +33,7 @@ services:
     networks:
       - shared_network
 
+  # /cuborizonte/metadata
   ows:
     image: opendatacube/ows:1.8.0-rc1
     build:
@@ -42,8 +49,6 @@ services:
       PYTHONPATH: /env/config
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
       ODC_CONFIG_PATH: /etc/datacube.conf
-    ports:
-      - "8000:8000"
     depends_on:
       - postgres
     volumes:
@@ -56,13 +61,15 @@ services:
       - ./datacube.conf:/etc/datacube.conf
     networks:
       - shared_network
+    # SCRIPT_NAME muda o nome do endpoint que a aplicação é servida
     command: >
       sh -c "
         sleep 30 &&
         datacube system init &&
-        gunicorn -b 0.0.0.0:8000 --workers=4 --timeout 120 'datacube_ows.wsgi:application'
+        gunicorn -b 0.0.0.0:8000 --workers=4 --timeout 120 --env SCRIPT_NAME=/cuborizonte/metadata 'datacube_ows.wsgi:application'
       "
 
+  # /cuborizonte/catalogo
   cubedash:
     image: opendatacube/ows:1.8.0-rc1
     build:
@@ -79,8 +86,6 @@ services:
       DATACUBE_OWS_CFG: ows_refactored.dev_af_ows_root_cfg.ows_cfg
       ODC_CONFIG_PATH: /etc/datacube.conf
       CUBEDASH_URL_PREFIX: /cuborizonte/data-explorer/
-    ports:
-      - "8080:8080"
     depends_on:
       - postgres
       - ows
@@ -91,14 +96,15 @@ services:
       - ./ows/services/inventory:/env/config/inventory/
       - ./ows/output:/env/config/output/
       - ./datacube.conf:/etc/datacube.conf
-    networks:
-      - shared_network
+    # SCRIPT_NAME muda o nome do endpoint onde a aplicação é servida
     command: >
       sh -c "
         sleep 35 &&  # Espera um pouco mais para garantir que o OWS está pronto
         cubedash-gen --init --all &&
-        gunicorn -b 0.0.0.0:8080 -w 4 'cubedash:create_app()'
+        gunicorn -b 0.0.0.0:8080 -w 4 --env SCRIPT_NAME=/cuborizonte/catalogo 'cubedash:create_app()'
       "
+    networks:
+      - shared_network
 
   postgres:
     image: postgis/postgis:12-2.5-alpine
@@ -109,8 +115,8 @@ services:
       POSTGRES_USER: postgres
     volumes:
       - ./data:/data
-    ports:
-      - "5432:5432"
+        #ports:
+        #- "5432:5432"
     expose:
       - "5432"
     restart: always
@@ -130,17 +136,25 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+      # Altera a referência dos endereços para as aplicações de metadados e catálogo.
+      # Para funcionarem precisam estar no Dockerfile precedidas de "ARG".
+      # Essas variáveis são usadas apenas na fase de build, ao contrário das que 
+      # ficam na sessão environment.
+      args:
+        REACT_APP_WMS_BASE_URL: /cuborizonte/metadata/wms
+        REACT_APP_CATALOGUE_URL: /cuborizonte/catalogo/products
     depends_on:
       - frontend
       - backend
       - ows
     volumes:
-      - ./data:/data
+      - ./data:/usr/share/nginx/html/data
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - shared_network
       - docker
-    ports:
-      - "80:80"
+        #ports:
+        #- "80:80"
 
 networks:
   shared_network:

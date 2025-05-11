@@ -3,6 +3,8 @@ import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import logo from '../assets/logo.png';  
 
+const catalogueURL = process.env.REACT_APP_CATALOGUE_URL || '/products'; 
+
 const Header = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
@@ -21,7 +23,7 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link href="#home">Início</Nav.Link>
-            <Nav.Link href="http://150.164.2.42:8080/products" target="_blank" rel="noopener noreferrer">Catálogo</Nav.Link>
+            <Nav.Link href={catalogueURL} target="_blank" rel="noopener noreferrer">Catálogo</Nav.Link>
             <Nav.Link href="https://github.com/DiegoHMM/cuborizonte" target="_blank" rel="noopener noreferrer">Sobre</Nav.Link>
             <Nav.Link href="https://www.linkedin.com/in/diego-matos-1758561a3/" target="_blank" rel="noopener noreferrer">Contato</Nav.Link>
           </Nav>
