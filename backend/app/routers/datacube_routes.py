@@ -6,17 +6,15 @@ from typing import List, Tuple
 
 router = APIRouter()
 
-# Dependência para o Data Cube
 def get_datacube():
     return Datacube(app="generate_datacube_multiple_products")
 
-# Modelo da requisição
 class MultiCubeRequest(BaseModel):
-    products: List[str]                  # Lista de produtos
-    x: Tuple[float, float]               # Coordenadas X (min, max)
-    y: Tuple[float, float]               # Coordenadas Y (min, max)
-    time: Tuple[str, str]                # Intervalo de tempo (início, fim)
-    resolution: float                    # Resolução espacial
+    products: List[str]
+    x: Tuple[float, float]
+    y: Tuple[float, float]
+    time: Tuple[str, str]
+    resolution: float
     measurements: List[str]
     output_crs: str  
 
@@ -28,19 +26,17 @@ def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depend
     try:
         results = {}
 
-        # Parâmetros comuns da consulta
         query = {
             "x": (request.x[0], request.x[1]),
             "y": (request.y[0], request.y[1]),
             "time": (request.time[0], request.time[1]),
             "measurements": request.measurements,
             "resolution": (-request.resolution, request.resolution),
-            "output_crs": request.output_crs,  # Adicionado para especificar o CRS de saída
-            "like": None,  # optional reference
-            "dask_chunks": {"x": 512, "y": 512}  # adicionado para chunking
+            "output_crs": request.output_crs,
+            "like": None,
+            "dask_chunks": {"x": 512, "y": 512}
         }
 
-        # Iterar sobre os produtos e carregar dados
         for product in request.products:
             try:
                 dataset = dc.load(product=product, **query)
@@ -48,7 +44,6 @@ def generate_data_cube_multiple(request: MultiCubeRequest, dc: Datacube = Depend
                 if dataset is None or len(dataset.dims) == 0:
                     results[product] = {"error": "Nenhum dado encontrado"}
                 else:
-                    # Converter o dataset para dicionário
                     results[product] = dataset.to_array().to_dict()
             except Exception as e:
                 results[product] = {"error": str(e)}

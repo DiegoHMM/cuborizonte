@@ -39,21 +39,17 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
     let rectangleDrawer;
 
     if (selectingRectangle && selectionMode === 'rectangle') {
-      // Criar e ativar o modo de desenho de retângulo
       rectangleDrawer = new L.Draw.Rectangle(map, {
         shapeOptions: { color: '#0d6efd', weight: 4, fillColor: 'transparent', fillOpacity: 0},
       });
       rectangleDrawer.enable();
 
-      // Escuta evento de desenho finalizado
       const onCreated = (e) => {
         const layer = e.layer;
-        // Limpa retângulos anteriores e adiciona o novo ao FeatureGroup
         if (featureGroupRef.current) {
           featureGroupRef.current.clearLayers();
           featureGroupRef.current.addLayer(layer);
         }
-        // Captura bounding box
         const { _southWest, _northEast } = layer.getBounds();
         const newBoundingBox = {
           latitudeInicial: _southWest.lat,
@@ -62,7 +58,6 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
           longitudeFinal: _northEast.lng,
         };
         onBoundingBoxSelected(newBoundingBox);
-        // Desativa o modo de desenho após a criação
         setSelectingRectangle(false);
         map.off(L.Draw.Event.CREATED, onCreated);
       };
@@ -70,7 +65,6 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
       map.on(L.Draw.Event.CREATED, onCreated);
     }
 
-    // Cleanup: desativa o modo de desenho e remove listener
     return () => {
       if (rectangleDrawer) {
         rectangleDrawer.disable();
@@ -80,13 +74,11 @@ function useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGrou
   }, [map, selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle]);
 }
 
-// ----------- COMPONENTE-FILHO QUE CHAMA useDrawRectangle -----------
 function DrawRectangleHandler({ selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle }) {
   useDrawRectangle(selectingRectangle, onBoundingBoxSelected, featureGroupRef, selectionMode, setSelectingRectangle);
-  return null; // não renderiza nada
+  return null;
 }
 
-// ----------- HANDLERS DE CLIQUE NO MAPA -----------
 const GeneralMapClickHandler = ({ selectingPixel, onMapClick }) => {
   useMapEvents({
     click: () => {
@@ -115,27 +107,23 @@ const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
   return null;
 };
 
-// ----------- CAMADA SIMPLES DE WMS -----------
 const SingleLayer = ({ wmsData }) => {
   const map = useMap();
   const layerRef = useRef(null);
 
   useEffect(() => {
     if (wmsData) {
-      // Remove camada anterior (se existir)
       if (layerRef.current) {
         map.removeLayer(layerRef.current);
       }
 
-      // Define os bounds da camada
       const bounds = L.latLngBounds([
         [wmsData.latitudeInicial, wmsData.longitudeInicial],
         [wmsData.latitudeFinal, wmsData.longitudeFinal],
       ]);
 
-      // Monta as opções para a camada WMS
       const wmsOptions = {
-        layers: wmsData.layer, // 'layer' em vez de 'product'
+        layers: wmsData.layer,
         format: 'image/png',
         transparent: true,
         version: '1.3.0',
@@ -144,21 +132,17 @@ const SingleLayer = ({ wmsData }) => {
         tileSize: 512,
       };
 
-      // Se houver ano selecionado, adiciona o parâmetro time no formato "YYYY-01-01/YYYY-12-31"
       if (wmsData.year) {
         wmsOptions.time = `${wmsData.year}-01-01/${wmsData.year}-12-31`;
       }
 
-      // Cria a camada WMS com as opções atualizadas
       const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
 
       layerRef.current = layer;
       layer.addTo(map);
 
-      // Ajusta a visualização do mapa para os bounds da camada
       map.fitBounds(bounds);
 
-      // Cleanup ao remover o componente
       return () => {
         if (layerRef.current) {
           map.removeLayer(layerRef.current);
@@ -172,7 +156,6 @@ const SingleLayer = ({ wmsData }) => {
 
 
 
-// ----------- CAMADAS COMPARADAS LADO A LADO -----------
 const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
   const map = useMap();
   const leftLayerRef = useRef(null);
@@ -181,12 +164,10 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 
   useEffect(() => {
     if (wmsLayerLeft && wmsLayerRight) {
-      // Remove se já existirem
       if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
       if (sideBySideRef.current) sideBySideRef.current.remove();
 
-      // Define os bounds para cada camada
       const boundsLeft = L.latLngBounds([
         [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
         [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
@@ -196,7 +177,6 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
       ]);
 
-      // Prepara as opções para a camada esquerda
       const leftOptions = {
         layers: wmsLayerLeft.layer,
         format: 'image/png',
@@ -210,7 +190,6 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         leftOptions.time = `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`;
       }
 
-      // Prepara as opções para a camada direita
       const rightOptions = {
         layers: wmsLayerRight.layer,
         format: 'image/png',
@@ -224,26 +203,21 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         rightOptions.time = `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`;
       }
 
-      // Cria as camadas WMS com as opções definidas
       const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, leftOptions);
       const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, rightOptions);
 
       leftLayerRef.current = leftLayer;
       rightLayerRef.current = rightLayer;
 
-      // Adiciona as camadas ao mapa
       leftLayer.addTo(map);
       rightLayer.addTo(map);
 
-      // Cria o controle side-by-side
       const sideBySide = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
       sideBySideRef.current = sideBySide;
 
-      // Ajusta a visualização do mapa para os bounds combinados
       const combinedBounds = boundsLeft.extend(boundsRight);
       map.fitBounds(combinedBounds);
 
-      // Cleanup
       return () => {
         if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
         if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
@@ -256,7 +230,6 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
 };
 
 
-// ----------- COMPONENTE PRINCIPAL -----------
 const MapComponent = forwardRef(({
   viewMode,
   wmsData,
@@ -273,7 +246,6 @@ const MapComponent = forwardRef(({
   const mapRef = useRef(null);
   const featureGroupRef = useRef(null);
 
-  // Expor a função clearDrawnLayers para o componente pai
   useImperativeHandle(ref, () => ({
     clearDrawnLayers() {
       if (featureGroupRef.current) {
@@ -291,28 +263,23 @@ const MapComponent = forwardRef(({
         mapRef.current = mapInstance;
       }}
     >
-      {/* Se não estiver selecionando pixel, clique no mapa chama onMapClick */}
       <GeneralMapClickHandler 
         selectingPixel={selectingPixel} 
         onMapClick={onMapClick} 
       />
 
-      {/* Se estiver selecionando pixel, clique no mapa busca valor do pixel */}
       <MapClickHandler 
         selectingPixel={selectingPixel} 
         onPixelSelected={onPixelSelected} 
       />
 
-      {/* Camada base OSM */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="© OpenStreetMap contributors"
       />
       
-      {/* FeatureGroup que conterá o retângulo desenhado */}
       <FeatureGroup ref={featureGroupRef} />
 
-      {/* Ativa/desativa o controle de desenhar retângulo */}
       <DrawRectangleHandler
         selectingRectangle={selectingRectangle}
         onBoundingBoxSelected={onBoundingBoxSelected}
@@ -321,7 +288,6 @@ const MapComponent = forwardRef(({
         setSelectingRectangle={setSelectingRectangle}
       />
 
-      {/* Renderização das camadas WMS (single ou comparison) */}
       {viewMode === 'single' && wmsData && (
         <SingleLayer wmsData={wmsData} />
       )}

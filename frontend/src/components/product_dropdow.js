@@ -10,13 +10,12 @@ const ProductDropdown = ({ onProductSelected }) => {
   useEffect(() => {
     const loadAvailableProducts = async () => {
       try {
-        // Chama a API sem prefixo para obter todos os produtos disponíveis
         const productsData = await get_products('');
         const opts = productsData.map((product) => ({
           value: product.name,
           label: product.label,
           description: product.description,
-          datetime: product.datetime, // array de períodos disponíveis
+          datetime: product.datetime,
         }));
         setOptions(opts);
       } catch (error) {

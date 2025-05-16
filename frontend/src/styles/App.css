@@ -20,7 +20,7 @@ html, body {
   position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: visible; /* Certifique-se de que o overflow está visível */
+  overflow: visible;
 }
 
 .chart-overlay {
@@ -33,7 +33,7 @@ html, body {
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000; /* Ensure it's above the map */
+  z-index: 1000;
   transition: all 0.3s ease-in-out;
 }
 

@@ -17,19 +17,14 @@ def api_get_pixel_class(coords: Coordinates):
 
         wcs_url = f"{ows_url}"
 
-        # Obtém os produtos
         products = get_products(wcs_url, 'bh_class')
 
-        # Para cada produto retornado
         for product in products:
-            # Ajuste aqui:
-            product_name = product.get('name')       # era 'product'
-            date_times   = product.get('datetime', [])  # era 'date_time'
+            product_name = product.get('name')
+            date_times   = product.get('datetime', [])
 
-            # Obtenha a resolução
             resolution = get_layer_resolution(wcs_url, product_name)
 
-            # Iterar sobre cada data
             for dt in date_times:
                 pixel_class = get_pixel_class(
                     coords.latitude,
@@ -38,10 +33,9 @@ def api_get_pixel_class(coords: Coordinates):
                     x, y, 
                     resolution, 
                     wcs_url,
-                    dt  # passamos a data para a função
+                    dt
                 )
 
-                # Adiciona ao resultado
                 pixel_classes.append({
                     'product': product_name,
                     'class': pixel_class,

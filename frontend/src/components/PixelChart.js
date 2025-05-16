@@ -13,16 +13,15 @@ const classMapping = {
 };
 
 const classColors = {
-  'Building': 'rgb(255, 99, 132)',      // Vermelho
-  'Vegetation': 'rgb(75, 192, 192)',    // Verde
-  'Background': 'rgb(201, 203, 207)',   // Cinza
-  'no_data': 'rgb(150, 150, 150)',      // Cinza escuro
+  'Building': 'rgb(255, 99, 132)', 
+  'Vegetation': 'rgb(75, 192, 192)',
+  'Background': 'rgb(201, 203, 207)',
+  'no_data': 'rgb(150, 150, 150)',
 };
 
 const classNames = Object.keys(classMapping);
 
 const PixelChart = ({ data }) => {
-  // Filtrar os dados para excluir a classe 'no_data'
   const filteredData = data.filter(item => item.class !== 'no_data');
 
   filteredData.sort((a, b) => new Date(a.date_time) - new Date(b.date_time));

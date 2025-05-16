@@ -5,28 +5,23 @@ from psycopg2.extras import RealDictCursor
 from typing import List
 import logging
 
-# Configurações do banco de dados
 DB_CONFIG = {
-    "host": "postgres",  # Nome do serviço no Docker Compose
+    "host": "postgres",
     "user": "postgres",
     "password": "opendatacubepassword",
     "dbname": "cuborizonte_db",
     "port": 5432,
 }
 
-# Configurando o logger
 logger = logging.getLogger(__name__)
 
-# Iniciando o APIRouter
 router = APIRouter()
 
-# Modelo de resposta para a rota
 class AreaResponse(BaseModel):
     nome: str
     bounding_box: List[float]
 
 
-# Função para conexão com o banco de dadosz
 def get_db_connection():
     try:
         conn = psycopg2.connect(
@@ -43,7 +38,6 @@ def get_db_connection():
         raise HTTPException(status_code=500, detail="Erro ao conectar ao banco de dados")
 
 
-# Nova rota para buscar os area e suas bounding boxes
 @router.get("/areas", response_model=List[AreaResponse])
 def get_area(table_name: str):
     """

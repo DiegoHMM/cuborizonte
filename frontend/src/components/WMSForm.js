@@ -214,7 +214,7 @@ const WMSForm = ({
       }
       setYearOptions(years);
       setShowYearButtons(true);
-      return; // Aguarda a seleção do ano no modo single
+      return;
     }
 
     if (viewMode === 'comparison') {
@@ -222,7 +222,6 @@ const WMSForm = ({
         alert('Por favor, selecione os produtos para ambos os lados.');
         return;
       }
-      // Extrair as opções de ano para cada lado
       let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
       leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
 
@@ -244,7 +243,6 @@ const WMSForm = ({
       setRightYearOptions(rightYears);
       setLeftShowYearButtons(true);
       setRightShowYearButtons(true);
-      // Neste caso, não há um botão de submissão final; a camada só será atualizada quando ambos os lados tiverem um ano selecionado.
       return;
     }
   };
@@ -263,7 +261,6 @@ const WMSForm = ({
   const handleComparisonYearChange = (side, year) => {
     if (side === 'left') {
       setLeftSelectedYear(year);
-      // Se ambos os lados já estiverem selecionados, atualiza imediatamente
       if (year && rightSelectedYear) {
         onSubmit({
           ...formData,
@@ -873,8 +870,6 @@ const WMSForm = ({
       {viewMode === 'comparison' && (
         <>
           {renderAreaSubTabComparison()}
-
-          {/* Campos Data Início/Fim (se desejar filtrar anos disponíveis) */}
           <div className="row mt-3">
             <div className="col-md-6">
               <label>Data Início:</label>
@@ -897,8 +892,6 @@ const WMSForm = ({
               />
             </div>
           </div>
-
-          {/* Dropdowns para seleção de produtos na comparação */}
           <div className="row mt-3">
             <div className="col-md-6">
               <label>Produto Esquerdo:</label>
@@ -942,7 +935,6 @@ const WMSForm = ({
             </div>
           </div>
 
-          {/* Botões de ano em duas colunas */}
           <div className="row mt-3">
             <div className="col-md-6">
               {leftShowYearButtons && leftYearOptions.length > 0 && (
@@ -992,7 +984,6 @@ const WMSForm = ({
             </div>
           </div>
 
-          {/* Se os produtos já foram selecionados mas os botões ainda não foram inicializados, executa a extração */}
           {selectedProductLeft && !leftShowYearButtons && (() => {
             let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
             leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
@@ -1023,7 +1014,6 @@ const WMSForm = ({
             return null;
           })()}
 
-          {/* Campos de coordenadas para Comparison */}
           <div className="form-group mt-4">
             <label>Coordenadas Selecionadas:</label>
             <div className="row">

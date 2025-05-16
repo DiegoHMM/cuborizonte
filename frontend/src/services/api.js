@@ -1,6 +1,5 @@
-const baseApiURL = process.env.REACT_APP_API_BASE_URL || '/api/'; 
-
 // services/api.js
+const baseApiURL = process.env.REACT_APP_API_BASE_URL || '/api/'; 
 
 export const get_all_areas = async (tableName = "bairro_popular") => {
     const response = await fetch(`${baseApiURL}/areas?table_name=${encodeURIComponent(tableName)}`, {

@@ -16,28 +16,23 @@ def get_available_products_with_metadata(wcs_url):
     Retorna:
     - Uma lista de dicionários contendo metadados dos produtos.
     """
-    # Parâmetros da requisição GetCapabilities
     params = {
         'SERVICE': 'WCS',
         'VERSION': '1.0.0',
         'REQUEST': 'GetCapabilities'
     }
 
-    # Faz a requisição GetCapabilities
     response = requests.get(wcs_url, params=params)
 
     if response.status_code == 200:
-        # Analisa o XML de resposta
         root = ET.fromstring(response.content)
 
-        # Define os namespaces
         ns = {
             'wcs': 'http://www.opengis.net/wcs',
             'xlink': 'http://www.w3.org/1999/xlink',
             'gml': 'http://www.opengis.net/gml'
         }
 
-        # Encontra todos os elementos CoverageOfferingBrief
         coverage_offerings = root.findall('.//wcs:CoverageOfferingBrief', ns)
 
         products = []
@@ -45,17 +40,14 @@ def get_available_products_with_metadata(wcs_url):
         for coverage in coverage_offerings:
 
             product_info = {}
-            # Nome da cobertura
             name_elem = coverage.find('wcs:name', ns)
             if name_elem is not None:
                 product_info['name'] = name_elem.text
 
-            # Título ou descrição
             label_elem = coverage.find('wcs:label', ns)
             if label_elem is not None:
                 product_info['label'] = label_elem.text
 
-            # Resumo
             desc_elem = coverage.find('wcs:description', ns)
             if desc_elem is not None:
                 product_info['description'] = desc_elem.text
@@ -68,7 +60,6 @@ def get_available_products_with_metadata(wcs_url):
 
         return products
     else:
-        # Trata erros na requisição
         raise Exception(f"Falha ao obter as capacidades do serviço WCS. Código HTTP: {response.status_code}")
 
 def get_products(wcs_url, product_prefix):
@@ -94,18 +85,17 @@ def get_coverage_datetime(wcs_url, coverage_name):
     
     params = {
         'SERVICE': 'WCS',
-        'VERSION': '1.0.0',  # Pode precisar ajustar para 1.1.0 ou 2.0.1 dependendo do servidor
+        'VERSION': '1.0.0',
         'REQUEST': 'DescribeCoverage',
         'COVERAGE': coverage_name
     }
     
     try:
         response = requests.get(wcs_url, params=params, timeout=10)
-        response.raise_for_status()  # Lança erro para códigos HTTP 4xx ou 5xx
+        response.raise_for_status()
         
         root = ET.fromstring(response.content)
 
-        # Namespaces comuns em WCS (pode ser necessário ajustar conforme o serviço)
         ns = {
             'wcs': 'http://www.opengis.net/wcs',
             'gml': 'http://www.opengis.net/gml',
@@ -113,14 +103,12 @@ def get_coverage_datetime(wcs_url, coverage_name):
             'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
         }
 
-        # Busca todas as ocorrências de timePosition
         time_positions = root.findall('.//gml:timePosition', ns)
-        datetimes = set()  # Usando um conjunto para evitar duplicatas
+        datetimes = set()
         for tp in time_positions:
             if tp.text and tp.text.strip():
                 datetimes.add(tp.text.strip())
 
-        # Se não encontrar `timePosition`, tenta buscar em metadados personalizados
         if not datetimes:
             metadata_links = root.findall('.//wcs:metadataLink', ns)
             for metadata_link in metadata_links:
@@ -141,7 +129,7 @@ def get_coverage_datetime(wcs_url, coverage_name):
                         except Exception as e:
                             print(f"Erro ao analisar metadados: {e}")
 
-        return list(datetimes)  # Converte o conjunto de volta para uma lista
+        return list(datetimes)
 
     except requests.exceptions.RequestException as e:
         print(f"Erro ao acessar o WCS: {e}")
@@ -185,12 +173,11 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
     miny = y - half_pixel
     maxy = y + half_pixel
 
-    # Monta parâmetros de GetCoverage.
     params = {
         'SERVICE': 'WCS',
         'VERSION': '1.0.0',
         'REQUEST': 'GetCoverage',
-        'COVERAGE': product,  # "bh_class_layer"
+        'COVERAGE': product,
         'CRS': 'EPSG:31983',
         'BBOX': f'{minx},{miny},{maxx},{maxy}',
         'WIDTH': '1',
@@ -199,14 +186,12 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
     }
 
     if dt:
-        # Caso seu servidor use TIME=, time= ou outro nome de parâmetro:
         params['TIME'] = dt
 
 
     response = requests.get(wcs_url, params=params)
 
     if response.status_code == 200:
-        # Converte o conteúdo em um objeto de arquivo para abrir com rasterio
         with rasterio.open(BytesIO(response.content)) as dataset:
             print(dataset.profile)
 
@@ -214,10 +199,8 @@ def get_pixel_class(lat, lon, product, x, y, resolution, wcs_url, dt=None):
                 band = dataset.read(idx)
                 value = band[0, 0]
 
-                # Converte para tipo nativo de Python
                 value = int(value) if isinstance(value, np.integer) else float(value)
 
-                # Exemplo de classificação simples
                 if idx == 1 and value == 255:
                     return 'Vegetation'
                 elif idx == 2 and value == 255:
