@@ -16,12 +16,18 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
   initialize: function (url, options) {
     options = options || {};
     options.tileSize = options.tileSize || 512;
+    this._abortController = options.signal ? options.signal.controller : null;
     L.TileLayer.WMS.prototype.initialize.call(this, url, options);
     if (options.bounds) {
       this._bounds = L.latLngBounds(options.bounds);
     }
   },
+  
   getTileUrl: function (coords) {
+    if (this._abortController && this._abortController.signal.aborted) {
+      return L.Util.emptyImageUrl;
+    }
+    
     const tileBounds = this._tileCoordsToBounds(coords);
     if (this._bounds && !this._bounds.overlaps(tileBounds)) {
       return L.Util.emptyImageUrl;
@@ -107,12 +113,21 @@ const MapClickHandler = ({ selectingPixel, onPixelSelected }) => {
   return null;
 };
 
-const SingleLayer = ({ wmsData }) => {
+const SingleLayer = ({ wmsData, registerAbortController }) => {
   const map = useMap();
   const layerRef = useRef(null);
+  const abortControllerRef = useRef(null);
+  const unregisterRef = useRef(null);
 
   useEffect(() => {
     if (wmsData) {
+      // Cancelar requisição anterior se existir
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+
+      // Criar novo controller para esta requisição
+      abortControllerRef.current = new AbortController();
+      unregisterRef.current = registerAbortController(abortControllerRef.current);
+
       if (layerRef.current) {
         map.removeLayer(layerRef.current);
       }
@@ -130,40 +145,61 @@ const SingleLayer = ({ wmsData }) => {
         crs: L.CRS.EPSG3857,
         bounds: bounds,
         tileSize: 512,
+        signal: abortControllerRef.current.signal
       };
 
       if (wmsData.year) {
         wmsOptions.time = `${wmsData.year}-01-01/${wmsData.year}-12-31`;
       }
 
-      const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
-
-      layerRef.current = layer;
-      layer.addTo(map);
-
-      map.fitBounds(bounds);
-
-      return () => {
-        if (layerRef.current) {
-          map.removeLayer(layerRef.current);
+      try {
+        const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
+        layerRef.current = layer;
+        layer.addTo(map);
+        map.fitBounds(bounds);
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Erro ao carregar camada WMS:', error);
         }
-      };
+      }
     }
-  }, [map, wmsData]);
+
+    return () => {
+      if (unregisterRef.current) unregisterRef.current(); // Usar a referência armazenada
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+      }
+    };
+  }, [map, wmsData, registerAbortController]);
 
   return null;
 };
 
 
 
-const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
+const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight, registerAbortController }) => {
   const map = useMap();
   const leftLayerRef = useRef(null);
   const rightLayerRef = useRef(null);
   const sideBySideRef = useRef(null);
+  const abortControllersRef = useRef([]);
 
   useEffect(() => {
     if (wmsLayerLeft && wmsLayerRight) {
+      abortControllersRef.current.forEach(controller => controller.abort());
+      abortControllersRef.current = [];
+
+      const leftController = new AbortController();
+      const leftUnregister = registerAbortController(leftController);
+      abortControllersRef.current.push(leftController);
+
+      const rightController = new AbortController();
+      const rightUnregister = registerAbortController(rightController);
+      abortControllersRef.current.push(rightController);
+
+      
+
       if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
       if (sideBySideRef.current) sideBySideRef.current.remove();
@@ -185,6 +221,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         crs: L.CRS.EPSG3857,
         bounds: boundsLeft,
         tileSize: 512,
+        signal: leftController.signal
       };
       if (wmsLayerLeft.year) {
         leftOptions.time = `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`;
@@ -198,6 +235,7 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
         crs: L.CRS.EPSG3857,
         bounds: boundsRight,
         tileSize: 512,
+        signal: rightController.signal
       };
       if (wmsLayerRight.year) {
         rightOptions.time = `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`;
@@ -219,12 +257,15 @@ const SideBySideLayers = ({ wmsLayerLeft, wmsLayerRight }) => {
       map.fitBounds(combinedBounds);
 
       return () => {
+        leftUnregister();
+        rightUnregister();
+        abortControllersRef.current.forEach(controller => controller.abort());
         if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
         if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
         if (sideBySideRef.current) sideBySideRef.current.remove();
       };
     }
-  }, [map, wmsLayerLeft, wmsLayerRight]);
+  }, [map, wmsLayerLeft, wmsLayerRight, registerAbortController]);
 
   return null;
 };
@@ -242,6 +283,7 @@ const MapComponent = forwardRef(({
   selectingPixel,
   onPixelSelected,
   onMapClick,
+  registerAbortController, 
 }, ref) => {
   const mapRef = useRef(null);
   const featureGroupRef = useRef(null);
@@ -289,12 +331,16 @@ const MapComponent = forwardRef(({
       />
 
       {viewMode === 'single' && wmsData && (
-        <SingleLayer wmsData={wmsData} />
+        <SingleLayer 
+          wmsData={wmsData} 
+          registerAbortController={registerAbortController}
+        />
       )}
       {viewMode === 'comparison' && wmsDataLeft && wmsDataRight && (
         <SideBySideLayers
           wmsLayerLeft={wmsDataLeft}
           wmsLayerRight={wmsDataRight}
+          registerAbortController={registerAbortController}
         />
       )}
     </MapContainer>

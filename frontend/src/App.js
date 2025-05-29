@@ -21,6 +21,32 @@ function App() {
   const [selectionMode, setSelectionMode] = useState('area');
 
   const mapComponentRef = useRef();
+  const abortControllersRef = useRef([]);
+
+  const registerAbortController = (controller) => {
+    abortControllersRef.current.push(controller);
+    return () => {
+      abortControllersRef.current = abortControllersRef.current.filter(c => c !== controller);
+    };
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      abortControllersRef.current.forEach(controller => {
+        if (controller && !controller.signal.aborted) {
+          controller.abort();
+          console.log('Requisições WMS canceladas ao sair da página');
+        }
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload();
+    };
+  }, []);
 
   useEffect(() => {
     console.log("BoundingBox atualizado:", boundingBox);
@@ -135,6 +161,7 @@ function App() {
           selectingPixel={selectingPixel}
           onPixelSelected={handlePixelSelected}
           onMapClick={handleMapClick}
+          registerAbortController={registerAbortController}
         />
 
         {pixelData && (
