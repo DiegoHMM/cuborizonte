@@ -1,5 +1,6 @@
 // App.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import './styles/LoadingOverlay.css';
 import WMSForm from './components/WMSForm';
 import MapComponent from './components/MapComponent';
 import Header from './components/Header';
@@ -7,6 +8,8 @@ import PixelChart from './components/PixelChart';
 import './styles/App.css';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [boundingBox, setBoundingBox] = useState(null);
 
   const [viewMode, setViewMode] = useState('single');
@@ -21,6 +24,15 @@ function App() {
   const [selectionMode, setSelectionMode] = useState('area');
 
   const mapComponentRef = useRef();
+
+  const handleLoadingStart = useCallback(() => {
+    setIsLoading(true);
+  }, []);
+
+  const handleLoadingEnd = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
 
   useEffect(() => {
     console.log("BoundingBox atualizado:", boundingBox);
@@ -121,9 +133,18 @@ function App() {
         onClearRectangle={handleClearRectangle}
       />
 
-      <div className="map-container">
+      <div className="map-container" style={{ position: 'relative' }}>
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        )}
         <MapComponent
           ref={mapComponentRef}
+          onLayerLoadingStart={handleLoadingStart}
+          onLayerLoadingEnd={handleLoadingEnd}
           viewMode={viewMode}
           wmsData={wmsData}
           wmsDataLeft={wmsDataLeft}
