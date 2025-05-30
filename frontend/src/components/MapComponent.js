@@ -251,7 +251,7 @@ const SideBySideLayers = ({
       leftLayerRef.current?.off('loading', onLayerLoadingStart);
       leftLayerRef.current?.off('load',    onLayerLoadingEnd);
       if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
-+
+
       rightLayerRef.current?.off('loading', onLayerLoadingStart);
       rightLayerRef.current?.off('load',    onLayerLoadingEnd);
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
