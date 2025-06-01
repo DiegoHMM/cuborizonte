@@ -51,9 +51,8 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
     this._shouldLoad = currentZoom >= 17;
     
     if (!this._shouldLoad) {
-      this._tiles = {};
-      this._tilesToLoad = 0;
-      this.fire('load'); // Dispara evento de load manualmente
+      this._resetTiles();
+      this.fire('load');
       return;
     }
     
@@ -61,16 +60,18 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
   },
   
   createTile: function (coords, done) {
-    const tile = L.TileLayer.WMS.prototype.createTile.call(this, coords, done);
-    
     if (!this._shouldLoad) {
-      // Dispara o callback imediatamente para tiles bloqueados
-      setTimeout(() => {
-        if (done) done(null, tile);
-      }, 0);
+      const tile = document.createElement('img');
+      tile.src = L.Util.emptyImageUrl;
+      tile.alt = '';
+      tile.setAttribute('role', 'presentation');
+      if (done) {
+        setTimeout(() => done(null, tile), 0);
+      }
+      return tile;
     }
     
-    return tile;
+    return L.TileLayer.WMS.prototype.createTile.call(this, coords, done);
   },
   
   onAdd: function (map) {
@@ -97,9 +98,22 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
     if (this._shouldLoad !== shouldLoadNow) {
       this._shouldLoad = shouldLoadNow;
       if (!shouldLoadNow) {
-        this.fire('load'); // Notifica que o carregamento "terminou"
+        this._resetTiles();
+        this.fire('load');
       }
     }
+  },
+  
+  _resetTiles: function() {
+    // Limpa os tiles de forma segura
+    for (const key in this._tiles) {
+      const tile = this._tiles[key];
+      if (tile && tile.el) {
+        tile.el.src = L.Util.emptyImageUrl;
+      }
+    }
+    this._tiles = {};
+    this._tilesToLoad = 0;
   }
 });
 
