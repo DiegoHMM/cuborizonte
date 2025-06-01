@@ -34,7 +34,7 @@ docker-compose exec ows python /handle_data_functions/build_dataset_ortofoto.py 
     "/data/processed/${PASTA_DE_ORIGEM}" \
     "/data/raw/${PASTA_DE_ORIGEM}" \
     $NOME_DO_PRODUTO $ANO ${BAND_NAMES_FLAG} \
-    --base-url "http://150.164.2.42"
+    --base-url "http://aqui.io/cuborizonte/"
 
 
 

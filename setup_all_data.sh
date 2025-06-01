@@ -3,7 +3,7 @@
 #Ortophoto
 #./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto 1989
 #./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto 1994
-#./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto 1999
+./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto 1999
 #./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto 2007
 #./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto 2015
 
@@ -24,15 +24,15 @@
 #Ortophoto
 
 #./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1989
-./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1994
+#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1994
 ./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1999
-./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2007
-./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2015
+#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2007
+#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2015
 
 #Plan
-./setup_datacube.sh Planta bh_planta PLANTA_1942
-./setup_datacube.sh Planta bh_planta PLANTA_1972
-./setup_datacube.sh Planta bh_planta PLANTA_1989
+#./setup_datacube.sh Planta bh_planta PLANTA_1942
+#./setup_datacube.sh Planta bh_planta PLANTA_1972
+#./setup_datacube.sh Planta bh_planta PLANTA_1989
 
 #Masks
 #./setup_datacube.sh Segmentacao bh_class_layer CLASSES_2015
@@ -40,8 +40,8 @@
 #./setup_datacube.sh Segmentacao bh_class_layer CLASSES_1999
 
 #Lidar
-./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2015
-./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2007
+#./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2015
+#./setup_datacube.sh Lidar bh_lidar_rasterized LIDAR_2007
 
 ./setup_areas.sh BAIRRO_POPULAR.geojson BAIRRO_POPULAR
 ./setup_areas.sh REGIOES.geojson REGIAO
