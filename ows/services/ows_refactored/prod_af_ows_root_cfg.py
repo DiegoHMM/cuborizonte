@@ -77,8 +77,8 @@ ows_cfg = {
     "wms": {
         # Config for WMS service, for all products/layers
         "s3_aws_zone": "sa-east-1",
-        "max_width": 512,
-        "max_height": 512,
+        "max_width": 2048,
+        "max_height": 2048,
         "formats": {
             "image/png": {
                 "renderer": "datacube_ows.wms_utils.png_renderer",

@@ -20,14 +20,101 @@ L.BoundedTileLayerWMS = L.TileLayer.WMS.extend({
     if (options.bounds) {
       this._bounds = L.latLngBounds(options.bounds);
     }
+    this._currentZoom = -1;
+    this._shouldLoad = true;
   },
+  
   getTileUrl: function (coords) {
+    const map = this._map;
+    if (!map || map.getZoom() < 17) {
+      return L.Util.emptyImageUrl;
+    }    
+    const currentZoom = map.getZoom();
+    this._shouldLoad = currentZoom >= 17;
+    
+    if (!this._shouldLoad) {
+      return L.Util.emptyImageUrl;
+    }
+    
     const tileBounds = this._tileCoordsToBounds(coords);
     if (this._bounds && !this._bounds.overlaps(tileBounds)) {
       return L.Util.emptyImageUrl;
     }
     return L.TileLayer.WMS.prototype.getTileUrl.call(this, coords);
   },
+  
+  _update: function () {
+    const map = this._map;
+    if (!map) return;
+    
+    const currentZoom = map.getZoom();
+    this._shouldLoad = currentZoom >= 17;
+    
+    if (!this._shouldLoad) {
+      this._resetTiles();
+      this.fire('load');
+      return;
+    }
+    
+    L.TileLayer.WMS.prototype._update.call(this);
+  },
+  
+  createTile: function (coords, done) {
+    if (!this._shouldLoad) {
+      const tile = document.createElement('img');
+      tile.src = L.Util.emptyImageUrl;
+      tile.alt = '';
+      tile.setAttribute('role', 'presentation');
+      if (done) {
+        setTimeout(() => done(null, tile), 0);
+      }
+      return tile;
+    }
+    
+    return L.TileLayer.WMS.prototype.createTile.call(this, coords, done);
+  },
+  
+  onAdd: function (map) {
+    L.TileLayer.WMS.prototype.onAdd.call(this, map);
+    map.on('zoomend', this._onZoomChange, this);
+    this._updateZoomState(map.getZoom());
+  },
+  
+  onRemove: function (map) {
+    map.off('zoomend', this._onZoomChange, this);
+    L.TileLayer.WMS.prototype.onRemove.call(this, map);
+  },
+  
+  _onZoomChange: function () {
+    const map = this._map;
+    if (!map) return;
+    this._updateZoomState(map.getZoom());
+    this._update();
+  },
+  
+  _updateZoomState: function (zoom) {
+    const shouldLoadNow = zoom >= 17;
+    
+    if (this._shouldLoad !== shouldLoadNow) {
+      this._shouldLoad = shouldLoadNow;
+      if (!shouldLoadNow) {
+        this._resetTiles();
+        this.fire('load');
+      }
+    }
+  },
+  
+  _resetTiles: function() {
+    // Limpa os tiles de forma segura
+    for (const key in this._tiles) {
+      const tile = this._tiles[key];
+      if (tile && tile.el) {
+        tile.el.src = L.Util.emptyImageUrl;
+      }
+    }
+    this._tiles = {};
+    this._tilesToLoad = 0;
+  }
 });
 
 // ----------- HOOK DE DESENHO DE RETÂNGULO -----------
@@ -138,12 +225,14 @@ const SingleLayer = ({ wmsData, onLayerLoadingStart, onLayerLoadingEnd }) => {
 
       const layer = new L.BoundedTileLayerWMS(baseWmsURL, wmsOptions);
 
-      // quando a camada começar a carregar qualquer tile
-      layer.on('loading', onLayerLoadingStart);
-      // quando todos os tiles tiverem finalizado (sucesso ou erro)
-      layer.on('load',    onLayerLoadingEnd);
+      const onLoading = () => {
+        if (layer._map.getZoom() >= 17) {
+          onLayerLoadingStart();
+        }
+      };
 
-      
+      layer.on('loading', onLoading);
+      layer.on('load',    onLayerLoadingEnd);
 
       layerRef.current = layer;
       layer.addTo(map);
@@ -151,7 +240,7 @@ const SingleLayer = ({ wmsData, onLayerLoadingStart, onLayerLoadingEnd }) => {
       map.fitBounds(bounds);
 
       return () => {
-        layer.off('loading', onLayerLoadingStart);
+        layer.off('loading', onLoading);
         layer.off('load',    onLayerLoadingEnd);
         if (layerRef.current) {
           map.removeLayer(layerRef.current);
@@ -177,98 +266,101 @@ const SideBySideLayers = ({
   const sideBySideRef = useRef(null);
 
   useEffect(() => {
-    // só executa quando temos ambos os dados
     if (!wmsLayerLeft || !wmsLayerRight) return;
 
-    // limpa camadas antigas
-    if (leftLayerRef.current)  map.removeLayer(leftLayerRef.current);
+    if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
     if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
     if (sideBySideRef.current) sideBySideRef.current.remove();
 
-    // cria bounds
     const boundsLeft = L.latLngBounds([
-      [wmsLayerLeft.latitudeInicial,  wmsLayerLeft.longitudeInicial],
-      [wmsLayerLeft.latitudeFinal,    wmsLayerLeft.longitudeFinal],
+      [wmsLayerLeft.latitudeInicial, wmsLayerLeft.longitudeInicial],
+      [wmsLayerLeft.latitudeFinal, wmsLayerLeft.longitudeFinal],
     ]);
     const boundsRight = L.latLngBounds([
       [wmsLayerRight.latitudeInicial, wmsLayerRight.longitudeInicial],
-      [wmsLayerRight.latitudeFinal,   wmsLayerRight.longitudeFinal],
+      [wmsLayerRight.latitudeFinal, wmsLayerRight.longitudeFinal],
     ]);
 
-    // opções WMS
     const leftOpts = {
-      layers:     wmsLayerLeft.layer,
-      format:     'image/png',
-      transparent:true,
-      version:    '1.3.0',
-      crs:        L.CRS.EPSG3857,
-      bounds:     boundsLeft,
-      tileSize:   512,
-      ...(wmsLayerLeft.year && {
-        time: `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31`
-      }),
-    };
-    const rightOpts = {
-      layers:     wmsLayerRight.layer,
-      format:     'image/png',
-      transparent:true,
-      version:    '1.3.0',
-      crs:        L.CRS.EPSG3857,
-      bounds:     boundsRight,
-      tileSize:   512,
-      ...(wmsLayerRight.year && {
-        time: `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31`
-      }),
+      layers: wmsLayerLeft.layer,
+      format: 'image/png',
+      transparent: true,
+      version: '1.3.0',
+      crs: L.CRS.EPSG3857,
+      bounds: boundsLeft,
+      tileSize: 512,
+      ...(wmsLayerLeft.year && { time: `${wmsLayerLeft.year}-01-01/${wmsLayerLeft.year}-12-31` }),
     };
 
-    // instancia os layers
-    const leftLayer  = new L.BoundedTileLayerWMS(baseWmsURL, leftOpts);
+    const rightOpts = {
+      layers: wmsLayerRight.layer,
+      format: 'image/png',
+      transparent: true,
+      version: '1.3.0',
+      crs: L.CRS.EPSG3857,
+      bounds: boundsRight,
+      tileSize: 512,
+      ...(wmsLayerRight.year && { time: `${wmsLayerRight.year}-01-01/${wmsLayerRight.year}-12-31` }),
+    };
+
+    const leftLayer = new L.BoundedTileLayerWMS(baseWmsURL, leftOpts);
     const rightLayer = new L.BoundedTileLayerWMS(baseWmsURL, rightOpts);
 
-    // vincula após criar os layers
-    [leftLayer, rightLayer].forEach(layer => {
-      layer.on('loading', onLayerLoadingStart);
-      layer.on('load',    onLayerLoadingEnd);
-    });
+    // Funções modificadas para verificar zoom
+    const onLeftLoading = () => {
+      if (leftLayer._map?.getZoom() >= 17) {
+        onLayerLoadingStart();
+      }
+    };
 
+    const onRightLoading = () => {
+      if (rightLayer._map?.getZoom() >= 17) {
+        onLayerLoadingStart();
+      }
+    };
 
-    // adiciona ao mapa e side-by-side
+    leftLayer.on('loading', onLeftLoading);
+    leftLayer.on('load', onLayerLoadingEnd);
+    rightLayer.on('loading', onRightLoading);
+    rightLayer.on('load', onLayerLoadingEnd);
+
+    leftLayerRef.current = leftLayer;
+    rightLayerRef.current = rightLayer;
+
     leftLayer.addTo(map);
     rightLayer.addTo(map);
-    const ctl = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
+    sideBySideRef.current = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
 
-    // ajusta zoom
     const combined = boundsLeft.extend(boundsRight);
     map.fitBounds(combined);
 
-    // guarda refs
-    leftLayerRef.current    = leftLayer;
-    rightLayerRef.current   = rightLayer;
-    sideBySideRef.current   = ctl;
-
-    // cleanup
     return () => {
-      leftLayerRef.current?.off('loading', onLayerLoadingStart);
-      leftLayerRef.current?.off('load',    onLayerLoadingEnd);
+      leftLayer.off('loading', onLeftLoading);
+      leftLayer.off('load', onLayerLoadingEnd);
+      rightLayer.off('loading', onRightLoading);
+      rightLayer.off('load', onLayerLoadingEnd);
+      
       if (leftLayerRef.current) map.removeLayer(leftLayerRef.current);
-
-      rightLayerRef.current?.off('loading', onLayerLoadingStart);
-      rightLayerRef.current?.off('load',    onLayerLoadingEnd);
       if (rightLayerRef.current) map.removeLayer(rightLayerRef.current);
       if (sideBySideRef.current) sideBySideRef.current.remove();
     };
-  }, [
-    map,
-    wmsLayerLeft,
-    wmsLayerRight,
-    onLayerLoadingStart,
-    onLayerLoadingEnd,
-  ]);
+  }, [map, wmsLayerLeft, wmsLayerRight, onLayerLoadingStart, onLayerLoadingEnd]);
 
   return null;
 };
 
 
+const ZoomLevelLogger = () => {
+  const map = useMap();
+
+  useMapEvents({
+    zoomend: () => {
+      console.log('Nível de Zoom Atual:', map.getZoom());
+    },
+  });
+
+  return null;
+};
 
 const MapComponent = forwardRef(({
   viewMode,
@@ -305,6 +397,7 @@ const MapComponent = forwardRef(({
         mapRef.current = mapInstance;
       }}
     >
+      <ZoomLevelLogger />
       <GeneralMapClickHandler 
         selectingPixel={selectingPixel} 
         onMapClick={onMapClick} 
