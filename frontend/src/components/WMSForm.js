@@ -274,6 +274,8 @@ const WMSForm = ({
 
   // Handler para seleção de ano no modo single
   const handleYearSelection = (year) => {
+    setFormData(prev => ({ ...prev, year: year })); 
+
     onSubmit({
       ...formData,
       viewMode,
@@ -717,7 +719,6 @@ const WMSForm = ({
   };
 
   return (
-    // Envolvemos o formulário e a timeline em um React.Fragment (<>)
     <>
       <form onSubmit={handleSubmit} className="floating-form form-group p-4">
         <h3>Seleção de Produtos</h3>
@@ -807,8 +808,6 @@ const WMSForm = ({
                 placeholder="Selecione o produto"
               />
             </div>
-            
-            {/* O BLOCO DE BOTÕES DE ANO FOI REMOVIDO DESTA ÁREA */}
 
             <div className="form-group mt-3">
               <label>Coordenadas Selecionadas:</label>
@@ -923,7 +922,11 @@ const WMSForm = ({
                         }
                       : null
                   }
-                  onChange={(option) => setSelectedProductLeft(option.value)}
+                  onChange={(option) => {
+                    setSelectedProductLeft(option.value);
+                    setLeftShowYearButtons(false); // Reseta para recalcular
+                    setLeftYearOptions([]);
+                  }}
                   placeholder="Produto 1"
                 />
               </div>
@@ -943,14 +946,97 @@ const WMSForm = ({
                         }
                       : null
                   }
-                  onChange={(option) => setSelectedProductRight(option.value)}
+                  onChange={(option) => {
+                    setSelectedProductRight(option.value);
+                    setRightShowYearButtons(false); // Reseta para recalcular
+                    setRightYearOptions([]);
+                  }}
                   placeholder="Produto 2"
                 />
               </div>
             </div>
             
-            {/* OS BLOCOS DE BOTÕES DE ANO FORAM REMOVIDOS DESTA ÁREA */}
-            
+            {/* CÓDIGO RESTAURADO PARA EXIBIR ANOS AUTOMATICAMENTE */}
+            {selectedProductLeft && !leftShowYearButtons && (() => {
+                let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
+                leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
+                if (formData.dataInicio && formData.dataFim) {
+                const startYear = new Date(formData.dataInicio).getFullYear();
+                const endYear = new Date(formData.dataFim).getFullYear();
+                leftYears = leftYears.filter(year => year >= startYear && year <= endYear);
+                }
+                if (leftYears.length > 0) {
+                setLeftYearOptions(leftYears);
+                setLeftShowYearButtons(true);
+                }
+                return null;
+            })()}
+
+            {selectedProductRight && !rightShowYearButtons && (() => {
+                let rightYears = selectedProductRight.datetime.map(d => new Date(d).getFullYear());
+                rightYears = Array.from(new Set(rightYears)).sort((a, b) => a - b);
+                if (formData.dataInicio && formData.dataFim) {
+                const startYear = new Date(formData.dataInicio).getFullYear();
+                const endYear = new Date(formData.dataFim).getFullYear();
+                rightYears = rightYears.filter(year => year >= startYear && year <= endYear);
+                }
+                if (rightYears.length > 0) {
+                setRightYearOptions(rightYears);
+                setRightShowYearButtons(true);
+                }
+                return null;
+            })()}
+
+            {/* Lógica de botões que agora será exibida corretamente */}
+            <div className="row mt-3">
+              <div className="col-md-6">
+                {leftShowYearButtons && leftYearOptions.length > 0 && (
+                  <div className="form-group">
+                    <label>Anos Disponíveis:</label>
+                    <div className="product-timeline">
+                      {leftYearOptions.sort((a, b) => a - b).map((year) => (
+                        <button
+                          key={year}
+                          type="button"
+                          className={
+                            leftSelectedYear === year
+                              ? 'btn btn-primary me-2 mt-2'
+                              : 'btn btn-outline-primary me-2 mt-2'
+                          }
+                          onClick={() => handleComparisonYearChange('left', year)}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="col-md-6">
+                {rightShowYearButtons && rightYearOptions.length > 0 && (
+                  <div className="form-group">
+                    <label>Anos Disponíveis:</label>
+                    <div className="product-timeline">
+                      {rightYearOptions.sort((a, b) => a - b).map((year) => (
+                        <button
+                          key={year}
+                          type="button"
+                          className={
+                            rightSelectedYear === year
+                              ? 'btn btn-primary me-2 mt-2'
+                              : 'btn btn-outline-primary me-2 mt-2'
+                          }
+                          onClick={() => handleComparisonYearChange('right', year)}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="form-group mt-4">
               <label>Coordenadas Selecionadas:</label>
               <div className="row">
@@ -1006,38 +1092,18 @@ const WMSForm = ({
         )}
       </form>
 
-      {/* A nova lógica de renderização da timeline fica aqui, fora do formulário */}
+      {/* Renderização da timeline apenas para o modo single */}
       {viewMode === 'single' && showYearButtons && yearOptions.length > 0 && (
         <ProductTimeline
           years={yearOptions}
-          selectedYear={formData.year}
+          selectedYear={formData.year} 
           onYearSelect={handleYearSelection}
           title={selectedProduct?.label || selectedProduct?.name}
         />
       )}
-
-      {viewMode === 'comparison' && (leftShowYearButtons || rightShowYearButtons) && (
-        <div className="comparison-timelines-container">
-          {leftShowYearButtons && leftYearOptions.length > 0 && (
-            <ProductTimeline
-              years={leftYearOptions}
-              selectedYear={leftSelectedYear}
-              onYearSelect={(year) => handleComparisonYearChange('left', year)}
-              title={`Esquerda: ${selectedProductLeft?.label || selectedProductLeft?.name}`}
-            />
-          )}
-          {rightShowYearButtons && rightYearOptions.length > 0 && (
-            <ProductTimeline
-              years={rightYearOptions}
-              selectedYear={rightSelectedYear}
-              onYearSelect={(year) => handleComparisonYearChange('right', year)}
-              title={`Direita: ${selectedProductRight?.label || selectedProductRight?.name}`}
-            />
-          )}
-        </div>
-      )}
     </>
   );
 };
+
 
 export default WMSForm;
