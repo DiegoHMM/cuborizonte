@@ -6,6 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Select from 'react-select';
 import { BsBoundingBoxCircles } from 'react-icons/bs';
 
+import ProductTimeline from './ProductTimeline'; 
+import '../styles/ProductTimeline.css';
+
 const WMSForm = ({
   boundingBox,
   onSubmit,
@@ -714,389 +717,326 @@ const WMSForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="floating-form form-group p-4">
-      <h3>Seleção de Produtos</h3>
-      <ul className="nav nav-tabs">
-        <li className="nav-item">
-          <button
-            type="button"
-            className={`nav-link ${viewMode === 'single' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('single');
-              setFormError('');
-              setCoordinateError('');
-              setSelectedProduct(null);
-              setYearOptions([]);
-              setShowYearButtons(false);
-            }}
-          >
-            Single
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            type="button"
-            className={`nav-link ${viewMode === 'comparison' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('comparison');
-              setFormError('');
-              setCoordinateError('');
-              setSelectedProductLeft(null);
-              setSelectedProductRight(null);
-              setLeftYearOptions([]);
-              setRightYearOptions([]);
-              setLeftShowYearButtons(false);
-              setRightShowYearButtons(false);
-            }}
-          >
-            Comparativo
-          </button>
-        </li>
-      </ul>
+    // Envolvemos o formulário e a timeline em um React.Fragment (<>)
+    <>
+      <form onSubmit={handleSubmit} className="floating-form form-group p-4">
+        <h3>Seleção de Produtos</h3>
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button
+              type="button"
+              className={`nav-link ${viewMode === 'single' ? 'active' : ''}`}
+              onClick={() => {
+                setViewMode('single');
+                setFormError('');
+                setCoordinateError('');
+                setSelectedProduct(null);
+                setYearOptions([]);
+                setShowYearButtons(false);
+              }}
+            >
+              Single
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              type="button"
+              className={`nav-link ${viewMode === 'comparison' ? 'active' : ''}`}
+              onClick={() => {
+                setViewMode('comparison');
+                setFormError('');
+                setCoordinateError('');
+                setSelectedProductLeft(null);
+                setSelectedProductRight(null);
+                setLeftYearOptions([]);
+                setRightYearOptions([]);
+                setLeftShowYearButtons(false);
+                setRightShowYearButtons(false);
+              }}
+            >
+              Comparativo
+            </button>
+          </li>
+        </ul>
 
-      {error && <div className="alert alert-danger mt-3">{error}</div>}
-      {formError && <div className="alert alert-warning mt-3">{formError}</div>}
-      {coordinateError && <div className="alert alert-warning mt-3">{coordinateError}</div>}
+        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        {formError && <div className="alert alert-warning mt-3">{formError}</div>}
+        {coordinateError && <div className="alert alert-warning mt-3">{coordinateError}</div>}
 
-      {viewMode === 'single' && (
-        <>
-          {renderAreaSubTabSingle()}
+        {viewMode === 'single' && (
+          <>
+            {renderAreaSubTabSingle()}
 
-          <div className="row mt-4">
-            <div className="col-md-6">
-              <label>Data Início:</label>
-              <input
-                type="date"
-                name="dataInicio"
-                className="form-control"
-                value={formData.dataInicio}
-                onChange={handleChange}
-              />
+            <div className="row mt-4">
+              <div className="col-md-6">
+                <label>Data Início:</label>
+                <input
+                  type="date"
+                  name="dataInicio"
+                  className="form-control"
+                  value={formData.dataInicio}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label>Data Fim:</label>
+                <input
+                  type="date"
+                  name="dataFim"
+                  className="form-control"
+                  value={formData.dataFim}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
-            <div className="col-md-6">
-              <label>Data Fim:</label>
-              <input
-                type="date"
-                name="dataFim"
-                className="form-control"
-                value={formData.dataFim}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
 
-          <div className="form-group mt-3">
-            <label>Produto:</label>
-            <Select
-              styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-              options={availableProducts.map((prod) => ({
-                value: prod,
-                label: prod.label || prod.name,
-              }))}
-              value={
-                selectedProduct
-                  ? { value: selectedProduct, label: selectedProduct.label || selectedProduct.name }
-                  : null
-              }
-              onChange={(option) => setSelectedProduct(option.value)}
-              placeholder="Selecione o produto"
-            />
-          </div>
-
-          {showYearButtons && yearOptions.length > 0 && (
             <div className="form-group mt-3">
-              <label>Anos Disponíveis:</label>
-              <div className="product-timeline">
-                {yearOptions.sort((a, b) => a - b).map((year) => (
-                  <button
-                    key={year}
-                    type="button"
-                    className={
-                      formData.year === year
-                        ? 'btn btn-primary me-2 mt-2'
-                        : 'btn btn-outline-primary me-2 mt-2'
-                    }
-                    onClick={() => handleYearSelection(year)}
-                  >
-                    {year}
-                  </button>
-                ))}
+              <label>Produto:</label>
+              <Select
+                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                options={availableProducts.map((prod) => ({
+                  value: prod,
+                  label: prod.label || prod.name,
+                }))}
+                value={
+                  selectedProduct
+                    ? { value: selectedProduct, label: selectedProduct.label || selectedProduct.name }
+                    : null
+                }
+                onChange={(option) => setSelectedProduct(option.value)}
+                placeholder="Selecione o produto"
+              />
+            </div>
+            
+            {/* O BLOCO DE BOTÕES DE ANO FOI REMOVIDO DESTA ÁREA */}
+
+            <div className="form-group mt-3">
+              <label>Coordenadas Selecionadas:</label>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>Latitude Inicial:</label>
+                  <input
+                    type="text"
+                    name="latitudeInicial"
+                    className="form-control"
+                    value={formData.latitudeInicial}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label>Latitude Final:</label>
+                  <input
+                    type="text"
+                    name="latitudeFinal"
+                    className="form-control"
+                    value={formData.latitudeFinal}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>Longitude Inicial:</label>
+                  <input
+                    type="text"
+                    name="longitudeInicial"
+                    className="form-control"
+                    value={formData.longitudeInicial}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label>Longitude Final:</label>
+                  <input
+                    type="text"
+                    name="longitudeFinal"
+                    className="form-control"
+                    value={formData.longitudeFinal}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
               </div>
             </div>
+
+            <div className="row mt-3">
+              <div className="col-md-6 mb-2">
+                <button type="submit" className="btn btn-primary w-100">
+                  Fazer Requisição
+                </button>
+              </div>
+              <div className="col-md-6 mb-2">
+                <button
+                  type="button"
+                  className="btn btn-secondary w-100"
+                  onClick={onSelectPixel}
+                >
+                  Selecionar Ponto
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {viewMode === 'comparison' && (
+          <>
+            {renderAreaSubTabComparison()}
+            <div className="row mt-3">
+              <div className="col-md-6">
+                <label>Data Início:</label>
+                <input
+                  type="date"
+                  name="dataInicio"
+                  className="form-control"
+                  value={formData.dataInicio}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col-md-6">
+                <label>Data Fim:</label>
+                <input
+                  type="date"
+                  name="dataFim"
+                  className="form-control"
+                  value={formData.dataFim}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="row mt-3">
+              <div className="col-md-6">
+                <label>Produto Esquerdo:</label>
+                <Select
+                  styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                  options={availableProducts.map((prod) => ({
+                    value: prod,
+                    label: prod.label || prod.name,
+                  }))}
+                  value={
+                    selectedProductLeft
+                      ? {
+                          value: selectedProductLeft,
+                          label: selectedProductLeft.label || selectedProductLeft.name
+                        }
+                      : null
+                  }
+                  onChange={(option) => setSelectedProductLeft(option.value)}
+                  placeholder="Produto 1"
+                />
+              </div>
+              <div className="col-md-6">
+                <label>Produto Direito:</label>
+                <Select
+                  styles={{ container: (base) => ({ ...base, width: '100%' }) }}
+                  options={availableProducts.map((prod) => ({
+                    value: prod,
+                    label: prod.label || prod.name,
+                  }))}
+                  value={
+                    selectedProductRight
+                      ? {
+                          value: selectedProductRight,
+                          label: selectedProductRight.label || selectedProductRight.name
+                        }
+                      : null
+                  }
+                  onChange={(option) => setSelectedProductRight(option.value)}
+                  placeholder="Produto 2"
+                />
+              </div>
+            </div>
+            
+            {/* OS BLOCOS DE BOTÕES DE ANO FORAM REMOVIDOS DESTA ÁREA */}
+            
+            <div className="form-group mt-4">
+              <label>Coordenadas Selecionadas:</label>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>Latitude Inicial:</label>
+                  <input
+                    type="text"
+                    name="latitudeInicial"
+                    className="form-control"
+                    value={formData.latitudeInicial}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label>Latitude Final:</label>
+                  <input
+                    type="text"
+                    name="latitudeFinal"
+                    className="form-control"
+                    value={formData.latitudeFinal}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label>Longitude Inicial:</label>
+                  <input
+                    type="text"
+                    name="longitudeInicial"
+                    className="form-control"
+                    value={formData.longitudeInicial}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label>Longitude Final:</label>
+                  <input
+                    type="text"
+                    name="longitudeFinal"
+                    className="form-control"
+                    value={formData.longitudeFinal}
+                    onChange={handleChange}
+                    placeholder="Preencha ou selecione"
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </form>
+
+      {/* A nova lógica de renderização da timeline fica aqui, fora do formulário */}
+      {viewMode === 'single' && showYearButtons && yearOptions.length > 0 && (
+        <ProductTimeline
+          years={yearOptions}
+          selectedYear={formData.year}
+          onYearSelect={handleYearSelection}
+          title={selectedProduct?.label || selectedProduct?.name}
+        />
+      )}
+
+      {viewMode === 'comparison' && (leftShowYearButtons || rightShowYearButtons) && (
+        <div className="comparison-timelines-container">
+          {leftShowYearButtons && leftYearOptions.length > 0 && (
+            <ProductTimeline
+              years={leftYearOptions}
+              selectedYear={leftSelectedYear}
+              onYearSelect={(year) => handleComparisonYearChange('left', year)}
+              title={`Esquerda: ${selectedProductLeft?.label || selectedProductLeft?.name}`}
+            />
           )}
-
-          <div className="form-group mt-3">
-            <label>Coordenadas Selecionadas:</label>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Latitude Inicial:</label>
-                <input
-                  type="text"
-                  name="latitudeInicial"
-                  className="form-control"
-                  value={formData.latitudeInicial}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label>Latitude Final:</label>
-                <input
-                  type="text"
-                  name="latitudeFinal"
-                  className="form-control"
-                  value={formData.latitudeFinal}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Longitude Inicial:</label>
-                <input
-                  type="text"
-                  name="longitudeInicial"
-                  className="form-control"
-                  value={formData.longitudeInicial}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label>Longitude Final:</label>
-                <input
-                  type="text"
-                  name="longitudeFinal"
-                  className="form-control"
-                  value={formData.longitudeFinal}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="row mt-3">
-            <div className="col-md-6 mb-2">
-              <button type="submit" className="btn btn-primary w-100">
-                Fazer Requisição
-              </button>
-            </div>
-            <div className="col-md-6 mb-2">
-              <button
-                type="button"
-                className="btn btn-secondary w-100"
-                onClick={onSelectPixel}
-              >
-                Selecionar Ponto
-              </button>
-            </div>
-          </div>
-        </>
+          {rightShowYearButtons && rightYearOptions.length > 0 && (
+            <ProductTimeline
+              years={rightYearOptions}
+              selectedYear={rightSelectedYear}
+              onYearSelect={(year) => handleComparisonYearChange('right', year)}
+              title={`Direita: ${selectedProductRight?.label || selectedProductRight?.name}`}
+            />
+          )}
+        </div>
       )}
-
-      {viewMode === 'comparison' && (
-        <>
-          {renderAreaSubTabComparison()}
-          <div className="row mt-3">
-            <div className="col-md-6">
-              <label>Data Início:</label>
-              <input
-                type="date"
-                name="dataInicio"
-                className="form-control"
-                value={formData.dataInicio}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="col-md-6">
-              <label>Data Fim:</label>
-              <input
-                type="date"
-                name="dataFim"
-                className="form-control"
-                value={formData.dataFim}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="row mt-3">
-            <div className="col-md-6">
-              <label>Produto Esquerdo:</label>
-              <Select
-                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-                options={availableProducts.map((prod) => ({
-                  value: prod,
-                  label: prod.label || prod.name,
-                }))}
-                value={
-                  selectedProductLeft
-                    ? {
-                        value: selectedProductLeft,
-                        label: selectedProductLeft.label || selectedProductLeft.name
-                      }
-                    : null
-                }
-                onChange={(option) => setSelectedProductLeft(option.value)}
-                placeholder="Produto 1"
-              />
-            </div>
-            <div className="col-md-6">
-              <label>Produto Direito:</label>
-              <Select
-                styles={{ container: (base) => ({ ...base, width: '100%' }) }}
-                options={availableProducts.map((prod) => ({
-                  value: prod,
-                  label: prod.label || prod.name,
-                }))}
-                value={
-                  selectedProductRight
-                    ? {
-                        value: selectedProductRight,
-                        label: selectedProductRight.label || selectedProductRight.name
-                      }
-                    : null
-                }
-                onChange={(option) => setSelectedProductRight(option.value)}
-                placeholder="Produto 2"
-              />
-            </div>
-          </div>
-
-          <div className="row mt-3">
-            <div className="col-md-6">
-              {leftShowYearButtons && leftYearOptions.length > 0 && (
-                <div className="form-group">
-                  <label>Anos Disponíveis:</label>
-                  <div className="product-timeline">
-                    {leftYearOptions.sort((a, b) => a - b).map((year) => (
-                      <button
-                        key={year}
-                        type="button"
-                        className={
-                          leftSelectedYear === year
-                            ? 'btn btn-primary me-2 mt-2'
-                            : 'btn btn-outline-primary me-2 mt-2'
-                        }
-                        onClick={() => handleComparisonYearChange('left', year)}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="col-md-6">
-              {rightShowYearButtons && rightYearOptions.length > 0 && (
-                <div className="form-group">
-                  <label>Anos Disponíveis:</label>
-                  <div className="product-timeline">
-                    {rightYearOptions.sort((a, b) => a - b).map((year) => (
-                      <button
-                        key={year}
-                        type="button"
-                        className={
-                          rightSelectedYear === year
-                            ? 'btn btn-primary me-2 mt-2'
-                            : 'btn btn-outline-primary me-2 mt-2'
-                        }
-                        onClick={() => handleComparisonYearChange('right', year)}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {selectedProductLeft && !leftShowYearButtons && (() => {
-            let leftYears = selectedProductLeft.datetime.map(d => new Date(d).getFullYear());
-            leftYears = Array.from(new Set(leftYears)).sort((a, b) => a - b);
-            if (formData.dataInicio && formData.dataFim) {
-              const startYear = new Date(formData.dataInicio).getFullYear();
-              const endYear = new Date(formData.dataFim).getFullYear();
-              leftYears = leftYears.filter(year => year >= startYear && year <= endYear);
-            }
-            if (leftYears.length > 0) {
-              setLeftYearOptions(leftYears);
-              setLeftShowYearButtons(true);
-            }
-            return null;
-          })()}
-
-          {selectedProductRight && !rightShowYearButtons && (() => {
-            let rightYears = selectedProductRight.datetime.map(d => new Date(d).getFullYear());
-            rightYears = Array.from(new Set(rightYears)).sort((a, b) => a - b);
-            if (formData.dataInicio && formData.dataFim) {
-              const startYear = new Date(formData.dataInicio).getFullYear();
-              const endYear = new Date(formData.dataFim).getFullYear();
-              rightYears = rightYears.filter(year => year >= startYear && year <= endYear);
-            }
-            if (rightYears.length > 0) {
-              setRightYearOptions(rightYears);
-              setRightShowYearButtons(true);
-            }
-            return null;
-          })()}
-
-          <div className="form-group mt-4">
-            <label>Coordenadas Selecionadas:</label>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Latitude Inicial:</label>
-                <input
-                  type="text"
-                  name="latitudeInicial"
-                  className="form-control"
-                  value={formData.latitudeInicial}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label>Latitude Final:</label>
-                <input
-                  type="text"
-                  name="latitudeFinal"
-                  className="form-control"
-                  value={formData.latitudeFinal}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label>Longitude Inicial:</label>
-                <input
-                  type="text"
-                  name="longitudeInicial"
-                  className="form-control"
-                  value={formData.longitudeInicial}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label>Longitude Final:</label>
-                <input
-                  type="text"
-                  name="longitudeFinal"
-                  className="form-control"
-                  value={formData.longitudeFinal}
-                  onChange={handleChange}
-                  placeholder="Preencha ou selecione"
-                />
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </form>
+    </>
   );
 };
 
