@@ -70,6 +70,32 @@ const WMSForm = ({
   const [leftSelectedYear, setLeftSelectedYear] = useState(null);
   const [rightSelectedYear, setRightSelectedYear] = useState(null);
 
+  const clearForm = () => {
+    setFormData({
+      latitudeInicial: '',
+      longitudeInicial: '',
+      latitudeFinal: '',
+      longitudeFinal: '',
+      dataInicio: '',
+      dataFim: ''
+    });
+    //setSelectedProduct(null);
+    setSelectedProductLeft(null);
+    setSelectedProductRight(null);
+    setYearOptions([]);
+    setShowYearButtons(false);
+    setLeftYearOptions([]);
+    setRightYearOptions([]);
+    setLeftShowYearButtons(false);
+    setRightShowYearButtons(false);
+    setLeftSelectedYear(null);
+    setRightSelectedYear(null);
+    setFormError('');
+    //setCoordinateError('');
+
+    
+  };
+
   // Carregar áreas para SINGLE
   useEffect(() => {
     const fetchBairrosSingle = async () => {
@@ -153,10 +179,6 @@ const WMSForm = ({
         longitudeFinal: boundingBox.longitudeFinal.toFixed(6),
       }));
       setCoordinateError('');
-      setSelectedBairroSingle(null);
-      setSelectedRegiaoSingle(null);
-      setSelectedBairroCompar(null);
-      setSelectedRegiaoCompar(null);
     }
   }, [boundingBox, selectionMode]);
 
@@ -288,10 +310,15 @@ const WMSForm = ({
 
   // Handlers de seleção de área (SINGLE)
   const handleSelectBairroSingle = (selectedOption) => {
+    setYearOptions([]);
+    setShowYearButtons(false);
+    setFormError('');
+    
     setSelectedBairroSingle(selectedOption);
     setSelectedRegiaoSingle(null);
     if (selectedOption) {
       const bbox = selectedOption.value.bounding_box;
+      onClearRectangle();
       if (bbox) {
         const newBoundingBox = {
           latitudeInicial: bbox[1],
@@ -434,6 +461,7 @@ const WMSForm = ({
               type="button"
               className={`nav-link ${areaTabSingle === 'bairros' ? 'active' : ''}`}
               onClick={() => {
+                
                 setAreaTabSingle('bairros');
                 setSelectedBairroSingle(null);
                 setSelectedRegiaoSingle(null);
@@ -493,6 +521,7 @@ const WMSForm = ({
               type="button"
               className="btn btn-outline-success"
               onClick={() => {
+                clearForm();
                 setSelectingRectangle(true);
                 setSelectionMode('rectangle');
                 setSelectedBairroSingle(null);
