@@ -41,7 +41,7 @@ O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Dat
 ####  Exemplo de Uso:
 
 ```bash
-./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
+./process_raw_data.sh ORTOFOTO_1999 bh_aerial_image 1999
 ```
 
 
@@ -77,5 +77,5 @@ O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Dat
 
 ####  Exemplo de Uso:
 ```bash
-./setup_datacube.sh bh_ortophoto_1999 ORTOFOTO_1999
+./setup_datacube.sh bh_aerial_image ORTOFOTO_1999
 ```

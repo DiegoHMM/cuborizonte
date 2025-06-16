@@ -1,17 +1,17 @@
 from ows_refactored.ortophoto.bands_ortophoto import ortophoto_rgb_bands
-from ows_refactored.ortophoto.style_ortophoto_rgb_cfg import styles_ortophoto_list
+from ows.services.ows_refactored.ortophoto.style_aerial_image_rgb_cfg import styles_aerial_image_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
 layer = {
-    "title": "Orthophoto of the city of Belo Horizonte, Brazil.",
-    "name": "bh_ortophoto",
+    "title": "Aerial image of the city of Belo Horizonte, Brazil.",
+    "name": "bh_aerial_image",
     "abstract": """
 Imagens aéreas de Belo Horizonte, Minas Gerais, Brasil. Estas imagens oferecem uma visão detalhada da cidade com uma alta resolução espacial.
 
 Licença: CC-BY-4.0
 """,
-    "product_name": "bh_ortophoto",
+    "product_name": "bh_aerial_image",
     "bands": ortophoto_rgb_bands,
     "resource_limits": reslim_bh_images,
     "image_processing": {
@@ -24,6 +24,6 @@ Licença: CC-BY-4.0
     "native_resolution": [1.0, -1.0],
     "styling": {
         "default_style": "simple_rgb",
-        "styles": styles_ortophoto_list,
+        "styles": styles_aerial_image_list,
     }
 }

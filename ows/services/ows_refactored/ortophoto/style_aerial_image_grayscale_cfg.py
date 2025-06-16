@@ -1,4 +1,4 @@
-style_ortophoto_grayscale_simple = {
+style_aerial_image_grayscale_simple = {
     "name": "simple_grayscale",
     "title": "Simple Grayscale",
     "abstract": "Simple grayscale image",
@@ -8,7 +8,7 @@ style_ortophoto_grayscale_simple = {
     "scale_range": [0.0, 255.0],
 }
 
-style_ortophoto_grayscale_contrast_enhanced = {
+style_aerial_image_grayscale_contrast_enhanced = {
     "name": "enhanced_contrast_grayscale",
     "title": "Enhanced Contrast Grayscale",
     "abstract": "Enhanced contrast for grayscale images",
@@ -18,7 +18,7 @@ style_ortophoto_grayscale_contrast_enhanced = {
     "scale_range": [30.0, 220.0],
 }
 
-style_ortophoto_grayscale_inverted = {
+style_aerial_image_grayscale_inverted = {
     "name": "inverted_grayscale",
     "title": "Inverted Grayscale",
     "abstract": "Inverted grayscale image",
@@ -28,7 +28,7 @@ style_ortophoto_grayscale_inverted = {
     "scale_range": [0.0, 255.0],
 }
 
-style_ortophoto_grayscale_highlights = {
+style_aerial_image_grayscale_highlights = {
     "name": "grayscale_highlights",
     "title": "Grayscale Highlights",
     "abstract": "Emphasizes the lighter parts of the grayscale image",
@@ -38,7 +38,7 @@ style_ortophoto_grayscale_highlights = {
     "scale_range": [0.0, 255.0],
 }
 
-style_ortophoto_grayscale_shadows = {
+style_aerial_image_grayscale_shadows = {
     "name": "grayscale_shadows",
     "title": "Grayscale Shadows",
     "abstract": "Emphasizes the darker parts of the grayscale image",
@@ -48,10 +48,10 @@ style_ortophoto_grayscale_shadows = {
     "scale_range": [0.0, 255.0],
 }
 
-styles_ortophoto_grayscale_list = [
-    style_ortophoto_grayscale_simple,
-    style_ortophoto_grayscale_contrast_enhanced,
-    style_ortophoto_grayscale_inverted,
-    style_ortophoto_grayscale_highlights,
-    style_ortophoto_grayscale_shadows,
+styles_aerial_image_grayscale_list = [
+    style_aerial_image_grayscale_simple,
+    style_aerial_image_grayscale_contrast_enhanced,
+    style_aerial_image_grayscale_inverted,
+    style_aerial_image_grayscale_highlights,
+    style_aerial_image_grayscale_shadows,
 ]
