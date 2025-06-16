@@ -1,5 +1,5 @@
-from ows.services.ows_refactored.aerial_image.bands_aerial_image import aerial_image_rgb_bands
-from ows.services.ows_refactored.aerial_image.style_aerial_image_rgb_cfg import styles_aerial_image_list
+from ows_refactored.aerial_image.bands_aerial_image import aerial_image_rgb_bands
+from ows_refactored.aerial_image.style_aerial_image_rgb_cfg import styles_aerial_image_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
