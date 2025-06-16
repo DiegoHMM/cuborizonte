@@ -1,5 +1,5 @@
-from ows_refactored.ortophoto.bands_ortophoto import ortophoto_rgb_bands
-from ows.services.ows_refactored.ortophoto.style_aerial_image_rgb_cfg import styles_aerial_image_list
+from ows.services.ows_refactored.aerial_image.bands_aerial_image import aerial_image_rgb_bands
+from ows.services.ows_refactored.aerial_image.style_aerial_image_rgb_cfg import styles_aerial_image_list
 from ows_refactored.common.ows_reslim_cfg import reslim_bh_images
 
 
@@ -12,7 +12,7 @@ Imagens aéreas de Belo Horizonte, Minas Gerais, Brasil. Estas imagens oferecem 
 Licença: CC-BY-4.0
 """,
     "product_name": "bh_aerial_image",
-    "bands": ortophoto_rgb_bands,
+    "bands": aerial_image_rgb_bands,
     "resource_limits": reslim_bh_images,
     "image_processing": {
         "extent_mask_func": "datacube_ows.ogc_utils.mask_by_val",

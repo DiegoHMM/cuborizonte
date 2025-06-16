@@ -129,7 +129,7 @@ ows_cfg = {
                     "abstract": "Coleção de fotos aéreas de alta resolução de Belo Horizonte, Minas Gerais",
                     "layers": [
                                 {
-                                    "include": "ows_refactored.ortophoto.bh_aerial_image_cfg.layer",
+                                    "include": "ows_refactored.aerial_image.bh_aerial_image_cfg.layer",
                                     "type": "python",
                                 },
                     ],
