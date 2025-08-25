@@ -15,7 +15,7 @@ Before you begin, ensure you have the following requirements met:
 
 To index data into the Urban Open Data Cube, you first need to define the *products* and create the corresponding *dataset* metadata files.
 
-This project provides a set of Jupyter Notebooks to facilitate the preprocessing of raw imagery and semi-automate the indexing process. You can find the documentation for these notebooks in the project repository:
+This project provides a set of python scripts to facilitate the preprocessing of raw imagery and semi-automate the indexing process. You can find the documentation for these scripts in the project repository:
 - **UODC Data Handling Documentation**: [https://github.com/DiegoHMM/cuborizonte/tree/main/ows/handle_data_functions/read](https://github.com/DiegoHMM/cuborizonte/tree/main/ows/handle_data_functions/read)
 
 Alternatively, for a more detailed and manual approach to creating product and dataset files, you can follow the official Open Data Cube documentation:
