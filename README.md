@@ -1,81 +1,29 @@
-# Cubo em uma Caixa (Cube in a Box)
+# Urban Open Data Cube (UODC)
 
-O **Cubo em uma Caixa** oferece uma maneira simplificada de executar o [Open Data Cube](https://www.opendatacube.org), facilitando a gestão e análise de grandes volumes de dados de observação da Terra.
+The Urban Open Data Cube (UODC) is a custom implementation of the [Open Data Cube](https://github.com/opendatacube) framework. This project is designed to integrate geospatial data, such as orthophotos and city plans, and enhance data accessibility through a dedicated Web Portal and API.
 
-## Processamento de Dados
+## Prerequisites
 
-### Passos do Processamento:
+Before you begin, ensure you have the following requirements met:
 
-1. **Verificação de Argumentos:** Confirma se todos os três argumentos necessários foram fornecidos. Em caso negativo, uma mensagem de uso é exibida e a execução é interrompida.
-   
-2. **Atribuição de Argumentos a Variáveis:** Os argumentos são armazenados em variáveis para facilitar seu uso ao longo do script.
+- Docker and Docker Compose must be installed and configured on your system.
+- The Docker environment requires access to the directory or server where the source imagery to be indexed is located.
 
-3. **Inicialização de Serviços Docker:** O script aguarda 60 segundos para assegurar a correta inicialização dos serviços Docker antes de prosseguir com as configurações do sistema.
+## Data Indexing
 
-4. **Inicialização do Sistema de Banco de Dados:** Utiliza `docker-compose exec` para iniciar o sistema de banco de dados necessário para o Open Data Cube.
+### Product and Dataset Definitions
 
-5. **Processamento de Dados:** Executa scripts Python para separar as bandas das imagens e construir os conjuntos de dados com base nos parâmetros fornecidos.
+To index data into the Urban Open Data Cube, you first need to define the *products* and create the corresponding *dataset* metadata files.
 
-6. **Finalização:** Exibe uma mensagem indicando que as configurações foram concluídas com sucesso.
+This project provides a set of Jupyter Notebooks to facilitate the preprocessing of raw imagery and semi-automate the indexing process. You can find the documentation for these notebooks in the project repository:
+- **UODC Data Handling Documentation**: [https://github.com/DiegoHMM/cuborizonte/tree/main/ows/handle_data_functions/read](https://github.com/DiegoHMM/cuborizonte/tree/main/ows/handle_data_functions/read)
 
-### Requisitos:
+Alternatively, for a more detailed and manual approach to creating product and dataset files, you can follow the official Open Data Cube documentation:
+- **Official ODC Data Preparation Guide**: [https://opendatacube.readthedocs.io/en/latest/ops/prepare-data.html](https://opendatacube.readthedocs.io/en/latest/ops/prepare-data.html)
 
-- Docker e Docker Compose instalados e configurados no sistema.
-- Dados brutos organizados na pasta especificada por `<pasta_de_origem>`.
-- O ambiente Docker deve ter acesso aos diretórios de dados brutos e processados.
+## Accessing Data with Python
 
-### Uso:
+Once the UODC is configured, data can be loaded for analysis using tools like Geographic Information Systems (GIS) or programmatically with Python.
 
-#### Parâmetros:
-
-- `<pasta_de_origem>`: Caminho para a pasta contendo os dados brutos.
-- `<nome_do_produto>`: Identificador único do produto no Data Cube.
-- `<ano>`: Ano correspondente aos dados a serem processados.
-
-#### Sintaxe do Comando:
-
-```bash
-./process_raw_data.sh <pasta_de_origem> <nome_do_produto> <ano>
-```
-
-####  Exemplo de Uso:
-
-```bash
-./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto_1999 1999
-```
-
-
-## Indexação do Banco de Dados
-
-### Processo de Indexação:
-
-  1. **Adição de Produtos ao Data Cube:** Inclui definições de produtos no Data Cube, utilizando arquivos YAML localizados no repositório GitHub especificado.
-
-  2. **Indexação dos Conjuntos de Dados:** Realiza a indexação dos conjuntos de dados na pasta de origem fornecida, preparando-os para análise e visualização.
-
-  3. **Atualizações do OWS (Open Web Services):** Atualiza o esquema e as visualizações do OWS para incorporar os novos produtos e conjuntos de dados.
-
-  4. **Atualização de Uma Camada Específica:** Permite a atualização de uma camada específica no OWS, utilizando o nome do produto fornecido.
-
-### Requisitos:
-
-  - Docker e Docker Compose instalados e configurados no sistema.
-  - Acesso ao repositório de produtos do Open Data Cube no GitHub.
-  - Estrutura de diretórios correta para os dados de origem e processados.
-
-### Uso:
-
-#### Parâmetros:
-
-  - `<nome_do_produto>`: Nome do produto no Data Cube, correspondendo ao nome do arquivo YAML no repositório GitHub.
-  - `<pasta_de_origem>`: Pasta onde os dados de origem estão localizados e acessíveis pelo Docker Compose e pelo script.
-
-#### Sintaxe do Comando:
-```bash
-./setup_datacube.sh <nome_do_produto> <pasta_de_origem>
-```
-
-####  Exemplo de Uso:
-```bash
-./setup_datacube.sh bh_ortophoto_1999 ORTOFOTO_1999
-```
+An example Jupyter Notebook is available, demonstrating a complete data science pipeline. It shows how to connect to the datacube, load data, and use it in a land classification project.
+- **Example Data Science Project**: [Land Classification Notebook](https://github.com/DiegoHMM/land_classification)

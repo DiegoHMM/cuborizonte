@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#Ortophoto
-#./process_raw_data.sh ORTOFOTO_1989 bh_ortophoto 1989
-#./process_raw_data.sh ORTOFOTO_1994 bh_ortophoto 1994
-./process_raw_data.sh ORTOFOTO_1999 bh_ortophoto 1999
-#./process_raw_data.sh ORTOFOTO_2007 bh_ortophoto 2007
-#./process_raw_data.sh ORTOFOTO_2015 bh_ortophoto 2015
+#Aerial Image
+#./process_raw_data.sh AERIAL_IMAGE_1989 bh_aerial_image 1989
+./process_raw_data.sh AERIAL_IMAGE_1994 bh_aerial_image 1994
+./process_raw_data.sh AERIAL_IMAGE_1999 bh_aerial_image 1999
+./process_raw_data.sh AERIAL_IMAGE_2007 bh_aerial_image 2007
+./process_raw_data.sh AERIAL_IMAGE_2015 bh_aerial_image 2015
 
 # Plan
 #./process_raw_data.sh PLANTA_1942 bh_planta 1942
@@ -21,13 +21,13 @@
 #./process_raw_data.sh LIDAR_2015 bh_lidar_rasterized 2015 elevation intensity classification
 #./process_raw_data.sh LIDAR_2007 bh_lidar_rasterized 2007 elevation intensity classification
 
-#Ortophoto
+#Aerial Image
 
-#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1989
-#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1994
-./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_1999
-#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2007
-#./setup_datacube.sh Orthophoto bh_ortophoto ORTOFOTO_2015
+#./setup_datacube.sh Aerial_imagery bh_aerial_image AERIAL_IMAGE_1989
+./setup_datacube.sh Aerial_imagery bh_aerial_image AERIAL_IMAGE_1994
+./setup_datacube.sh Aerial_imagery bh_aerial_image AERIAL_IMAGE_1999
+./setup_datacube.sh Aerial_imagery bh_aerial_image AERIAL_IMAGE_2007
+./setup_datacube.sh Aerial_imagery bh_aerial_image AERIAL_IMAGE_2015
 
 #Plan
 #./setup_datacube.sh Planta bh_planta PLANTA_1942

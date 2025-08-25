@@ -198,7 +198,7 @@ if __name__ == '__main__':
     random.seed(42)
 
     # Using argparse for better command-line parsing
-    parser = argparse.ArgumentParser(description='Build dataset for ortophoto.')
+    parser = argparse.ArgumentParser(description='Build dataset for aerial image.')
     parser.add_argument('bands_path', help='Path to the bands directory.')
     parser.add_argument('photo_folder', help='Path to the photo folder.')
     parser.add_argument('product_name', help='Name of the product.')
